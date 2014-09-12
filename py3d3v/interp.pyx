@@ -5,10 +5,10 @@ from libc.math cimport floor, ceil
 
 ctypedef np.float64_t DOUBLE
 
-cpdef np.ndarray[DOUBLE,ndim=1] TriLinearInterp(np.ndarray[DOUBLE,ndim=3] vals, 
-                                                np.ndarray[DOUBLE,ndim=1] z, 
-                                                np.ndarray[DOUBLE,ndim=1] y, 
-                                                np.ndarray[DOUBLE,ndim=1] x):
+cpdef np.ndarray[DOUBLE,ndim=1] interp_cic(np.ndarray[DOUBLE,ndim=3] vals, 
+                                           np.ndarray[DOUBLE,ndim=1] z, 
+                                           np.ndarray[DOUBLE,ndim=1] y, 
+                                           np.ndarray[DOUBLE,ndim=1] x):
     """Assume all inputs are scaled to grid points
     
     Periodic in x, y, z
