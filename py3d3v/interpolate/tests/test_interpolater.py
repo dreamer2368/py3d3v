@@ -1,7 +1,6 @@
 import numpy as np
 import unittest
-from pydd.region.rectangular import Dimension
-from pydd.interpolate.interpolater import Interpolater
+from py3d3v.interpolate.interpolater import Interpolater
 
 def almost_equal(a, b, tol=10**-14):
     a = np.array(a)
@@ -21,8 +20,8 @@ class TestCreate(unittest.TestCase):
 class TestInterpolate(unittest.TestCase):
 
     def setUp(self):
-        self.x_dim = Dimension(0,1,10)
-        self.y_dim = Dimension(2,3,20)
+        self.x_dim = (0,1,10)
+        self.y_dim = (2,3,20)
         self.dims = [self.x_dim,
                      self.y_dim]
         x = np.linspace(*self.x_dim)
@@ -41,13 +40,13 @@ class TestInterpolate(unittest.TestCase):
     def test_scale_inputs(self):
         """Check left, mid, and right values
         """
-        vals = [np.array([d.start,
-                          .5*(d.start+d.stop),
-                          d.stop])
+        vals = [np.array([d[0],
+                          .5*(d[0]+d[1]),
+                          d[1]])
                 for d in self.dims]
         expected = [np.array([0,
-                              .5*(d.steps-1),
-                              d.steps-1])
+                              .5*(d[2]-1),
+                              d[2]-1])
                     for d in self.dims]
         check = self.interp.scale_inputs(vals)
         equal = True

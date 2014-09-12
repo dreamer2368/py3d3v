@@ -40,7 +40,7 @@ class Interpolater(object):
         for i in range(len(inputs)):
             dim = self.dimensions[i]
             inp = inputs[i]
-            scaled.append((inp-dim.start)/(dim.stop-dim.start)*(dim.steps-1))
+            scaled.append((inp-dim[0])/(dim[1]-dim[0])*(dim[2]-1))
         return [np.array(s,dtype=self.dtype)
                 for s in scaled]
 
@@ -57,9 +57,9 @@ class Interpolater(object):
     def __getitem__(self,item):
         x,y=item
         if isinstance(x,slice):
-            x=np.linspace(x.start,x.stop,x.step)
+            x=np.linspace(x[0],x[1],x.step)
         if isinstance(y,slice):
-            y=np.linspace(y.start,y.stop,y.step)
+            y=np.linspace(y[0],y[1],y.step)
         
         return self.interpolate(x,y)
 

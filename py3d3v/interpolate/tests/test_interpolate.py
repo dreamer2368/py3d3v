@@ -1,9 +1,9 @@
 import numpy as np
 import unittest
-from pydd.interpolate.linear import (LinearInterpolation,
-                                     BilinearInterpolation,
-                                     InterpolatePointsLinear,
-                                     InterpolatePointsBilinear)
+from py3d3v.interpolate.linear import (LinearInterpolation,
+                                       BilinearInterpolation,
+                                       InterpolatePointsLinear,
+                                       InterpolatePointsBilinear)
 
 class TestLinearInterpolate(unittest.TestCase):
 
