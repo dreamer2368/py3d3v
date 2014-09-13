@@ -21,6 +21,16 @@ class Species(object):
         if vx0=None: self.vx0 = np.zeros(N, dtype=self.dtype)
 
 
+def normalize(x, L):
+    """ Keep x in [0,L), assuming a periodic domain
+    """
+    # The order here is significant because of rounding
+    # If x<0 is very close to 0, then float(x+L)=L
+    while len(x[x<0])>0 or len(x[x>=L])>0:
+        x[x<0]  = x[x<0]  + L
+        x[x>=L] = x[x>=L] - L
+        
+
 class PIC3DBase(object):
 
     build_solver = True
@@ -32,7 +42,6 @@ class PIC3DBase(object):
         self.Lz, self.Ly, self.Lx = self.dims
         self.steps = steps
         self.nz, self.ny, self.nx = self.steps
-
         self.species = species
 
         self.unpack()
@@ -65,11 +74,36 @@ class PIC3DBase(object):
         self.vz, self.vy, self.vx = vz, vy, vx
         self.do_move = do_move
 
-    def accel(self):
-        pass
+    def accel(self, Ez, Ey, Ex, dt):
+        qm = self.qm
+        self.vz[:] = self.vz + qm*Ez*dt
+        self.vy[:] = self.vy + qm*Ey*dt
+        self.vx[:] = self.vx + qm*Ex*dt
 
-    def rotate(self):
-        pass
+    def rotate(self, dt):
+        """Still assuming the B is uniform in the z direction
+        """
+        c = np.cos(self.wc*dt)
+        s = np.sin(self.wc*dt)
+        vx_new =  c*self.vx + s*self.vy
+        vy_new = -s*self.vx + c*self.vy
 
-    def move(self):
-        pass
+        self.vx[:] = vx_new
+        self.vy[:] = vy_new
+
+    def move(self, dt):
+        """Move in place
+        """
+        do_move    = self.do_move
+        zp, yp, xp = self.zp, self.yp, self.xp
+        vz, vy, vx = self.vz, self.vy, self.vx
+        Lz, Ly, Lx = self.dims
+
+        zp[do_move] = zp[do_move] + dt*vz[do_move]
+        yp[do_move] = yp[do_move] + dt*vy[do_move]
+        xp[do_move] = xp[do_move] + dt*vx[do_move]
+
+        normalize(zp, Lz)
+        normalize(yp, Ly)
+        normalize(xp, Lx)
+
