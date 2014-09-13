@@ -6,10 +6,26 @@ from libc.math cimport floor, ceil
 cpdef build_k2(int nz, double dz,
                int ny, double dy,
                int nx, double dx):
+    """k2 for CIC weighting
+    """
+    cdef np.ndarray kz = (np.fft.fftfreq(nz)*2*np.pi/dz)
+    cdef np.ndarray ky = (np.fft.fftfreq(ny)*2*np.pi/dy)
+    cdef np.ndarray kx = (np.fft.fftfreq(nx)*2*np.pi/dx)
 
-    cdef np.ndarray kz2 = (np.fft.fftfreq(nz)*2*np.pi/dz)**2
-    cdef np.ndarray ky2 = (np.fft.fftfreq(ny)*2*np.pi/dy)**2
-    cdef np.ndarray kx2 = (np.fft.fftfreq(nx)*2*np.pi/dx)**2
+    cdef np.ndarray skz2 = np.sin(kz*dz/2.)**2
+    cdef np.ndarray sky2 = np.sin(ky*dy/2.)**2
+    cdef np.ndarray skx2 = np.sin(kx*dx/2.)**2
+    cdef double skz2i, skzy2i
+    skz2[1:] = skz2[1:]/(kz[1:]*dz/2.)**2
+    skz2[0] = 1.
+    sky2[1:] = sky2[1:]/(ky[1:]*dy/2.)**2
+    sky2[0] = 1.
+    skx2[1:] = skx2[1:]/(kx[1:]*dx/2.)**2
+    skx2[0] = 1.
+    
+    cdef np.ndarray kz2 = (kz)**2
+    cdef np.ndarray ky2 = (ky)**2
+    cdef np.ndarray kx2 = (kx)**2
     cdef double kz2i, ky2i
 
     cdef int nkz, nky, nkx
@@ -19,10 +35,12 @@ cpdef build_k2(int nz, double dz,
     cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
     for iz in range(nkz):
         kz2i = kz2[iz]
+        skz2i = skz2[iz]
         for iy in range(nky):
             ky2i = ky2[iy]
+            skzy2i = skz2i*sky2[iy]
             for ix in range(nkx):
-                k2_vals[iz,iy,ix] = kz2i+ky2i+kx2[ix]
+                k2_vals[iz,iy,ix] = (kz2i+ky2i+kx2[ix])#*skzy2i*skx2[ix]
     # Avoid a divide by zero            
     k2_vals[0,0,0] = 1.
 
