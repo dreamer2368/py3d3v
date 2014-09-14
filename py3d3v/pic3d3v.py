@@ -13,12 +13,20 @@ class Species(object):
         self.q = q
         self.m = m
 
-        if z0=None:  self.z0  = np.zeros(N, dtype=self.dtype)
-        if y0=None:  self.y0  = np.zeros(N, dtype=self.dtype)
-        if x0=None:  self.x0  = np.zeros(N, dtype=self.dtype)
-        if vz0=None: self.vz0 = np.zeros(N, dtype=self.dtype)
-        if vy0=None: self.vy0 = np.zeros(N, dtype=self.dtype)
-        if vx0=None: self.vx0 = np.zeros(N, dtype=self.dtype)
+        self.z0,  self.y0,  self.x0  =  z0,  y0,  x0
+        self.vz0, self.vy0, self.vx0 = vz0, vy0, vx0
+        if z0==None:
+            self.z0  = np.zeros(N, dtype=self.dtype)
+        if y0==None:
+            self.y0  = np.zeros(N, dtype=self.dtype)
+        if x0==None:
+            self.x0  = np.zeros(N, dtype=self.dtype)
+        if vz0==None:
+            self.vz0 = np.zeros(N, dtype=self.dtype)
+        if vy0==None:
+            self.vy0 = np.zeros(N, dtype=self.dtype)
+        if vx0==None:
+            self.vx0 = np.zeros(N, dtype=self.dtype)
 
 
 def normalize(x, L):
