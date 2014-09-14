@@ -1,6 +1,6 @@
 
 import numpy as np
-from _tools import build_k2
+from tools import build_k2
 
 class Poisson3DFFT(object):
     
