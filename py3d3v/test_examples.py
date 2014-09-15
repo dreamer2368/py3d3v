@@ -63,3 +63,54 @@ class TestPICBaseExamples(unittest.TestCase):
         delta_x  = xa-xc
         expected = np.outer(np.cos(wp*t_vals), delta_x[0,:])
         self.assertTrue(norm(delta_x-expected)<self.tol)
+
+    def test_wc_freq(self):
+        """Match expected with experimental cyclotron frequency
+        """
+        nt = 500
+        dt = .1
+        t_vals = np.linspace(0, dt*nt, nt+1)
+
+        L   = 2*np.pi
+        B0  = 1.
+        z0  = np.array([1.])
+        x0  = np.array([L/2.+1])
+        y0  = np.array([L/2.])
+        vy0 = np.ones(len(z0))
+
+        nz = ny = 128
+        nx = 128
+        dz, dy, dx = L/nz, L/ny, L/nx
+        Ezp = Eyp = Exp = np.zeros((len(z0),))
+
+        s = Species(len(x0), -1., 1., x0=x0, y0=y0, z0=z0, vy0=vy0)
+        pic = PIC3DBase([s], (L,L,L), (nz, ny, nx), B0=B0)
+
+        vxa = np.zeros(nt+1) # x values over time
+        vya = np.zeros(nt+1)
+        vza = np.zeros(nt+1)
+        # init half step back
+        pic.rotate(-dt/2.)
+        pic.accel(Ezp, Eyp, Exp, -dt/2.)
+        vza[0] = pic.vz
+        vya[0] = pic.vy
+        vxa[0] = pic.vx
+
+        # main loop
+        for i in range(1, nt+1):
+
+            pic.accel(Ezp, Eyp, Exp, dt/2.)
+            pic.rotate(dt)
+            pic.accel(Ezp, Eyp, Exp, dt/2.)
+            pic.move(dt)
+            vza[i] = pic.vz
+            vya[i] = pic.vy
+            vxa[i] = pic.vx
+
+        wc = pic.wc
+        evy = np.cos(wc*(t_vals-dt/2.))
+        evx = np.sin(wc*(t_vals-dt/2.))
+
+        self.assertTrue(norm(vxa-evx)<self.tol)
+        self.assertTrue(norm(vya-evy)<self.tol)
+
