@@ -1,4 +1,5 @@
 
+
 import numpy as np
 import unittest
 from nose.tools import set_trace
@@ -93,8 +94,34 @@ class TestPICBase(unittest.TestCase):
         self.assertTrue((expected-yp<self.tol).all())
         self.assertTrue((expected-xp<self.tol).all())
 
-    @unittest.skip("Not implemented yet")
+    def test_rotate_none(self):
+        """No rotation when B0==0
+        """
+        B0 = 0.
+        vx0 = np.ones(2)
+        vy0 = np.ones(2)*.5
+        s1 = Species(2, 2., 1., vx0=vx0, vy0=vy0)
+        p = PIC3DBase([s1], (3., 4., 5.), (10, 20, 30), B0=B0)
+
+        p.rotate(1.)
+        self.assertTrue((vx0==p.vx).all())
+        self.assertTrue((vy0==p.vy).all())
+
     def test_rotate(self):
-        pass
+        """Check correct angle of rotation
+        """
+        B0 = .5
+        vx0 = np.ones(2)
+        vy0 = np.ones(2)*.5
+        s1 = Species(2, 1., 1., vx0=vx0, vy0=vy0)
+        p = PIC3DBase([s1], (3., 4., 5.), (10, 20, 30), B0=B0)
+        p.rotate(np.pi/2.)
+
+        # Expect a rotation of angle pi/2
+        sq22 = np.sqrt(2.)/2.
+        evx = sq22*(vx0+vy0)
+        evy = sq22*(-vx0+vy0)
         
-            
+        self.assertTrue((evx-p.vx<self.tol).all())
+        self.assertTrue((evy-p.vy<self.tol).all())
+

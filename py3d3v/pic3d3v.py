@@ -42,15 +42,15 @@ def normalize(x, L):
 class PIC3DBase(object):
 
     build_solver = True
-    B0 = 0.
 
-    def __init__(self, species, dims, steps):
+    def __init__(self, species, dims, steps, B0=0.):
 
         self.dims  = dims
         self.Lz, self.Ly, self.Lx = self.dims
         self.steps = steps
         self.nz, self.ny, self.nx = self.steps
         self.species = species
+        self.B0 = B0
 
         self.unpack()
 
