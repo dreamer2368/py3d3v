@@ -42,11 +42,18 @@ def normalize(x, L):
 class PIC3DBase(object):
 
     def __init__(self, species, dims, steps, B0=0.):
+        
+        Lz, Ly, Lx = dims
+        nz, ny, nx = steps
+        dz, dy, dx = Lz/nx, Ly/ny, Lx/nx
+        V = dz*dy*dx
 
         self.dims  = dims
-        self.Lz, self.Ly, self.Lx = self.dims
+        self.Lz, self.Ly, self.Lx = Lz, Ly, Lx
         self.steps = steps
-        self.nz, self.ny, self.nx = self.steps
+        self.nz, self.ny, self.nx = nz, ny, nx
+        self.dz, self.dy, self.dx = dz, dy, dx
+        self.V = V
         self.species = species
         self.B0 = B0
 
@@ -113,3 +120,7 @@ class PIC3DBase(object):
         normalize(yp, Ly)
         normalize(xp, Lx)
 
+
+class PIC3DPM(PIC3DBase):
+
+    pass
