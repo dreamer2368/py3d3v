@@ -1,5 +1,8 @@
 
 import numpy as np
+from solvers import Poisson3DFFT
+from interp import weight_cic, interp_cic
+from tools import calc_Ez, calc_Ey, calc_Ex
 
 class Species(object):
 
@@ -123,4 +126,39 @@ class PIC3DBase(object):
 
 class PIC3DPM(PIC3DBase):
 
-    pass
+    def calc_E_at_points(self):
+        grid = self.grid
+        zp, yp, xp = self.zp, self.yp, self.xp
+        dz, dy, dx = self.dz, self.dy, self.dx
+
+        # Calculate phi
+        weight_cic(grid, zp/dz, yp/dy, xp/dx, self.q)
+        grid[:] = self.solver.solve(grid/self.V)
+
+        # Calculate E fields at points
+        Ez  = calc_Ez(grid, dz) 
+        Ezp = interp_cic(Ez, zp/dz, yp/dy, xp/dx)
+        Ey  = calc_Ey(grid, dy)
+        Eyp = interp_cic(Ey, zp/dz, yp/dy, xp/dx)
+        Ex  = calc_Ex(grid, dy)
+        Exp = interp_cic(Ex, zp/dz, yp/dy, xp/dx)
+        
+        return (Ezp, Eyp, Exp)
+
+    def init_run(self, dt, unpack=False):
+        if unpack:
+            self.unpack()
+        grid = np.zeros(self.steps)
+        self.grid = grid
+        self.solver = Poisson3DFFT(self.nz, self.dz,
+                                   self.ny, self.dy,
+                                   self.nx, self.dx)
+        
+        Ezp, Eyp, Exp = self.calc_E_at_points()
+        self.accel(Ezp, Eyp, Exp, -dt/2.)
+    
+    def single_step(self, dt):
+        Ezp, Eyp, Exp = self.calc_E_at_points()
+        self.accel(Ezp, Eyp, Exp, dt)
+        self.move(dt)
+
