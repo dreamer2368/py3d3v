@@ -48,7 +48,7 @@ class PIC3DBase(object):
         
         Lz, Ly, Lx = dims
         nz, ny, nx = steps
-        dz, dy, dx = Lz/nx, Ly/ny, Lx/nx
+        dz, dy, dx = Lz/nz, Ly/ny, Lx/nx
         V = dz*dy*dx
 
         self.dims  = dims
@@ -140,7 +140,7 @@ class PIC3DPM(PIC3DBase):
         Ezp = interp_cic(Ez, zp/dz, yp/dy, xp/dx)
         Ey  = calc_Ey(grid, dy)
         Eyp = interp_cic(Ey, zp/dz, yp/dy, xp/dx)
-        Ex  = calc_Ex(grid, dy)
+        Ex  = calc_Ex(grid, dx)
         Exp = interp_cic(Ex, zp/dz, yp/dy, xp/dx)
         
         return (Ezp, Eyp, Exp)
