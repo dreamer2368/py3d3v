@@ -6,6 +6,9 @@ import numpy as np
 setup(
     cmdclass = {'build_ext':build_ext},
     include_dirs = [np.get_include()],
-    ext_modules = [Extension("interp",["interp.pyx"]),
+    ext_modules = [Extension("interp",["interp.pyx", "par_interp.c"],
+                             libraries=["m"],
+                             extra_compile_args=['-fopenmp'],
+                             extra_link_args=['-fopenmp']),
                    Extension("_tools",["_tools.pyx"])]
     )

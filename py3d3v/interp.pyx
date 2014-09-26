@@ -6,46 +6,29 @@ import cython
 
 ctypedef np.float64_t DOUBLE
 
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-cdef void interp_cic_par(double[:,:,:] vals, 
-                         double[:] z, 
-                         double[:] y,
-                         double[:] x,
-                         double[:] c) nogil:
-    
-    cdef int i
-    cdef int N = z.shape[0]
-    cdef int nz, ny, nx
-    cdef double xd, yd, zd
-    cdef double c00, c01, c10, c11
-    cdef double c0, c1
-    cdef int x0, x1, y0, y1, z0, z1
-    cdef double xd1m
-    nz, ny, nx = vals.shape[0], vals.shape[1], vals.shape[2]
-    
-    for i in range(N):
-        x0, x1 = int(floor(x[i])), int(ceil(x[i])%nx)
-        y0, y1 = int(floor(y[i])), int(ceil(y[i])%ny)
-        z0, z1 = int(floor(z[i])), int(ceil(z[i])%nz)
-        xd, yd, zd = (x[i]-x0), (y[i]-y0), (z[i]-z0)
-        xd1m = 1.-xd
-
-        c00  = vals[z0, y0, x0]*xd1m+vals[z0, y0, x1]*xd
-        c10  = vals[z0, y1, x0]*xd1m+vals[z0, y1, x1]*xd
-        c01  = vals[z1, y0, x0]*xd1m+vals[z1, y0, x1]*xd
-        c11  = vals[z1, y1, x0]*xd1m+vals[z1, y1, x1]*xd
-
-        c0   = c00*(1.-yd) + c10*yd
-        c1   = c01*(1.-yd) + c11*yd
-
-        c[i] = c0*(1.-zd) + c1*zd
+cdef extern from "par_interp.h":
+    void interp_cic_par(const int nz, const int ny, const int nx, const double *vals,
+                        const int N, const double *z, const double *y, const double *x, double *c)
 
         
-def interp_cic(vals, z, y, x):
-    c = np.zeros_like(z)
-    interp_cic_par(vals, z, y, x, c)
+def interp_cic(double[:,:,:] vals,
+               double[:] z,
+               double[:] y,
+               double[:] x):
+
+    cdef np.ndarray[DOUBLE,ndim=1] c = np.zeros_like(z, dtype=np.double)
+    cdef int nz, ny, nx
+    nz, ny, nx = vals.shape[0], vals.shape[1], vals.shape[2] 
+    cdef int N = x.shape[0]
+    cdef double[:,:,:] vd = np.ascontiguousarray(vals)
+    cdef double[:]     zd = np.ascontiguousarray(z)
+    cdef double[:]     yd = np.ascontiguousarray(y)
+    cdef double[:]     xd = np.ascontiguousarray(x)
+    cdef double[:]     cd = np.ascontiguousarray(c)
+
+    interp_cic_par(nz, ny, nx, &vd[0,0,0],
+                   N, &zd[0], &yd[0], &x[0], &cd[0])
+
     return c
 
 @cython.wraparound(False)
