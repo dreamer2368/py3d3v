@@ -89,12 +89,12 @@ def interp_cic(vals, z, y, x):
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-cpdef weight_cic(np.ndarray[DOUBLE,ndim=3] grid,
-                 np.ndarray[DOUBLE,ndim=1] z,
-                 np.ndarray[DOUBLE,ndim=1] y,
-                 np.ndarray[DOUBLE,ndim=1] x,
-                 np.ndarray[DOUBLE,ndim=1] q,
-                 double rho0=0.):
+cpdef weight_cic_par(double[:,:,:] grid,
+                     double[:] z,
+                     double[:] y,
+                     double[:] x,
+                     double[:] q,
+                     double rho0):
     """Assume all inputs are scaled to grid points
     
     Periodic in x, y, z
@@ -122,3 +122,11 @@ cpdef weight_cic(np.ndarray[DOUBLE,ndim=3] grid,
         grid[z1, y0, x1] += qi*xd*(1-yd)*zd
         grid[z1, y1, x0] += qi*(1-xd)*yd*zd
         grid[z1, y1, x1] += qi*xd*yd*zd    
+
+
+def weight_cic(grid, z, y, x, q, rho0=0.):
+    """Assume all inputs are scaled to grid points
+    
+    Periodic in x, y, z
+    """
+    weight_cic_par(grid, z, y, x, q, rho0)
