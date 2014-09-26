@@ -8,6 +8,7 @@ void move_par(const int N, const double dt,
 {
 
 	int i;
+	#pragma omp parallel for
 	for(i=0; i<N; i++)
 	{
 		zp[i] = zp[i] + dt*vz[i];
