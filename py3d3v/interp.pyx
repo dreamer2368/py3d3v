@@ -10,6 +10,9 @@ cdef extern from "par_interp.h":
     void interp_cic_par(const int nz, const int ny, const int nx, const double *vals,
                         const int N, const double *z, const double *y, const double *x, double *c)
 
+    void weight_cic_par(const int nz, const int ny, const int nx, double *grid,
+                        const int N, const double *z, const double *y, const double *x, const double *q)    
+
         
 def interp_cic(double[:,:,:] vals,
                double[:] z,
@@ -31,43 +34,27 @@ def interp_cic(double[:,:,:] vals,
 
     return c
 
-@cython.wraparound(False)
-@cython.boundscheck(False)
-cdef void weight_cic_par(double[:,:,:] grid,
-                         double[:] z,
-                         double[:] y,
-                         double[:] x,
-                         double[:] q,
-                         double rho0) nogil:
 
-    cdef int i
-    cdef int N = z.shape[0]
-    cdef int nz, ny, nx
-    cdef double xd, yd, zd, qi
-    cdef int x0, x1, y0, y1, z0, z1
-    nz, ny, nx = grid.shape[0], grid.shape[1], grid.shape[2]
-    
-    grid[:,:,:] = rho0
-    for i in range(N):
-        x0, x1 = int(floor(x[i])), int(ceil(x[i])%nx)
-        y0, y1 = int(floor(y[i])), int(ceil(y[i])%ny)
-        z0, z1 = int(floor(z[i])), int(ceil(z[i])%nz)
-        xd, yd, zd = (x[i]-x0), (y[i]-y0), (z[i]-z0)
-        qi = q[i]
-        
-        grid[z0, y0, x0] += qi*(1-xd)*(1-yd)*(1-zd)
-        grid[z0, y0, x1] += qi*xd*(1-yd)*(1-zd)
-        grid[z0, y1, x0] += qi*(1-xd)*yd*(1-zd)
-        grid[z0, y1, x1] += qi*xd*yd*(1-zd)
-        grid[z1, y0, x0] += qi*(1-xd)*(1-yd)*zd
-        grid[z1, y0, x1] += qi*xd*(1-yd)*zd
-        grid[z1, y1, x0] += qi*(1-xd)*yd*zd
-        grid[z1, y1, x1] += qi*xd*yd*zd    
-
-
-def weight_cic(grid, z, y, x, q, rho0=0.):
+def weight_cic(double[:,:,:] grid,
+               double[:] z,
+               double[:] y,
+               double[:] x,
+               double[:] q,
+               double    rho0=0.):
     """Assume all inputs are scaled to grid points
     
     Periodic in x, y, z
     """
-    weight_cic_par(grid, z, y, x, q, rho0)
+
+    grid[:,:,:] = rho0
+    cdef int nz, ny, nx, N
+    nz, ny, nx = grid.shape[0], grid.shape[1], grid.shape[2]
+    N = z.shape[0]
+    cdef double[:,:,:] gd = np.ascontiguousarray(grid)
+    cdef double[:]     zd = np.ascontiguousarray(z)
+    cdef double[:]     yd = np.ascontiguousarray(y)
+    cdef double[:]     xd = np.ascontiguousarray(x)
+    cdef double[:]     qd = np.ascontiguousarray(q)
+
+    weight_cic_par(nz, ny, nx, &gd[0,0,0],
+                   N, &zd[0], &yd[0], &xd[0], &qd[0])
