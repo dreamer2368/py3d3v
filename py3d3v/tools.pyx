@@ -3,6 +3,16 @@ import numpy as np
 cimport numpy as np
 from libc.math cimport floor, ceil
 
+ctypedef np.float64_t DOUBLE
+
+cdef extern from "par_tools.h":
+
+    void move_par(const int N, const double dt,
+                  double *zp, const double *vz,
+                  double *yp, const double *vy,
+                  double *xp, const double *vx)
+
+
 def calc_Ez(phi, dz):
     
     E           = np.zeros_like(phi)
@@ -29,6 +39,39 @@ def calc_Ex(phi, dx):
     E[:,:,-1]   = -(phi[:,:,0]-phi[:,:,-2])
     
     return E/(2*dx)
+
+def normalize(double[:] x, double L):
+    """ Keep x in [0,L), assuming a periodic domain
+    """
+    # The order here is significant because of rounding
+    # If x<0 is very close to 0, then float(x+L)=L
+    #while len(x[x<0])>0 or len(x[x>=L])>0:
+    cdef int N = x.shape[0]
+    cdef int i
+    for i in range(N):
+        if x[i]<0:
+            x[i] += L
+        if x[i] >= L:
+            x[i] -= L
+
+
+def move(double dt,
+         double[:] zp, double[:] vz, double Lz,
+         double[:] yp, double[:] vy, double Ly,
+         double[:] xp, double[:] vx, double Lx):
+        """Move in place
+        """
+
+        cdef int N = zp.shape[0]
+        move_par(N, dt,
+                 &zp[0], &vz[0],
+                 &yp[0], &vy[0],
+                 &xp[0], &vx[0])
+
+        normalize(zp, Lz)
+        normalize(yp, Ly)
+        normalize(xp, Lx)
+
 
 # cpdef build_k2(int nz, double dz,
 #                int ny, double dy,

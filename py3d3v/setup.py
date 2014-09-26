@@ -10,5 +10,5 @@ setup(
                              libraries=["m"],
                              extra_compile_args=['-fopenmp'],
                              extra_link_args=['-fopenmp']),
-                   Extension("tools",["tools.pyx"])]
+                   Extension("tools",["tools.pyx", "par_tools.c"])]
     )

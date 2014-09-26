@@ -2,7 +2,7 @@
 import numpy as np
 from solvers import Poisson3DFFT
 from interp import weight_cic, interp_cic
-from tools import calc_Ez, calc_Ey, calc_Ex
+from tools import calc_Ez, calc_Ey, calc_Ex, normalize, move
 
 class Species(object):
 
@@ -32,16 +32,6 @@ class Species(object):
             self.vx0 = np.zeros(N, dtype=self.dtype)
 
 
-def normalize(x, L):
-    """ Keep x in [0,L), assuming a periodic domain
-    """
-    # The order here is significant because of rounding
-    # If x<0 is very close to 0, then float(x+L)=L
-    while len(x[x<0])>0 or len(x[x>=L])>0:
-        x[x<0]  = x[x<0]  + L
-        x[x>=L] = x[x>=L] - L
-        
-
 class PIC3DBase(object):
 
     def __init__(self, species, dims, steps, B0=0.):
@@ -69,8 +59,8 @@ class PIC3DBase(object):
         for s in species: N += s.N
         B0 = self.B0
         q, qm, wc, zp, yp, xp, vz, vy, vx = [np.zeros(N) for _ in range(9)]
-        do_move = np.ndarray((N,), dtype=np.bool)
-        do_move[:] = False
+        #do_move = np.ndarray((N,), dtype=np.bool)
+        #do_move[:] = False
         count = 0 # Trailing count
         for s in species:
             q[count:count+s.N]  = s.q
@@ -82,13 +72,24 @@ class PIC3DBase(object):
             vz[count:count+s.N] = s.vz0
             vy[count:count+s.N] = s.vy0
             vx[count:count+s.N] = s.vx0
-            do_move[count:count+s.N] = s.m>0
+            #do_move[count:count+s.N] = s.m>0
             count += s.N
+        #do_move = do_move.astype(np.int32)
+
+        q = np.ascontiguousarray(q)
+        qm = np.ascontiguousarray(qm)
+        wc = np.ascontiguousarray(wc)
+        zp = np.ascontiguousarray(zp)
+        yp = np.ascontiguousarray(yp)
+        xp = np.ascontiguousarray(xp)
+        vz = np.ascontiguousarray(vz)
+        vy = np.ascontiguousarray(vy)
+        vx = np.ascontiguousarray(vx)        
 
         self.q,  self.qm, self.wc = q, qm, wc
         self.zp, self.yp, self.xp = zp, yp, xp
         self.vz, self.vy, self.vx = vz, vy, vx
-        self.do_move = do_move
+        #self.do_move = do_move
 
     def accel(self, Ez, Ey, Ex, dt):
         qm = self.qm
@@ -110,18 +111,21 @@ class PIC3DBase(object):
     def move(self, dt):
         """Move in place
         """
-        do_move    = self.do_move
+        #do_move    = self.do_move
         zp, yp, xp = self.zp, self.yp, self.xp
         vz, vy, vx = self.vz, self.vy, self.vx
         Lz, Ly, Lx = self.dims
 
-        zp[do_move] = zp[do_move] + dt*vz[do_move]
-        yp[do_move] = yp[do_move] + dt*vy[do_move]
-        xp[do_move] = xp[do_move] + dt*vx[do_move]
-
-        normalize(zp, Lz)
-        normalize(yp, Ly)
-        normalize(xp, Lx)
+        # zp = np.ascontiguousarray(zp)
+        # yp = np.ascontiguousarray(yp)
+        # xp = np.ascontiguousarray(xp)
+        # vz = np.ascontiguousarray(vz)
+        # vy = np.ascontiguousarray(vy)
+        # vx = np.ascontiguousarray(vx)
+        move(dt,
+             zp, vz, Lz,
+             yp, vy, Ly,
+             xp, vx, Lx)
 
 
 class PIC3DPM(PIC3DBase):
