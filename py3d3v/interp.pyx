@@ -89,16 +89,13 @@ def interp_cic(vals, z, y, x):
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-cpdef weight_cic_par(double[:,:,:] grid,
-                     double[:] z,
-                     double[:] y,
-                     double[:] x,
-                     double[:] q,
-                     double rho0):
-    """Assume all inputs are scaled to grid points
-    
-    Periodic in x, y, z
-    """
+cdef void weight_cic_par(double[:,:,:] grid,
+                         double[:] z,
+                         double[:] y,
+                         double[:] x,
+                         double[:] q,
+                         double rho0) nogil:
+
     cdef int i
     cdef int N = z.shape[0]
     cdef int nz, ny, nx
