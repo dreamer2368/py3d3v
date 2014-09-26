@@ -17,3 +17,23 @@ void move_par(const int N, const double dt,
 	}
 
 }
+
+
+void accel_par(const int N, const double dt, const double *qm,
+			   const double *Ez, double *vz,
+			   const double *Ey, double *vy,
+			   const double *Ex, double *vx)
+{
+
+	int i;
+	#pragma omp parallel for
+	for(i=0; i<N; i++)
+	{
+		double dtqmi = dt*qm[i];
+		vz[i] = vz[i] + dtqmi*Ez[i];
+		vy[i] = vy[i] + dtqmi*Ey[i];
+		vx[i] = vx[i] + dtqmi*Ex[i];
+	
+	}
+	
+}

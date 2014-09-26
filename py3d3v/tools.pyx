@@ -12,6 +12,11 @@ cdef extern from "par_tools.h":
                   double *yp, const double *vy,
                   double *xp, const double *vx)
 
+    void accel_par(const int N, const double dt, const double *qm,
+                   const double *Ez, double *vz,
+                   const double *Ey, double *vy,
+                   const double *Ex, double *vx)
+
 
 def calc_Ez(phi, dz):
     
@@ -71,6 +76,23 @@ def move(double dt,
         normalize(zp, Lz)
         normalize(yp, Ly)
         normalize(xp, Lx)
+
+def accel(double dt, double[:] qm,
+          double[:] Ez, double[:] vz,
+          double[:] Ey, double[:] vy,
+          double[:] Ex, double[:] vx):
+
+    Ez = np.ascontiguousarray(Ez)
+    Ey = np.ascontiguousarray(Ey)
+    Ex = np.ascontiguousarray(Ex)
+    cdef int N = Ez.shape[0]
+
+    accel_par(N, dt, &qm[0],
+              &Ez[0], &vz[0],
+              &Ey[0], &vy[0],
+              &Ex[0], &vx[0])
+
+        
 
 
 # cpdef build_k2(int nz, double dz,

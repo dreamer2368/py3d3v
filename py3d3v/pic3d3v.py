@@ -2,7 +2,7 @@
 import numpy as np
 from solvers import Poisson3DFFT
 from interp import weight_cic, interp_cic
-from tools import calc_Ez, calc_Ey, calc_Ex, normalize, move
+from tools import *
 
 class Species(object):
 
@@ -92,10 +92,15 @@ class PIC3DBase(object):
         #self.do_move = do_move
 
     def accel(self, Ez, Ey, Ex, dt):
-        qm = self.qm
-        self.vz[:] = self.vz + qm*Ez*dt
-        self.vy[:] = self.vy + qm*Ey*dt
-        self.vx[:] = self.vx + qm*Ex*dt
+        # qm = self.qm
+        # self.vz[:] = self.vz + qm*Ez*dt
+        # self.vy[:] = self.vy + qm*Ey*dt
+        # self.vx[:] = self.vx + qm*Ex*dt
+
+        accel(dt, self.qm,
+              Ez, self.vz,
+              Ey, self.vy,
+              Ex, self.vx)
 
     def rotate(self, dt):
         """Still assuming the B is uniform in the z direction
