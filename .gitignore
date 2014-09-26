@@ -58,6 +58,7 @@ TAGS
 
 # C file generated from cython
 interp.c
+tools.c
 
 # IPython notebook checkpoints dir
 .ipynb_checkpoints
