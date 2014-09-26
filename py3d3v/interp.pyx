@@ -44,6 +44,7 @@ ctypedef np.float64_t DOUBLE
 
 #     return c
 
+@cython.wraparound(False)
 @cython.boundscheck(False)
 cdef void interp_cic_par(double[:,:,:] vals, 
                          double[:] z, 
@@ -86,6 +87,8 @@ def interp_cic(vals, z, y, x):
     interp_cic_par(vals, z, y, x, c)
     return c
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
 cpdef weight_cic(np.ndarray[DOUBLE,ndim=3] grid,
                  np.ndarray[DOUBLE,ndim=1] z,
                  np.ndarray[DOUBLE,ndim=1] y,
