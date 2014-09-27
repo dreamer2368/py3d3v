@@ -17,6 +17,13 @@ cdef extern from "par_tools.h":
                    const double *Ey, double *vy,
                    const double *Ex, double *vx)
 
+    void scale_array(const int N, double *x, double sx)
+
+    void scale_array_3_copy(const int N,
+                            const double *z, const double sz, double *zc,
+                            const double *y, const double sy, double *yc,
+                            const double *x, const double sx, double *xc)
+
 
 def calc_Ez(phi, dz):
     
@@ -92,7 +99,22 @@ def accel(double dt, double[:] qm,
               &Ey[0], &vy[0],
               &Ex[0], &vx[0])
 
-        
+
+def scale(double[:] x, double sx):
+
+    cdef int N = x.shape[0]
+    scale_array(N, &x[0], sx)
+
+
+def scale3copy(double[:] z, double sz, double[:] zc,
+               double[:] y, double sy, double[:] yc,
+               double[:] x, double sx, double[:] xc):
+
+    cdef int N = z.shape[0]
+    scale_array_3_copy(N,
+                       &z[0], sz, &zc[0],
+                       &y[0], sy, &yc[0],
+                       &x[0], sx, &xc[0])
 
 
 # cpdef build_k2(int nz, double dz,

@@ -37,3 +37,32 @@ void accel_par(const int N, const double dt, const double *qm,
 	}
 	
 }
+
+
+void scale_array(const int N, double *x, double sx)
+{
+
+	int i;
+	#pragma omp parallel for
+	for(i=0; i<N; i++)
+		x[i] = x[i]*sx;
+
+}
+
+
+void scale_array_3_copy(const int N,
+						const double *z, const double sz, double *zc,
+						const double *y, const double sy, double *yc,
+						const double *x, const double sx, double *xc)
+{
+
+	int i;
+    #pragma omp parallel for
+	for(i=0; i<N; i++)
+	{
+		zc[i] = z[i]*sz;
+		yc[i] = y[i]*sy;
+		xc[i] = x[i]*sx;
+	}
+
+}

@@ -13,3 +13,10 @@ void accel_par(const int N, const double dt, const double *qm,
 			   const double *Ey, double *vy,
 			   const double *Ex, double *vx);
 
+void scale_array(const int N, double *x, double sx);
+
+void scale_array_3_copy(const int N,
+						const double *z, const double sz, double *zc,
+						const double *y, const double sy, double *yc,
+						const double *x, const double sx, double *xc);
+
