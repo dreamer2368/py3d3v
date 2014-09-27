@@ -59,8 +59,6 @@ class PIC3DBase(object):
         for s in species: N += s.N
         B0 = self.B0
         q, qm, wc, zp, yp, xp, vz, vy, vx = [np.zeros(N) for _ in range(9)]
-        #do_move = np.ndarray((N,), dtype=np.bool)
-        #do_move[:] = False
         count = 0 # Trailing count
         for s in species:
             q[count:count+s.N]  = s.q
@@ -72,9 +70,7 @@ class PIC3DBase(object):
             vz[count:count+s.N] = s.vz0
             vy[count:count+s.N] = s.vy0
             vx[count:count+s.N] = s.vx0
-            #do_move[count:count+s.N] = s.m>0
             count += s.N
-        #do_move = do_move.astype(np.int32)
 
         q = np.ascontiguousarray(q)
         qm = np.ascontiguousarray(qm)
@@ -89,13 +85,8 @@ class PIC3DBase(object):
         self.q,  self.qm, self.wc = q, qm, wc
         self.zp, self.yp, self.xp = zp, yp, xp
         self.vz, self.vy, self.vx = vz, vy, vx
-        #self.do_move = do_move
 
     def accel(self, Ez, Ey, Ex, dt):
-        # qm = self.qm
-        # self.vz[:] = self.vz + qm*Ez*dt
-        # self.vy[:] = self.vy + qm*Ey*dt
-        # self.vx[:] = self.vx + qm*Ex*dt
 
         accel(dt, self.qm,
               Ez, self.vz,
@@ -116,7 +107,6 @@ class PIC3DBase(object):
     def move(self, dt):
         """Move in place
         """
-        #do_move    = self.do_move
         zp, yp, xp = self.zp, self.yp, self.xp
         vz, vy, vx = self.vz, self.vy, self.vx
         Lz, Ly, Lx = self.dims
