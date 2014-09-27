@@ -52,12 +52,14 @@ void interp_cic_par(const int nz, const int ny, const int nx, const double *vals
 
 
 void weight_cic_par(const int nz, const int ny, const int nx, double *grid,
-					const int N, const double *z, const double *y, const double *x, const double *q)
+					const int N, const double *z, const double dz, const double *y, const double dy,
+					const double *x, const double dx, const double *q)
 {
 
 	#pragma omp parallel
 	{
 	double xd, yd, zd, qi;
+	double zis, yis, xis;
 	int x0, x1, y0, y1, z0, z1;
 
 	const int zoff = nx*ny;
@@ -66,15 +68,18 @@ void weight_cic_par(const int nz, const int ny, const int nx, double *grid,
     #pragma omp for private(i)
 	for(i=0; i<N; i++)
 	{
-        z0 = (int)(floor(z[i]));
+		xis = x[i]/dx;
+		yis = y[i]/dy;
+		zis = z[i]/dz;
+        z0 = (int)(floor(zis));
 		z1 = (int)((z0+1)%nz);
-        y0 = (int)(floor(y[i]));
+        y0 = (int)(floor(yis));
 		y1 = (int)((y0+1)%ny);
-        x0 = (int)(floor(x[i]));
+        x0 = (int)(floor(xis));
 		x1 = (int)((x0+1)%nx);
-		zd = (z[i]-z0);
-		yd = (y[i]-y0);
-		xd = (x[i]-x0);
+		zd = (zis-z0);
+		yd = (yis-y0);
+		xd = (xis-x0);
 		qi = q[i];
     
 		tmp = qi*(1-xd)*(1-yd)*(1-zd);

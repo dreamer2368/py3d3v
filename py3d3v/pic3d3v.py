@@ -139,11 +139,10 @@ class PIC3DPM(PIC3DBase):
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
         nz, ny, nx = self.nz, self.ny, self.nx
-        zps, yps, xps = zp/dz, yp/dy, xp/dx
         grid = self.grid
 
         # Calculate phi
-        weight_cic(grid, zps, yps, xps, self.q)
+        weight_cic(grid, zp, dz, yp, dy, xp, dx, self.q)
         grid[:] = grid*(1./self.V)
         grid[:] = self.solver.solve(grid)
 

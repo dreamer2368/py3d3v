@@ -45,7 +45,7 @@ class TestWeight(unittest.TestCase):
         z_vals = np.array([.25])
         q_vals = np.ones_like(z_vals)
 
-        weight_cic(grid, z_vals/dz, y_vals/dy, x_vals/dx, q_vals)
+        weight_cic(grid, z_vals, dz, y_vals, dy, x_vals, dx, q_vals)
 
         self.assertTrue( (grid.flatten()-0.125<self.tol).all() )
         self.assertTrue( np.sum(grid)-1.0 < self.tol )
@@ -61,7 +61,7 @@ class TestWeight(unittest.TestCase):
         z_vals = np.array([.75])
         q_vals = np.ones_like(z_vals)
 
-        weight_cic(grid, z_vals/dz, y_vals/dy, x_vals/dx, q_vals)
+        weight_cic(grid, z_vals, dz, y_vals, dy, x_vals, dx, q_vals)
 
         self.assertTrue( (grid.flatten()-0.125 < self.tol).all() )
         self.assertTrue( np.sum(grid)-1.0 < self.tol )
@@ -77,7 +77,7 @@ class TestWeight(unittest.TestCase):
         z_vals = np.array([.5])
         q_vals = np.ones_like(z_vals)
 
-        weight_cic(grid, z_vals/dz, y_vals/dy, x_vals/dx, q_vals)
+        weight_cic(grid, z_vals, dz, y_vals, dy, x_vals, dx, q_vals)
         expected = np.zeros_like(grid)
         expected[1,1,1] = 1.
 
@@ -95,7 +95,7 @@ class TestWeight(unittest.TestCase):
         z_vals = np.array([.1, .2])
         q_vals = np.ones_like(z_vals)
 
-        weight_cic(grid, z_vals/dz, y_vals/dy, x_vals/dx, q_vals)
+        weight_cic(grid, z_vals, dz, y_vals, dy, x_vals, dx, q_vals)
         expected = np.zeros_like(grid)
         expected[0,0,0] = .8**3
         for z in [0,1]:

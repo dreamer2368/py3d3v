@@ -13,7 +13,8 @@ cdef extern from "par_interp.h":
                         const double *x, const double dx, double *c)
 
     void weight_cic_par(const int nz, const int ny, const int nx, double *grid,
-                        const int N, const double *z, const double *y, const double *x, const double *q)    
+                        const int N, const double *z, const double dz, const double *y, const double dy,
+                        const double *x, const double dx, const double *q)
 
         
 def interp_cic(double[:,:,:] vals,
@@ -38,9 +39,9 @@ def interp_cic(double[:,:,:] vals,
 
 
 def weight_cic(double[:,:,:] grid,
-               double[:] z,
-               double[:] y,
-               double[:] x,
+               double[:] z, double dz,
+               double[:] y, double dy,
+               double[:] x, double dx,
                double[:] q,
                double    rho0=0.):
     """Assume all inputs are scaled to grid points
@@ -59,4 +60,4 @@ def weight_cic(double[:,:,:] grid,
     cdef double[:]     qd = np.ascontiguousarray(q)
 
     weight_cic_par(nz, ny, nx, &gd[0,0,0],
-                   N, &zd[0], &yd[0], &xd[0], &qd[0])
+                   N, &zd[0], dz, &yd[0], dy, &xd[0], dx, &qd[0])
