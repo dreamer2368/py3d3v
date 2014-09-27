@@ -8,16 +8,18 @@ ctypedef np.float64_t DOUBLE
 
 cdef extern from "par_interp.h":
     void interp_cic_par(const int nz, const int ny, const int nx, const double *vals,
-                        const int N, const double *z, const double *y, const double *x, double *c)
+                        const int N, const double *z, const double dz,
+                        const double *y, const double dy,
+                        const double *x, const double dx, double *c)
 
     void weight_cic_par(const int nz, const int ny, const int nx, double *grid,
                         const int N, const double *z, const double *y, const double *x, const double *q)    
 
         
 def interp_cic(double[:,:,:] vals,
-               double[:] z,
-               double[:] y,
-               double[:] x):
+               double[:] z, double dz,
+               double[:] y, double dy, 
+               double[:] x, double dx):
 
     cdef np.ndarray[DOUBLE,ndim=1] c = np.zeros_like(z, dtype=np.double)
     cdef int nz, ny, nx
@@ -30,7 +32,7 @@ def interp_cic(double[:,:,:] vals,
     cdef double[:]     cd = np.ascontiguousarray(c)
 
     interp_cic_par(nz, ny, nx, &vd[0,0,0],
-                   N, &zd[0], &yd[0], &x[0], &cd[0])
+                   N, &zd[0], dz, &yd[0], dy, &x[0], dx, &cd[0])
 
     return c
 

@@ -42,17 +42,17 @@ class TestPICBaseExamples(unittest.TestCase):
 
         xa = np.zeros((nt+1, s.N)) # x values over time
         # init half step back
-        Ezp = interp_cic(Ez, pic.zp/dz, pic.yp/dy, pic.xp/dx)
-        Eyp = interp_cic(Ey, pic.zp/dz, pic.yp/dy, pic.xp/dx)
-        Exp = interp_cic(Ex, pic.zp/dz, pic.yp/dy, pic.xp/dx)
+        Ezp = interp_cic(Ez, pic.zp, dz, pic.yp, dy, pic.xp, dx)
+        Eyp = interp_cic(Ey, pic.zp, dz, pic.yp, dy, pic.xp, dx)
+        Exp = interp_cic(Ex, pic.zp, dz, pic.yp, dy, pic.xp, dx)
         pic.accel(Ezp, Eyp, Exp, -dt/2.)
         xa[0,:] = pic.xp
 
         # main loop
         for i in range(1, nt+1):
-            Ezp = interp_cic(Ez, pic.zp/dz, pic.yp/dy, pic.xp/dx)
-            Eyp = interp_cic(Ey, pic.zp/dz, pic.yp/dy, pic.xp/dx)
-            Exp = interp_cic(Ex, pic.zp/dz, pic.yp/dy, pic.xp/dx)
+            Ezp = interp_cic(Ez, pic.zp, dz, pic.yp, dy, pic.xp, dx)
+            Eyp = interp_cic(Ey, pic.zp, dz, pic.yp, dy, pic.xp, dx)
+            Exp = interp_cic(Ex, pic.zp, dz, pic.yp, dy, pic.xp, dx)
 
             pic.accel(Ezp, Eyp, Exp, dt)
             pic.move(dt)

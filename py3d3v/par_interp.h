@@ -5,8 +5,9 @@
 #include <omp.h>
 
 void interp_cic_par(const int nz, const int ny, const int nx, const double *vals,
-					const int N, const double *z, const double *y, const double *x, double *c);
-
+					const int N, const double *z, const double dz,
+					const double *y, const double dy,
+					const double *x, const double dx, double *c);
 
 void weight_cic_par(const int nz, const int ny, const int nx, double *grid,
 					const int N, const double *z, const double *y, const double *x, const double *q);

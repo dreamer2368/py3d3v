@@ -139,11 +139,7 @@ class PIC3DPM(PIC3DBase):
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
         nz, ny, nx = self.nz, self.ny, self.nx
-        zps, yps, xps = self.b_zp, self.b_yp, self.b_xp
-        scale3copy(zp, 1./dz, zps,
-                   yp, 1./dy, yps,
-                   xp, 1./dx, xps)
-        # zps, yps, xps = zp/dz, yp/dy, xp/dx
+        zps, yps, xps = zp/dz, yp/dy, xp/dx
         grid = self.grid
 
         # Calculate phi
@@ -153,11 +149,11 @@ class PIC3DPM(PIC3DBase):
 
         # Calculate E fields at points
         Ez  = calc_Ez(grid, dz) 
-        Ezp = interp_cic(Ez, zps, yps, xps)
+        Ezp = interp_cic(Ez, zp, dz, yp, dy, xp, dx)
         Ey  = calc_Ey(grid, dy)
-        Eyp = interp_cic(Ey, zps, yps, xps)
+        Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
         Ex  = calc_Ex(grid, dx)
-        Exp = interp_cic(Ex, zps, yps, xps)
+        Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
         self.Ezp = Ezp
         self.Eyp = Eyp
         self.Exp = Exp
@@ -170,9 +166,6 @@ class PIC3DPM(PIC3DBase):
                                    self.ny, self.dy,
                                    self.nx, self.dx)
         self.grid = np.zeros((self.nz, self.ny, self.nx))
-        self.b_zp = np.ascontiguousarray(np.zeros_like(self.zp))
-        self.b_yp = np.ascontiguousarray(np.zeros_like(self.yp))
-        self.b_xp = np.ascontiguousarray(np.zeros_like(self.xp))
 
         Ezp, Eyp, Exp = self.calc_E_at_points()
         self.accel(Ezp, Eyp, Exp, -dt/2.)

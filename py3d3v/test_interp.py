@@ -25,7 +25,7 @@ class TestInterp(unittest.TestCase):
         z_vals = np.array([.1, .2, .3, .4, .5])
         expected = 3.*z_vals + 2.*y_vals + 1.*x_vals
 
-        c = interp_cic(vals, z_vals/dz, y_vals/dy, x_vals/dx)
+        c = interp_cic(vals, z_vals, dz, y_vals, dy, x_vals, dx)
 
         self.assertTrue( norm(c-expected) < self.tol )
 
