@@ -61,3 +61,23 @@ def weight_cic(double[:,:,:] grid,
 
     weight_cic_par(nz, ny, nx, &gd[0,0,0],
                    N, &zd[0], dz, &yd[0], dy, &xd[0], dx, &qd[0])
+
+def weight_cic_1d(double[:] grid,
+                  double[:] x, double dx,
+                  double[:] q,
+                  double rho0=0.):
+    """ Weighting to grid (CIC)
+    """
+    cdef int N  = x.shape[0]
+    cdef int nx = grid.shape[0]
+    cdef double xis
+    cdef int i, left, right
+    grid[:] = rho0
+    for i in range(N):
+        xis   = x[i]/dx
+        left  = int(floor(xis))
+        right = (left+1)%nx
+        grid[left]  += q[i]*(left+1-xis)
+        grid[right] += q[i]*(xis-left)
+        
+    
