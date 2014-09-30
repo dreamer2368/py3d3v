@@ -62,3 +62,4 @@ tools.c
 
 # IPython notebook checkpoints dir
 .ipynb_checkpoints
+ltxpng

@@ -53,3 +53,35 @@ v_{t+\Delta t/2} = v^+ + \frac{qE}{m}\frac{\Delta t}{2}
 **** Advancing $x$
 \[ x(t+\Delta t) = x(t) + v(t+\Delta t/2) \Delta t \]
 
+** Landau Oscillations
+Landau oscillations are simple harmoic waves that form in cold plasmas
+in response to small pertubations in the initial charge density (with
+$B_0=0$). For simplicity we create oscillations only in the $x$
+direction. To approximate the conditions in a cold plasm, the
+simulation volume is filled with a large number of particles with
+charge chosen such that particles in the $y$-$z$ plane approximate
+sheet charges with charge density $q$.
+
+The particle displacements are expected to follow
+\[ \ddot{\delta x} = - \omega_p^2 \delta x \]
+which is SHM with period
+$\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
+
+
+*** Details
+- Position pertubation: $x = x_0 + A \cos(k x_0)$
+  - Corresponds to a $\sin$ pertubation in the initial density at the
+    same mode
+
+*** Dispersion relations for cold plasmas
+- Exact dispersion relation from the fluid equations
+  \[ \omega(\bold{k}) = \bold{k} \cdot \bold{v}_0 \pm \omega_p \]
+- When $\bold{v}_0 = 0$ the numerical dispersion is
+  \[ \omega(k) = \omega_p \cos\left(\frac{k \Delta x}{2}\right) \]
+
+** Plasma Sheath
+When a plasma comes into contact with a metal surface, the faster
+moving electrons deposite charge faster than the slower moving
+ions. This leads to a net negative charge on the surface, which is
+balanced out by a net positive charge a short distance from the. The
+resulting region of positive charge is called the plasma sheath.
