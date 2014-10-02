@@ -86,7 +86,7 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
 - Initial charge positions are nodes of an  equispaced grid
 - $\omega$ vs $k$ for fixed $dx$ (with constant $L$)
   
-  [[file:wk_fixed_dx.png]]
+  [[file:py3d3v/wk_fixed_dx.png]]
   - ppc = average particles per cell per dimension
     - Total average particles per cell will be ppc$^3$
   - I believe that the case where ppc<1 does not yield landau
@@ -95,15 +95,15 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
     - Consider the following example from my 1D2V code (they are not
       scaled correctly)
     
-      [[file:E0_vs_Ne.png]]
+      [[file:py3d3v/E0_vs_Ne.png]]
 
-      [[file:E0_vs_Ne_FFT.png]]
+      [[file:py3d3v/E0_vs_Ne_FFT.png]]
     - $N_e$ = number of electrons
     
 - Holding the total number of particles fixed at $128^3$, and varying
   the number of mesh points from $64^3$ to $256^3$ (with constant $L$)
   
-  [[file:wk_var_dx.png]]
+  [[file:py3d3v/wk_var_dx.png]]
 - Choosing parameters
   - With ppc=2 the experimental numerical dispersion closely matches
     the expected dispersion $\omega(k) = \omega_p\cos(\frac{k dx}{2})$
