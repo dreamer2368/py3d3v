@@ -4,8 +4,9 @@
 * Model Definition
 
 ** General description
-- Approximating a 3 dimensional plasma using a finite number of
-  negatively charged electrons and positively charge ions
+Approximating a 3 dimensional plasma using a finite number of
+negatively charged electrons and positively charge ions.
+
 - Particle dynamics are simulated by solving
   \[ F = q(E+v \times B) \]
   where
@@ -43,13 +44,13 @@
 
 **** Boris method for advancing $v$
 \begin{equation}
-v_{t-\Delta t/2} = v^{-} - \frac{qE}{m} \frac{\Delta t}{2}
-\end{equation}
-\begin{equation}
-v_{t+\Delta t/2} = v^+ + \frac{qE}{m}\frac{\Delta t}{2}
+v^{-} = v_{t-\Delta t/2} + \frac{qE}{m} \frac{\Delta t}{2}
 \end{equation}
 \begin{equation}
 \frac{v^+-v^-}{\Delta t} = \frac{q}{2m}(v^+ + v^-)\times B
+\end{equation}
+\begin{equation}
+v_{t+\Delta t/2} = v^+ + \frac{qE}{m}\frac{\Delta t}{2}
 \end{equation}
 
 **** Advancing $x$
@@ -72,12 +73,11 @@ which is simple harmonic motion with period
 $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
 
 
-*** Details
+*** Initial Conditions
 - Position perturbation: $x = x_0 + A \cos(k x_0)$
   - Corresponds to a $\sin$ perturbation in the initial density at the
     same mode
-  - The $x_0$ values are equispaced in the domain
-- Expected density: $\rho(t) \propto \sin(kx)\cos(\omega t)$
+- Expected density: $\rho(x, t) \propto \sin(kx)\cos(\omega t)$
 
 *** Dispersion relations for cold plasmas
 - Exact dispersion relation from the fluid equations
@@ -90,8 +90,13 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
 - $\omega$ vs $k$ for fixed $dx$ (with constant $L$)
   
   [[file:py3d3v/wk_fixed_dx.png]]
-  - ppc = average particles per cell per dimension
+  - ppc = average particles per cell per dimension before pertubation
     - Total average particles per cell will be ppc$^3$
+  - Number of grid points = $64^3$
+  - $L_x = L_y = L_z = 2\pi$
+  - $dx = dy = dz = \frac{64}{2\pi}$
+  - Number of charges = $(\text{ppc}\times 64)^3$
+  - $k = \text{mode}\cdot \frac{2\pi}{L}$
 - Choosing parameters
   - With ppc=2 the experimental numerical dispersion approaches the
     expected numerical dispersion $\omega(k) = \omega_p\cos(\frac{k
@@ -104,12 +109,14 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
     \frac{1}{2}(\cos(2\omega t)-1)$ is real to compute $\omega$. The
     first 10 time steps are averaged to produce the estimated
     $\omega$. The results produced using this method are consistent
-    with measuring $\omega$ directly from particle displacements. 
-- I am investigating the high error when ppc<1.
+    with measuring $\omega$ directly from particle displacements and
+    are simpler to calculate.
+- I am currently investigating the high error when ppc<1.
   
 ** Plasma Sheath
 When a plasma comes into contact with a metal surface, the faster
-moving electrons deposit charge faster than the slower moving
-ions. This leads to a net negative charge on the surface, which is
-balanced out by a net positive charge a short distance from the. The
-resulting region of positive charge is called the plasma sheath.
+moving electrons deposit charge on the surface faster than the slower
+moving ions. This leads to a net negative charge on the surface, which
+is balanced out by a net positive charge a short distance from the
+wall. The resulting region of positive charge is called the plasma
+sheath.
