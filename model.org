@@ -21,7 +21,8 @@
   - $x$ is advanced in the obvious way using $v$
   - See below for details
 - Particle charges are interpolated to a uniform mesh to approximate
-  $\rho$ using the cloud in cell (CIC) method
+  $\rho$ using the cloud in cell (CIC) method. This is equivalent to
+  linear interpolation.
 - The magnetic field is uniform in the $z$ direction, and is held
   constant at $B_0$.
 - Particles are free to move in $x, y, z$ and have velocity components
@@ -75,7 +76,7 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
 - Position perturbation: $x = x_0 + A \cos(k x_0)$
   - Corresponds to a $\sin$ perturbation in the initial density at the
     same mode
-  - The $x_0$ values are uniformly spaced in the domain
+  - The $x_0$ values are equispaced in the domain
 - Expected density: $\rho(t) \propto \sin(kx)\cos(\omega t)$
 
 *** Dispersion relations for cold plasmas
@@ -95,29 +96,17 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
   - With ppc=2 the experimental numerical dispersion approaches the
     expected numerical dispersion $\omega(k) = \omega_p\cos(\frac{k
     dx}{2})$
-    
 - Measuring $\omega$
-
   - If the initial density is pertubed in the $k^{th}$ fourier mode,
     the density is expected to follow $\rho(k, t) \propto \cos(\omega
     t)$, which is generally complex.  Then we can use the fact that
     $\rho(k, t) \rho^*(k, t) \propto \cos^2(\omega t) =
     \frac{1}{2}(\cos(2\omega t)-1)$ is real to compute $\omega$. The
     first 10 time steps are averaged to produce the estimated
-    $\omega$
-
-- I believe that the case where ppc<1 does not yield landau
-  oscillations because the density (as seen by the grid) is no
-  longer approximating a fluid
-  Consider the following example from my 1D2V code (they are not
-  scaled correctly)
-    
-  [[file:py3d3v/rho0_vs_Ne.png]]
-    
-  [[file:py3d3v/rho0_vs_Ne_FFT.png]]
-    
-
-
+    $\omega$. The results produced using this method are consistent
+    with measuring $\omega$ directly from particle displacements. 
+- I am investigating the high error when ppc<1.
+  
 ** Plasma Sheath
 When a plasma comes into contact with a metal surface, the faster
 moving electrons deposit charge faster than the slower moving
