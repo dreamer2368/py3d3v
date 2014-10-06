@@ -51,6 +51,7 @@ class Landau3D(object):
         z0a = np.zeros(N)
         y0a = np.zeros(N)
         x0a = np.zeros(N)
+        xia = np.zeros(N)
         ind = 0
         for iz in range(Nz):
             for iy in range(Ny):
@@ -58,6 +59,7 @@ class Landau3D(object):
                     z0a[ind] = z0[iz]
                     y0a[ind] = y0[iy]
                     x0a[ind] = init_pos[ix]
+                    xia[ind] = x0[ix]
                     ind += 1
 
         q0 = wp**2/n0
@@ -67,7 +69,7 @@ class Landau3D(object):
 
         electron = Species(N, -q, m,   x0=x0a, z0=z0a, y0=y0a)
         species = [electron]
-
+        
         pic = PIC3DPM(species, (Lz, Ly, Lx), (nz, ny, nx))
         
         pic.init_run(dt)
@@ -79,6 +81,7 @@ class Landau3D(object):
             xa = np.zeros((nt+1, N))
             xa[0,:]  = pic.xp[:]
             self.xa = xa
+            self.xia = xia
         if self.save_rr:
             self.rr    = np.zeros(nt+1)
             self.grho  = np.zeros(nx)
