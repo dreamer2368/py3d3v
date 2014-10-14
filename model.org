@@ -1,5 +1,6 @@
 #+TITLE:  3d3v Electrostatic PIC Code
 #+AUTHOR: Scott High
+#+LATEX_HEADER: \newcommand{\pd}[2]{\frac{\partial #1}{ \partial #2}}
 
 * Model Definition
 
@@ -72,18 +73,39 @@ The particle displacements are expected to follow
 which is simple harmonic motion with period
 $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
 
-
 *** Initial Conditions
 - Position perturbation: $x = x_0 + A \cos(k x_0)$
   - Corresponds to a $\sin$ perturbation in the initial density at the
     same mode
 - Expected density: $\rho(x, t) \propto \sin(kx)\cos(\omega t)$
 
-*** Dispersion relations for cold plasmas
-- Exact dispersion relation from the fluid equations
-  \[ \omega(\bold{k}) = \bold{k} \cdot \bold{v}_0 \pm \omega_p \]
-- When $\bold{v}_0 = 0$ the numerical dispersion is
+*** Dispersion relation
+- For a cold plasma at rest
+  \[ \omega(\bold{k}) = \omega_p \]
+- The numerical dispersion relation is
   \[ \omega(k) = \omega_p \cos\left(\frac{k \Delta x}{2}\right) \]
+
+*** Derivation
+We know that Maxwell's equations are satisfied by wave solutions of
+the form $E = \hat{E} e^{i(k x-\omega t)}$. Because ions are
+considerably more massive than electrons, we hold them fixed. Then, we
+can write electron density $n$ and velocity $v$ as
+\[ n = n_0 + \hat{n} e^{i(k x-\omega t)} \]
+\[ v = \hat{v} e^{i(k x-\omega t)} \]
+Apply the continuity equation
+\[ \pd{n}{t} + \pd{(n v)}{x} = 0  \]
+to get
+\[ -i \omega \hat{n} + ik n_0 \hat{v} = 0 \]
+\[ \implies \hat{v} = \frac{\omega \hat{n}}{k n_0} \]
+We can write the Lorentz force as
+\[ m \dot{v} = -q \frac{d \phi}{d x}  \]
+\[ \implies -i \omega \hat{n} + i k n_0 \hat{v} = 0  \]
+where the potential $\phi$ is given by
+\[ -k^2 \phi = \frac{q}{\epsilon_0} \hat{n} \]
+We can combine the above equations with
+$\omega_p=\left(\frac{n_0 q^2}{m \epsilon_0}\right)$
+to get
+\[ \omega = \omega_p \]
 
 *** Numerical Results
 - Initial charge positions are equispaced in the domain
