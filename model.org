@@ -79,33 +79,38 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
     same mode
 - Expected density: $\rho(x, t) \propto \sin(kx)\cos(\omega t)$
 
-*** Dispersion relation
+*** Dispersion relations
 - For a cold plasma at rest
   \[ \omega(\bold{k}) = \omega_p \]
 - The numerical dispersion relation is
   \[ \omega(k) = \omega_p \cos\left(\frac{k \Delta x}{2}\right) \]
 
 *** Derivation
-We know that Maxwell's equations are satisfied by wave solutions of
-the form $E = \hat{E} e^{i(k x-\omega t)}$. Because ions are
-considerably more massive than electrons, we hold them fixed. Then, we
-can write electron density $n$ and velocity $v$ as
+We are searching for linearized small amplitude wave solutions at high
+frequencies.
+Assume that the current can be approximated as $j(\omega) = \sigma(\omega)E(\omega)$,
+and that wave frequiencies are sufficently high enough that ion motion can
+be neglected (by intertia).
+Then, we can write electron density $n$ and velocity $v$ as
 \[ n = n_0 + \hat{n} e^{i(k x-\omega t)} \]
 \[ v = \hat{v} e^{i(k x-\omega t)} \]
 We will linearize Maxwell's equations by assuming hatted
 variables $\hat{}$ are small.
 Combine the Lorentz force with potential $\phi$ to get
-\[ m \dot{v} = q E = -q \frac{d \phi}{d x}  \]
+\[ m \frac{d v}{dt} = q E = -q \frac{d \phi}{d x}  \]
 \[ -k^2 \hat{\phi} = \frac{q}{\epsilon_0} \hat{n} \]
-\[ \implies -i \omega \hat{v} = i \frac{q^2}{\epsilon_0 k} \hat{n} \]
-Apply the continuity equation to solve for $\hat{n}$ in terms of $\hat{v}$
+\[ \implies -i \omega m \hat{v} = i \frac{q^2}{\epsilon_0 k^2} \hat{n} \]
+Applying the continuity equation
 \[ \pd{n}{t} + \pd{(n v)}{x} = 0  \]
-where the second order terms are assumed small to get
+to solve for $\hat{n}$ in terms of $\hat{v}$ where the second order
+terms are assumed small yields
 \[ -i \omega \hat{n} + ik n_0 \hat{v} = 0 \]
 \[ \implies \hat{n} = \frac{k n_0}{\omega} \hat{v} \]
-We can combine the above equations with
-$\omega_p=\left(\frac{n_0 q^2}{m \epsilon_0}\right)$
-to get
+Combine the above equations to get
+\[ -i \omega m \hat{v} = i \frac{q^2}{\epsilon_0 k} \hat{n}
+                     = i \frac{q^2 n_0}{\epsilon_0 \omega} \hat{v} \]
+\[ \implies \omega^2 = \left(\frac{q^2 n_0}{\epsilon_0 m}\right)^2 = \omega_p^2 \]
+Then the only frequency supported is
 \[ \omega = \omega_p \]
 
 *** Numerical Results
