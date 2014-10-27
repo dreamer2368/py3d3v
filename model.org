@@ -92,16 +92,17 @@ considerably more massive than electrons, we hold them fixed. Then, we
 can write electron density $n$ and velocity $v$ as
 \[ n = n_0 + \hat{n} e^{i(k x-\omega t)} \]
 \[ v = \hat{v} e^{i(k x-\omega t)} \]
-Apply the continuity equation
+We will linearize Maxwell's equations by assuming hatted
+variables $\hat{}$ are small.
+Combine the Lorentz force with potential $\phi$ to get
+\[ m \dot{v} = q E = -q \frac{d \phi}{d x}  \]
+\[ -k^2 \hat{\phi} = \frac{q}{\epsilon_0} \hat{n} \]
+\[ \implies -i \omega \hat{v} = i \frac{q^2}{\epsilon_0 k} \hat{n} \]
+Apply the continuity equation to solve for $\hat{n}$ in terms of $\hat{v}$
 \[ \pd{n}{t} + \pd{(n v)}{x} = 0  \]
-to get
+where the second order terms are assumed small to get
 \[ -i \omega \hat{n} + ik n_0 \hat{v} = 0 \]
-\[ \implies \hat{v} = \frac{\omega \hat{n}}{k n_0} \]
-We can write the Lorentz force as
-\[ m \dot{v} = -q \frac{d \phi}{d x}  \]
-\[ \implies -i \omega \hat{n} + i k n_0 \hat{v} = 0  \]
-where the potential $\phi$ is given by
-\[ -k^2 \phi = \frac{q}{\epsilon_0} \hat{n} \]
+\[ \implies \hat{n} = \frac{k n_0}{\omega} \hat{v} \]
 We can combine the above equations with
 $\omega_p=\left(\frac{n_0 q^2}{m \epsilon_0}\right)$
 to get
