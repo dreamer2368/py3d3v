@@ -59,8 +59,8 @@ v_{t+\Delta t/2} = v^+ + \frac{qE}{m}\frac{\Delta t}{2}
 
 * Model Validation
 
-** Landau Oscillations
-Landau oscillations are simple harmonic density waves that form in
+** Langmuir Oscillations
+Langmuir oscillations are simple harmonic density waves that form in
 cold plasmas in response to small perturbations in the initial charge
 density (with $B_0=0$). For simplicity we create oscillations only in
 the $x$ direction. To approximate the conditions in a cold plasma, the
