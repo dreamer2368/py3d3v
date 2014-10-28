@@ -93,9 +93,8 @@ $\omega_p=(\frac{nq^2}{m \epsilon_0})^{1/2}$.
 *** Derivation
 We are searching for linearized small amplitude wave solutions at high
 frequencies.
-Assume that the current can be approximated as $j(\omega) = \sigma(\omega)E(\omega)$,
-and that wave frequiencies are sufficently high enough that ion motion can
-be neglected (by intertia).
+Since ions are considerably more massive than electrons, we hold them
+fixed (assume $\frac{m_e}{m_i} \to 0$)
 Then, we can write electron density $n$ and velocity $v$ as
 \[ n = n_0 + \hat{n} e^{i(k x-\omega t)} \]
 \[ v = \hat{v} e^{i(k x-\omega t)} \]
@@ -103,20 +102,20 @@ We will linearize Maxwell's equations by assuming hatted
 variables $\hat{}$ are small.
 Combine the Lorentz force with potential $\phi$ to get
 \[ m \frac{d v}{dt} = q E = -q \frac{d \phi}{d x}  \]
-\[ -k^2 \hat{\phi} = \frac{q}{\epsilon_0} \hat{n} \]
-\[ \implies -i \omega m \hat{v} = i \frac{q^2}{\epsilon_0 k^2} \hat{n} \]
+\[ k^2 \hat{\phi} = \frac{q}{\epsilon_0} \hat{n} \]
+\[ \implies \omega m \hat{v} = \frac{q^2}{\epsilon_0 k^2} \hat{n} \]
 Applying the continuity equation
 \[ \pd{n}{t} + \pd{(n v)}{x} = 0  \]
 to solve for $\hat{n}$ in terms of $\hat{v}$ where the second order
-terms are assumed small yields
-\[ -i \omega \hat{n} + ik n_0 \hat{v} = 0 \]
+terms are dropped yields
+\[ -i \omega \hat{n} + i k n_0 \hat{v} = 0 \]
 \[ \implies \hat{n} = \frac{k n_0}{\omega} \hat{v} \]
 Combine the above equations to get
-\[ -i \omega m \hat{v} = i \frac{q^2}{\epsilon_0 k} \hat{n}
-                     = i \frac{q^2 n_0}{\epsilon_0 \omega} \hat{v} \]
+\[ \omega m \hat{v} = \frac{q^2}{\epsilon_0 k} \hat{n}
+                     = \frac{q^2 n_0}{\epsilon_0 \omega} \hat{v} \]
 \[ \implies \omega^2 = \left(\frac{q^2 n_0}{\epsilon_0 m}\right)^2 = \omega_p^2 \]
-Then the only frequency supported is
-\[ \omega = \omega_p \]
+Then the only frequency supported is $\omega = \omega_p$, which is independent
+of $k$. 
 
 *** Numerical Results
 - Initial charge positions are equispaced in the domain
@@ -124,7 +123,7 @@ Then the only frequency supported is
   
   [[file:py3d3v/wk_fixed_dx.png]]
   - ppc = average particles per cell per dimension before pertubation
-    - Total average particles per cell will be ppc$^3$
+    - Total average particles per cell before pertubation will be ppc$^3$
   - Number of grid points = $64^3$
   - $L_x = L_y = L_z = 2\pi$
   - $dx = dy = dz = \frac{64}{2\pi}$
