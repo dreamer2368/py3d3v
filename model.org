@@ -153,14 +153,24 @@ is balanced out by a net positive charge a short distance from the
 wall. The resulting region of positive charge is called the plasma
 sheath.
 
-* Derivation of numerical dispersion relation for Langmuir oscillations
+* Numerical Dispersion Relation for Langmuir Oscillations
+We start by deriving expressions for $F(k)$ and $\rho(k)$. These will
+be combined at the end to produce our numerical dispersion relation.
+First make the following definitions
+- $S(x)$ is the weight function and its fourier transform $S(k)$ is
+  the weight factor. This is normalized such that $\Delta x \sum_j
+  S(X_j-x) = 1$.
+- $X_j = j \Delta x$ is the jth grid point
+- $k_p = k - p k_g$ where $k_g = \frac{2\pi}{\Delta x}$
+
+The force on a charge $q$ at $x$ is given by
 \[ F(x) = q \Delta x \sum_j E_j S(X_j-x) \]
 \begin{align*}
   F(k) &= \int_{-\infty}^\infty dx F(x) e^{-ikx} \\
        &= \int dx q\Delta x \sum_j S(X_j-x) e^{ik(X_j-x)} e^{-ikX_j} \\
        &= q \Delta x \sum_j E_j e^{-ikX_j} \int S(X_j-x) e^{ik(X_j-x)} dx \\
        &= q \Delta x \sum_j E_j e^{-ikX_j} S(-k) \\
-       &= q E(k) S(k)
+       &= q E(k) S(-k)
 \end{align*}
 
 \[ \rho_c(x) = q \int_{-\infty}^{\infty} dx' S(x'-x) n(x') \]
@@ -174,6 +184,7 @@ sheath.
 \end{align*}
 
 \[ n(k) = i \frac{k n_0}{m \omega^2} F(k) \]
+\[ -i \kappa(k) \phi(k) = E(k) \]
 
 \begin{align*}
   \rho(k)
