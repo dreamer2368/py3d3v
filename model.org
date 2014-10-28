@@ -14,8 +14,8 @@ negatively charged electrons and positively charge ions.
   \[ E = -\nabla \phi \]
   and
   \[ \nabla^2 \phi = -\frac{\rho}{\epsilon_0} \]
-  - $\phi$ is approximated from the mesh charge density using second order
-    centered finite differences
+  - $\phi$ is approximated from the mesh charge density using an FFT
+    based algorithm
   - $E$ is approximated from $\phi$ using second order centered finite
     differences
 - The time integrator is Leap-Frog
@@ -35,9 +35,14 @@ negatively charged electrons and positively charge ions.
 1) Weight charges $q_i$ to the uniform mesh to get charge density $\rho$
    - Cloud in cell (CIC)
 2) Solve $\nabla^2 \phi(t) = -\frac{\rho}{\epsilon_0}$ for $\phi(t)$
-   - Using FFT
+   1) Use FFT to convert mesh charge density $\rho(x_i)$ to $\rho(k)$
+   2) Solve $K^2 \phi(k) = \frac{\rho(k)}{\epsilon_0}$ for $\phi(k)$ where
+      $K^2 = k^2 \left(\frac{\sin(k dx/2)}{k dx/2}\right)^2$
+   3) Use IFFT to get $\phi(x_i)$ from $\phi(k)$
 3) Solve $E(t) = -\nabla \phi(t)$ for $E_x, E_y, E_z$
+   - Second order centered finite differences
 4) Interpolate $E_x, E_y, E_z$ to particle positions
+   - Cloud in cell (CIC)
 5) Advance $v(t-\Delta t/2) \to v(t+\Delta t/2)$ using $E(t)$
 6) Advance $x(t) \to x(t+\Delta t)$ using $v(t+\Delta t/2)$
 
