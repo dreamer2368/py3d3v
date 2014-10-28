@@ -152,3 +152,43 @@ moving ions. This leads to a net negative charge on the surface, which
 is balanced out by a net positive charge a short distance from the
 wall. The resulting region of positive charge is called the plasma
 sheath.
+
+* Derivation of numerical dispersion relation for Langmuir oscillations
+\[ F(x) = q \Delta x \sum_j E_j S(X_j-x) \]
+\begin{align*}
+  F(k) &= \int_{-\infty}^\infty dx F(x) e^{-ikx} \\
+       &= \int dx q\Delta x \sum_j S(X_j-x) e^{ik(X_j-x)} e^{-ikX_j} \\
+       &= q \Delta x \sum_j E_j e^{-ikX_j} \int S(X_j-x) e^{ik(X_j-x)} dx \\
+       &= q \Delta x \sum_j E_j e^{-ikX_j} S(-k) \\
+       &= q E(k) S(k)
+\end{align*}
+
+\[ \rho_c(x) = q \int_{-\infty}^{\infty} dx' S(x'-x) n(x') \]
+\[ \implies \rho_c(k) = q S(k) n(k) \]
+\begin{align*}
+  \rho(x_i) &= \int_{-\infty}^{\infty} \frac{dk}{2\pi} e^{i k x_i} \rho_c(k) \\
+            &= \int_{-\pi/\Delta x}^{\pi/\Delta x} \frac{dk}{2\pi} e^{i k x_i}
+               \sum_{p=-\infty}^{\infty}\rho_c(k_p) \\
+  \implies \rho(k) &= \sum_{p=-\infty}^{\infty}\rho_c(k_p) \\
+                   &= \sum_{p=-\infty}^{\infty} S(k_p) n(k_p)
+\end{align*}
+
+\[ n(k) = i \frac{k n_0}{m \omega^2} F(k) \]
+
+\begin{align*}
+  \rho(k)
+    &= q \sum_{p=-\infty}^{\infty} S(k_p) n(k_p) \\
+    &= \frac{q n_0}{m} \sum_{p=-\infty}^{\infty} \frac{i k_p S(k_p) F(k_p)}{\omega^2} \\
+    %&= \frac{q^2 n_0}{m} \sum_{p=-\infty}^{\infty} \frac{i k_p S^2(k_p) E(k_p)}{\omega^2} \\
+    &= \frac{q^2 n_0}{m} \sum_{p=-\infty}^{\infty}
+                         \frac{k_p S^2(k_p) \kappa(k_p) \phi(k_p)}{\omega^2} \\
+    &= \frac{q^2 n_0}{m} \phi(k) \sum_{p=-\infty}^{\infty}
+                         \frac{k_p S^2(k_p) \kappa(k_p)}{\omega^2} \\
+    &= \frac{q^2 n_0}{m\epsilon_0} \frac{\rho(k)}{K^2(k)} \sum_{p=-\infty}^{\infty}
+                         \frac{k_p S^2(k_p) \kappa(k_p)}{\omega^2} \\
+    \implies \omega^2 &=
+      \omega_p^2 \left[\frac{1}{K^2(k)}\sum_{p=-\infty}^{\infty}
+                 k_p S^2(k_p) \kappa(k_p)\right] \\
+\end{align*}
+
+
