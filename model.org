@@ -176,7 +176,7 @@ The force on a charge $q$ at $x$ is given by
 Define the "cloud density" function $\rho_c$ as
 \[ \rho_c(x) = q \int_{-\infty}^{\infty} dx' S(x'-x) n(x') \]
 Then, by the convolution theorem
-\[ \implies \rho_c(k) = q S(k) n(k) \]
+\[ \rho_c(k) = q S(k) n(k) \]
 The charge density at points on the grid is given by
 \begin{align*}
   \rho(x_i) &= \int_{-\infty}^{\infty} \frac{dk}{2\pi} e^{i k x_i} \rho_c(k) \\
@@ -208,5 +208,17 @@ Finally, we put everything together to get
       \omega_p^2 \left[\frac{1}{K^2(k)}\sum_{p=-\infty}^{\infty}
                  k_p S^2(k_p) \kappa(k_p)\right] \\
 \end{align*}
+
+The function $K(k)$ is determined by the method used to differentiate $\phi$
+in gauss's law. 
+We consider the following two cases:
+\[ K^2(k) = k^2  \]
+which corresponds to exact spectral differentiation and
+\[ K^2(k) = k^2 \left(\frac{\sin(k dx)}{k dx}\right)^2 \]
+which corresponds to a second order centered finite difference evaluation of $\phi$.
+For the following analysis we will assume that CIC weighting is used, so that
+$S(k) = \left(\frac{\sin(k dx)}{k dx} \right)^2$.
+
+
 
 
