@@ -156,10 +156,10 @@ sheath.
 * Numerical Dispersion Relation for Langmuir Oscillations
 We start by deriving expressions for $F(k)$ and $\rho(k)$. These will
 be combined at the end to produce our numerical dispersion relation.
-First make the following definitions
+First make the following definitions:
 - $S(x)$ is the weight function and its fourier transform $S(k)$ is
   the weight factor. This is normalized such that $\Delta x \sum_j
-  S(X_j-x) = 1$.
+  S(X_j-x) = 1$
 - $X_j = j \Delta x$ is the jth grid point
 - $k_p = k - p k_g$ where $k_g = \frac{2\pi}{\Delta x}$
 
@@ -173,8 +173,11 @@ The force on a charge $q$ at $x$ is given by
        &= q E(k) S(-k)
 \end{align*}
 
+Define the "cloud density" function $\rho_c$ as
 \[ \rho_c(x) = q \int_{-\infty}^{\infty} dx' S(x'-x) n(x') \]
+Then, by the convolution theorem
 \[ \implies \rho_c(k) = q S(k) n(k) \]
+The charge density at points on the grid is given by
 \begin{align*}
   \rho(x_i) &= \int_{-\infty}^{\infty} \frac{dk}{2\pi} e^{i k x_i} \rho_c(k) \\
             &= \int_{-\pi/\Delta x}^{\pi/\Delta x} \frac{dk}{2\pi} e^{i k x_i}
@@ -182,10 +185,14 @@ The force on a charge $q$ at $x$ is given by
   \implies \rho(k) &= \sum_{p=-\infty}^{\infty}\rho_c(k_p) \\
                    &= \sum_{p=-\infty}^{\infty} S(k_p) n(k_p)
 \end{align*}
+This shows the coupling of different modes induced by the grid. 
 
+We know from the derivation of Langmuir oscillations above that
 \[ n(k) = i \frac{k n_0}{m \omega^2} F(k) \]
+and
 \[ -i \kappa(k) \phi(k) = E(k) \]
 
+Finally, we put everything together to get
 \begin{align*}
   \rho(k)
     &= q \sum_{p=-\infty}^{\infty} S(k_p) n(k_p) \\
