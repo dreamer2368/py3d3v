@@ -258,11 +258,16 @@ we get, after applying the double angle identity,
   b = 2*np.sin(xv)*np.sin(xv/2.)*np.cos(xv/2.)/xv**2
   fig = plt.figure()
   ax = fig.add_subplot(111)
-  ax.plot(a, label="Finite Diff"); ax.plot(b, label="Spectral");
-  ax.legend()
-  fig.savefig("images/disp.png")
-  "images/disp.png"
+  ax.plot(xv, a, label="Finite Diff"); ax.plot(xv, b, label="Spectral");
+  c = np.ones_like(a)
+  ax.plot(xv, c, 'b--', label="$\omega_p$")
+  ax.set_xlabel("$k dx$"); ax.set_ylabel("$\omega(k)$");
+  ax.set_title("$\omega$ vs. $\omega(k)$")
+  ax.set_ylim((.91, 1.01))
+  ax.legend(loc="lower left")
+  fig.savefig("disp.png")
+  "disp.png"
 #+END_SRC
 
 #+RESULTS: disp-plot
-[[file:images/disp.png]]
+[[file:disp.png]]
