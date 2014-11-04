@@ -2,6 +2,15 @@
 #+AUTHOR: Scott High
 #+LATEX_HEADER: \newcommand{\pd}[2]{\frac{\partial #1}{ \partial #2}}
 
+#+begin_src python :session :exports none
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+#+end_src
+
+#+RESULTS:
+
 * Model Definition
 
 ** General description
@@ -212,16 +221,48 @@ Finally, we put everything together to get
                  k_p S^2(k_p) \kappa(k_p)\right] \\
 \end{align*}
 
+We will make use of the identity
+\[ \sum_p(k-k_p)^{-3} = \left[ \frac{2}{dx} \sin(k dx/2) \right]^{-3} cos(k dx/2)  \]
+to simplify the sum
+\begin{align*}
+  \sum_p k_p \kappa(k_p) S^2(k_p) &= \sum_p k_p^2 \frac{\sin(k_p dx)}{k_p dx}
+                                                  \left(\frac{\sin(k_p dx/2)}{k_p dx/2} \right)^4 \\
+  &= \frac{2^4 \sin(k dx) \sin^4(k dx/2)}{(dx)^5} \sum_p k_p^{-3} \\
+  &= \frac{2 \sin(k dx) \sin(k dx/2) \cos(k dx/2)}{(dx)^2}  \\
+\end{align*}
+
 The function $K(k)$ is determined by the method used to differentiate $\phi$
 in gauss's law. 
 We consider the following two cases:
 \[ K^2(k) = k^2  \]
 which corresponds to exact spectral differentiation and
 \[ K^2(k) = k^2 \left(\frac{\sin(k dx/2)}{k dx/2}\right)^2 \]
-which corresponds to a second order centered finite difference evaluation of $\phi$.
+which corresponds to a second order centered finite difference evaluation of $\phi$,
+$\frac{d^2 \phi}{dx^2} = \frac{1}{dx^2}(\phi(X_{j-1})-2\phi(X_{j})+\phi(X_{j+1})$.
 For the following analysis we will assume that CIC weighting is used, so that
-$S(k) = \left(\frac{\sin(k dx)}{k dx} \right)^2$.
+$S(k) = \left(\frac{\sin(k dx/2)}{k dx/2} \right)^2$.
 
+In the first case where $K^2(k) = k^2$ we (finally) get the result
+\[ \omega^2 = \omega_p^2 
+     \left[\frac{2}{(kdx)^2} \sin(kdx)sin(kdx/2)\cos(kdx/2) \right] \]
 
+In the second case where
+$K^2(k) = k^2 \left(\frac{\sin(k dx/2)}{k dx/2}\right)^2$
+we get, after applying the double angle identity,
+\[ \omega^2 = \omega_p^2 \cos^2(kdx/2) \]
 
+#+NAME: disp-plot
+#+BEGIN_SRC python :session :results file :exports results
+  xv = np.linspace(.01, .5, 20)
+  a = np.cos(xv/2.)
+  b = 2*np.sin(xv)*np.sin(xv/2.)*np.cos(xv/2.)/xv**2
+  fig = plt.figure()
+  ax = fig.add_subplot(111)
+  ax.plot(a, label="Finite Diff"); ax.plot(b, label="Spectral");
+  ax.legend()
+  fig.savefig("images/disp.png")
+  "images/disp.png"
+#+END_SRC
 
+#+RESULTS: disp-plot
+[[file:images/disp.png]]
