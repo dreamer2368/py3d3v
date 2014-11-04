@@ -154,6 +154,9 @@ wall. The resulting region of positive charge is called the plasma
 sheath.
 
 * Numerical Dispersion Relation for Langmuir Oscillations
+:PROPERTIES:
+:ID:       694886f9-6045-412b-9902-a8061390e16f
+:END:
 We start by deriving expressions for $F(k)$ and $\rho(k)$. These will
 be combined at the end to produce our numerical dispersion relation.
 First make the following definitions:
@@ -214,7 +217,7 @@ in gauss's law.
 We consider the following two cases:
 \[ K^2(k) = k^2  \]
 which corresponds to exact spectral differentiation and
-\[ K^2(k) = k^2 \left(\frac{\sin(k dx)}{k dx}\right)^2 \]
+\[ K^2(k) = k^2 \left(\frac{\sin(k dx/2)}{k dx/2}\right)^2 \]
 which corresponds to a second order centered finite difference evaluation of $\phi$.
 For the following analysis we will assume that CIC weighting is used, so that
 $S(k) = \left(\frac{\sin(k dx)}{k dx} \right)^2$.
