@@ -203,6 +203,9 @@ We know from the derivation of Langmuir oscillations above that
 \[ n(k) = i \frac{k n_0}{m \omega^2} F(k) \]
 and
 \[ -i \kappa(k) \phi(k) = E(k) \]
+For the following we will always use $\kappa(k) = k \frac{\sin(k dx)}{k dx}$,
+which corresponds to differentiating $E$ with a second order centered finite
+difference stencil.
 
 Finally, we put everything together to get
 \begin{align*}
@@ -221,7 +224,7 @@ Finally, we put everything together to get
                  k_p S^2(k_p) \kappa(k_p)\right] \\
 \end{align*}
 
-We will make use of the identity
+We make use of the identity
 \[ \sum_p(k-k_p)^{-3} = \left[ \frac{2}{dx} \sin(k dx/2) \right]^{-3} cos(k dx/2)  \]
 to simplify the sum
 \begin{align*}
