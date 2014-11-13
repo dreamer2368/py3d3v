@@ -164,3 +164,52 @@ class PIC3DPM(PIC3DBase):
         self.accel(Ezp, Eyp, Exp, dt)
         self.move(dt)
 
+
+class PIC3DP3M(PIC3DPM):
+
+    # Hard code for now, fold into parameters later
+    alpha = .1
+
+    def calc_E_at_points(self):
+        zp, yp, xp = self.zp, self.yp, self.xp
+        dz, dy, dx = self.dz, self.dy, self.dx
+        nz, ny, nx = self.nz, self.ny, self.nx
+        grid = self.grid
+
+        # Calculate long range forces
+
+        ## Calculate phi
+        weight_cic(grid, zp, dz, yp, dy, xp, dx, self.q)
+        grid[:] = grid*(1./self.V)
+        grid[:] = self.solver.solve(grid)
+
+        ## Calculate E fields at points
+        Ez  = calc_Ez(grid, dz) 
+        Ezp = interp_cic(Ez, zp, dz, yp, dy, xp, dx)
+        Ey  = calc_Ey(grid, dy)
+        Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
+        Ex  = calc_Ex(grid, dx)
+        Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
+
+        # Calculate short range forces
+        
+
+        # Return results
+        self.Ezp = Ezp
+        self.Eyp = Eyp
+        self.Exp = Exp
+        return (Ezp, Eyp, Exp)
+
+    def init_run(self, dt, unpack=False):
+        if unpack:
+            self.unpack()
+        self.solver = Poisson3DFFTLR(self.nz, self.dz,
+                                     self.ny, self.dy,
+                                     self.nx, self.dx,
+                                     alpha=self.alpha)
+        self.grid = np.zeros((self.nz, self.ny, self.nx))
+
+        Ezp, Eyp, Exp = self.calc_E_at_points()
+        self.accel(Ezp, Eyp, Exp, -dt/2.)
+    
+        
