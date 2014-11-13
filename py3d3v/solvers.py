@@ -1,6 +1,6 @@
 
 import numpy as np
-from tools import build_k2
+from tools import *
 import scipy as sp
 import scipy.sparse
 import scipy.sparse.linalg
@@ -38,8 +38,8 @@ class Poisson3DFFTLR(object):
         
     def solve(self, rho):
         
-        rhok = np.fft.fftn(rho)
-        phik = rhok/self.k2
+        rhok = np.fft.fftn(rho).conj()
+        phik = rhok*self.k2
         phik[0,0,0] = 0.
         phi = np.fft.ifftn(phik)
         return np.real(phi)
