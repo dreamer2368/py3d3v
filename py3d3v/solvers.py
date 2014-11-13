@@ -26,6 +26,28 @@ class Poisson3DFFT(object):
         return self.solve(rho)
 
 
+class Poisson3DFFTLR(object):
+    
+    def __init__(self, nz, dz, ny, dy, nx, dx, beta):
+        
+        self.nz = nz; self.dz = dz
+        self.ny = ny; self.dy = dy
+        self.nx = nx; self.dx = dx
+        self.beta = beta
+        self.k2 = build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+        
+    def solve(self, rho):
+        
+        rhok = np.fft.fftn(rho)
+        phik = rhok/self.k2
+        phik[0,0,0] = 0.
+        phi = np.fft.ifftn(phik)
+        return np.real(phi)
+    
+    def __call__(self, rho):
+        return self.solve(rho)
+        
+
 def three_d_poisson(nz, dz, ny, dy, nx, dx, as_csr=True):
 
     kx = 1./(dx**2)
