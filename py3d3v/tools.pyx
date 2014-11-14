@@ -190,7 +190,7 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
     cdef int nkz, nky, nkx
     cdef int iz, iy, ix
 
-    cdef double c = beta**2/np.pi
+    cdef double c = 1.
     cdef double d = -np.pi**2/beta**2
     cdef double k2
 

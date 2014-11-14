@@ -281,6 +281,6 @@ I am starting with a Gaussian (S1) to make life a little easier.
 ** Force calculation details
 The screen function S1 is defined as
 \[ f(r; \beta) = \frac{\beta^3}{\pi^{3/2}} e^{-\beta^2 x^2} \]
-\[ \hat{f}(k; \beta) = \frac{\beta^2}{\pi} e^{-\pi^2 k^2/\beta^2} \]
+\[ \hat{f}(k; \beta) = e^{-\pi^2 k^2/\beta^2} \]
 
 
