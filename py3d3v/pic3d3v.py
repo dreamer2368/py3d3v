@@ -168,7 +168,7 @@ class PIC3DPM(PIC3DBase):
 class PIC3DP3M(PIC3DPM):
 
     # Hard code for now, fold into parameters later
-    alpha = .1
+    beta = 500
 
     def calc_E_at_points(self):
         zp, yp, xp = self.zp, self.yp, self.xp
@@ -206,7 +206,7 @@ class PIC3DP3M(PIC3DPM):
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
                                      self.nx, self.dx,
-                                     alpha=self.alpha)
+                                     beta=self.beta)
         self.grid = np.zeros((self.nz, self.ny, self.nx))
 
         Ezp, Eyp, Exp = self.calc_E_at_points()
