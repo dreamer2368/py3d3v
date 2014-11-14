@@ -1,6 +1,6 @@
 
 import numpy as np
-from solvers import Poisson3DFFT
+from solvers import *
 from interp import weight_cic, interp_cic
 from tools import *
 
@@ -167,9 +167,6 @@ class PIC3DPM(PIC3DBase):
 
 class PIC3DP3M(PIC3DPM):
 
-    # Hard code for now, fold into parameters later
-    beta = 500
-
     def calc_E_at_points(self):
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
@@ -200,13 +197,14 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, unpack=False):
+    def init_run(self, dt, beta=500, unpack=False):
         if unpack:
             self.unpack()
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
                                      self.nx, self.dx,
-                                     beta=self.beta)
+                                     beta=beta)
+        self.beta = beta
         self.grid = np.zeros((self.nz, self.ny, self.nx))
 
         Ezp, Eyp, Exp = self.calc_E_at_points()

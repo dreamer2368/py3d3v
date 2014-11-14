@@ -38,7 +38,7 @@ class Poisson3DFFTLR(object):
         
     def solve(self, rho):
         
-        rhok = np.fft.fftn(rho).conj()
+        rhok = np.fft.fftn(rho)
         phik = rhok*self.k2
         phik[0,0,0] = 0.
         phi = np.fft.ifftn(phik)
