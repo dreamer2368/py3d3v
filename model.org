@@ -283,4 +283,6 @@ The screen function S1 is defined as
 \[ f(r; \beta) = \frac{\beta^3}{\pi^{3/2}} e^{-\beta^2 x^2} \]
 \[ \hat{f}(k; \beta) = e^{-\pi^2 k^2/\beta^2} \]
 
+The field produced by a gaussian charge distribution is
+\[ |E| = \frac{1}{2\pi^{3/2}}\left[\frac{1}{R^2}erf(R\beta)-\frac{\beta}{R}e^{-\beta^2 R^2}\right] \]
 
