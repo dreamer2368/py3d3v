@@ -166,38 +166,6 @@ class PIC3DPM(PIC3DBase):
         self.move(dt)
 
 
-def erf(z):
-    return np.sqrt(np.pi)*sp.special.erf(z)/2
-
-def calc_E_short_range(zp, yp, xp, Lz, Ly, Lx, q, rmax, beta):
-    N = len(zp)
-    r2max = rmax**2
-    c = 1./(2*np.sqrt(np.pi**3))
-    Ezp = np.zeros(N, dtype=np.double)
-    Eyp = np.zeros(N, dtype=np.double)
-    Exp = np.zeros(N, dtype=np.double)
-    
-    for i in range(N-1):
-        for j in range(i+1, N):
-            dz = zp[i]-zp[j]
-            dy = yp[i]-yp[j]
-            dx = xp[i]-xp[j]
-            r2 = dz**2+dy**2+dx**2
-            if r2<=r2max and r2>0:
-                
-                r = np.sqrt(r2)
-                E = c*(erf(r*beta)/r2-beta*np.exp(-beta**2*r2)/r)
-                Ep = 1./(4*np.pi*r2)
-                Ezp[i] +=  q[j]*dz*(Ep-E)/r 
-                Ezp[j] += -q[i]*dz*(Ep-E)/r
-                Eyp[i] +=  q[j]*dy*(Ep-E)/r
-                Eyp[j] += -q[i]*dy*(Ep-E)/r
-                Exp[i] +=  q[j]*dx*(Ep-E)/r
-                Exp[j] += -q[i]*dx*(Ep-E)/r
-                
-    return (Ezp, Eyp, Exp)        
-
-
 class PIC3DP3M(PIC3DPM):
 
     def calc_E_at_points(self):

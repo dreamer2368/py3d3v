@@ -70,7 +70,7 @@ class Landau3D(object):
         electron = Species(N, -q, m,   x0=x0a, z0=z0a, y0=y0a)
         species = [electron]
         
-        pic = PIC3DPM(species, (Lz, Ly, Lx), (nz, ny, nx))
+        pic = PIC3DP3M(species, (Lz, Ly, Lx), (nz, ny, nx))
         
         pic.init_run(dt)
 
