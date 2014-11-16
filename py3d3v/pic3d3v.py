@@ -18,17 +18,17 @@ class Species(object):
 
         self.z0,  self.y0,  self.x0  =  z0,  y0,  x0
         self.vz0, self.vy0, self.vx0 = vz0, vy0, vx0
-        if z0==None:
+        if z0 is None:
             self.z0  = np.zeros(N, dtype=self.dtype)
-        if y0==None:
+        if y0 is None:
             self.y0  = np.zeros(N, dtype=self.dtype)
-        if x0==None:
+        if x0 is None:
             self.x0  = np.zeros(N, dtype=self.dtype)
-        if vz0==None:
+        if vz0 is None:
             self.vz0 = np.zeros(N, dtype=self.dtype)
-        if vy0==None:
+        if vy0 is None:
             self.vy0 = np.zeros(N, dtype=self.dtype)
-        if vx0==None:
+        if vx0 is None:
             self.vx0 = np.zeros(N, dtype=self.dtype)
 
 
