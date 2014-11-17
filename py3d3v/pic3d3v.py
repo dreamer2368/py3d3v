@@ -191,6 +191,10 @@ class PIC3DP3M(PIC3DPM):
         Ex  = calc_Ex(grid, dx)
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
 
+        # Make sure particles are ordered corectly for
+        # short range force calculation
+        self.sort_by_cells()
+
         # Calculate short range forces
         sz, sy, sx = calc_E_short_range(zp, yp, xp,
                                         Lz, Ly, Lx,
@@ -205,7 +209,7 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=100, rmax=.2, unpack=False):
+    def init_run(self, dt, beta=100, rmax=.2, N_cells=3, unpack=False):
         if unpack:
             self.unpack()
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
@@ -214,9 +218,36 @@ class PIC3DP3M(PIC3DPM):
                                      beta=beta)
         self.beta = beta
         self.rmax = rmax
+        self.N_cells = N_cells
         self.grid = np.zeros((self.nz, self.ny, self.nx))
+        self.cell = np.zeros_like(self.zp, dtype=np.double)
 
         Ezp, Eyp, Exp = self.calc_E_at_points()
         self.accel(Ezp, Eyp, Exp, -dt/2.)
-    
-        
+
+    def sort_by_cells(self):
+        zp, yp, xp = self.zp, self.yp, self.xp
+        vz, vy, vx = self.vz, self.vy, self.vx
+        Lz, Ly, Lx = self.Lz, self.Ly, self.Lx
+        cell    = self.cell
+        N_cells = self.N_cells
+
+        Cz = Lz/N_cells
+        Cy = Ly/N_cells
+        Cx = Lx/N_cells
+
+        zp_cell = np.trunc(zp/Cz)
+        yp_cell = np.trunc(yp/Cy)
+        xp_cell = np.trunc(xp/Cx)
+
+        cell[:] = xp_cell+yp_cell*N_cells+zp_cell*N_cells**2
+
+        s = cell.argsort()
+        zp[:] = zp[s]
+        yp[:] = yp[s]
+        xp[:] = xp[s]
+        vz[:] = vz[s]
+        vy[:] = vy[s]
+        vx[:] = vx[s]
+        cell[:] = cell[s]
+
