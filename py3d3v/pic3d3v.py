@@ -58,6 +58,7 @@ class PIC3DBase(object):
         species = self.species
         N = 0
         for s in species: N += s.N
+        self.N = N
         B0 = self.B0
         q, qm, wc, zp, yp, xp, vz, vy, vx = [np.zeros(N) for _ in range(9)]
         count = 0 # Trailing count
@@ -219,6 +220,8 @@ class PIC3DP3M(PIC3DPM):
         self.beta = beta
         self.rmax = rmax
         self.N_cells = N_cells
+        self.cell_vals = np.arange(N_cells**3,  dtype=np.int)
+        self.cell_span = np.zeros(N_cells**3+1, dtype=np.int)
         self.grid = np.zeros((self.nz, self.ny, self.nx))
         self.cell = np.zeros_like(self.zp, dtype=np.double)
 
@@ -229,8 +232,9 @@ class PIC3DP3M(PIC3DPM):
         zp, yp, xp = self.zp, self.yp, self.xp
         vz, vy, vx = self.vz, self.vy, self.vx
         Lz, Ly, Lx = self.Lz, self.Ly, self.Lx
-        cell    = self.cell
-        N_cells = self.N_cells
+        cell       = self.cell
+        cell_span  = self.cell_span
+        N_cells    = self.N_cells
 
         Cz = Lz/N_cells
         Cy = Ly/N_cells
@@ -250,4 +254,6 @@ class PIC3DP3M(PIC3DPM):
         vy[:] = vy[s]
         vx[:] = vx[s]
         cell[:] = cell[s]
+        cell_span[:-1] = np.searchsorted(cell, self.cell_vals)
+        cell_span[-1]  = self.N
 
