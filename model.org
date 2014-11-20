@@ -276,13 +276,14 @@ we get, after applying the double angle identity,
 [[file:disp.png]]
 
 * Implementing P3M
-I am starting with a Gaussian (S1) to make life a little easier.
+I am starting with a Gaussian (S3) to make life a little easier.
 
 ** Force calculation details
-The screen function S1 is defined as
+The screen function S3 is defined as
 \[ f(r; \beta) = \frac{\beta^3}{\pi^{3/2}} e^{-\beta^2 x^2} \]
-\[ \hat{f}(k; \beta) = e^{-\pi^2 k^2/\beta^2} \]
+\[ \hat{f}(k; \beta) = e^{-k^2/(2\beta)^2} \]
 
 The field produced by a gaussian charge distribution is
-\[ |E| = \frac{1}{2\pi^{3/2}}\left[\frac{1}{R^2}erf(R\beta)-\frac{\beta}{R}e^{-\beta^2 R^2}\right] \]
-
+\[ |E| = \frac{1}{2\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2R^2}erf(R\beta)-\frac{\beta}{R}e^{-\beta^2 R^2}\right] \]
+This follows by applying Gauss's law together with the
+definition of $f$.

@@ -2,7 +2,7 @@
 import numpy as np
 cimport numpy as np
 import scipy as sp
-from libc.math cimport floor, ceil, exp
+from libc.math cimport floor, ceil, exp, erf
 
 ctypedef np.float64_t DOUBLE
 
@@ -54,15 +54,15 @@ def calc_Ex(phi, dx):
     return E/(2*dx)
 
 cdef double _erf_scale = np.sqrt(np.pi)/2.
-cdef double erf(double z):
-    return _erf_scale*sp.special.erf(z)
+cdef double erfs(double z):
+    return _erf_scale*erf(z)
 
 def calc_E_short_range(double[:] zp, double[:] yp, double[:] xp,
                        double Lz, double Ly, double Lx,
                        double[:] q, double rmax, double beta):
     cdef int i, j
     cdef double dz, dy, dx, r2, r2max, r
-    cdef double E, Ep, c
+    cdef double E, Ep, c, EpEr
     
     cdef int N = len(zp)
     r2max = rmax**2
@@ -77,17 +77,18 @@ def calc_E_short_range(double[:] zp, double[:] yp, double[:] xp,
             dy = yp[i]-yp[j]
             dx = xp[i]-xp[j]
             r2 = dz**2+dy**2+dx**2
-            if r2<=r2max and r2>0:
+            if r2<=r2max and r2>0.:
                 
                 r = np.sqrt(r2)
-                E = c*(erf(r*beta)/r2-beta*np.exp(-beta**2*r2)/r)
+                E = c*(erfs(r*beta)/r2-beta*exp(-beta**2*r2)/r)
                 Ep = 1./(4*np.pi*r2)
-                Ezp[i] +=  q[j]*dz*(Ep-E)/r 
-                Ezp[j] += -q[i]*dz*(Ep-E)/r
-                Eyp[i] +=  q[j]*dy*(Ep-E)/r
-                Eyp[j] += -q[i]*dy*(Ep-E)/r
-                Exp[i] +=  q[j]*dx*(Ep-E)/r
-                Exp[j] += -q[i]*dx*(Ep-E)/r
+                EpEr = (Ep-E)/r
+                Ezp[i] +=  q[j]*dz*EpEr 
+                Ezp[j] += -q[i]*dz*EpEr
+                Eyp[i] +=  q[j]*dy*EpEr
+                Eyp[j] += -q[i]*dy*EpEr
+                Exp[i] +=  q[j]*dx*EpEr
+                Exp[j] += -q[i]*dx*EpEr
                 
     return (Ezp, Eyp, Exp)        
     
@@ -211,41 +212,43 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
     cdef np.ndarray ky = (np.fft.fftfreq(ny)*2*np.pi/dy)
     cdef np.ndarray kx = (np.fft.fftfreq(nx)*2*np.pi/dx)
 
-    # cdef np.ndarray skz2 = np.sin(kz*dz/2.)**2
-    # cdef np.ndarray sky2 = np.sin(ky*dy/2.)**2
-    # cdef np.ndarray skx2 = np.sin(kx*dx/2.)**2
-    # cdef double skz2i, skzy2i
-    # skz2[1:] = skz2[1:]/(kz[1:]*dz/2.)**2
-    # skz2[0] = 1.
-    # sky2[1:] = sky2[1:]/(ky[1:]*dy/2.)**2
-    # sky2[0] = 1.
-    # skx2[1:] = skx2[1:]/(kx[1:]*dx/2.)**2
-    # skx2[0] = 1.
-    
     cdef np.ndarray kz2 = (kz)**2
     cdef np.ndarray ky2 = (ky)**2
     cdef np.ndarray kx2 = (kx)**2
     cdef double kz2i, ky2i
 
     cdef int nkz, nky, nkx
-    cdef int iz, iy, ix
+    cdef int iz, iy, ix, i, j, k
 
     cdef double c = 1.
-    cdef double d = -np.pi**2/beta**2
+    cdef double d = -1./beta**2/4.
     cdef double k2
+    cdef double res, ex
+    cdef double msz, msy, msx
+    msz = 2*np.pi/dz
+    msy = 2*np.pi/dy
+    msx = 2*np.pi/dx
+    cdef double kzi, kyi, kxi
 
     nkz, nky, nkx = len(kz2), len(ky2), len(kx2)
     cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
     for iz in range(nkz):
         kz2i = kz2[iz]
-        #skz2i = skz2[iz]
+        kzi  = kz[iz]
         for iy in range(nky):
             ky2i = ky2[iy]
-            #skzy2i = skz2i*sky2[iy]
+            kyi  = ky[iy]
             for ix in range(nkx):
                 k2 = (kz2i+ky2i+kx2[ix])
+                kxi = kx[ix]
                 if k2!=0:
-                    k2_vals[iz,iy,ix] = c*exp(d*k2)/k2
+                    res = 0
+                    for i in range(-2, 3):
+                        for j in range(-2, 3):
+                            for k in range(-2, 3):
+                                ex = (kzi+i*msz)**2+(kyi+j*msy)**2+(kxi+k*msx)**2
+                                res += exp(d*ex)/ex
+                    k2_vals[iz,iy,ix] = c*res
 
     k2_vals[0,0,0] = 1.
 
