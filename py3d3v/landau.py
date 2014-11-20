@@ -72,7 +72,7 @@ class Landau3D(object):
         
         pic = PIC3DP3M(species, (Lz, Ly, Lx), (nz, ny, nx))
         
-        pic.init_run(dt)
+        pic.init_run(dt, beta=5, rmax=.5)
 
         self.pic = pic
         self.dz, self.dy, self.dx = dz, dy, dx

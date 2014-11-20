@@ -2,7 +2,7 @@
 import numpy as np
 cimport numpy as np
 import scipy as sp
-from libc.math cimport floor, ceil, exp, erf
+from libc.math cimport floor, ceil, exp, erf, fabs, sqrt
 
 ctypedef np.float64_t DOUBLE
 
@@ -76,10 +76,20 @@ def calc_E_short_range(double[:] zp, double[:] yp, double[:] xp,
             dz = zp[i]-zp[j]
             dy = yp[i]-yp[j]
             dx = xp[i]-xp[j]
+            if fabs(dz)>rmax:
+                if fabs(dz-Lz)<rmax: dz = dz-Lz
+                if fabs(dz+Lz)<rmax: dz = dz+Lz
+            if fabs(dy)>rmax:
+                if fabs(dy-Ly)<rmax: dy = dy-Ly
+                if fabs(dy+Ly)<rmax: dy = dy+Ly
+            if fabs(dx)>rmax:
+                if fabs(dx-Lx)<rmax: dx = dx-Lx
+                if fabs(dx+Lx)<rmax: dx = dx+Lx
+
             r2 = dz**2+dy**2+dx**2
-            if r2<=r2max and r2>0.:
+            if r2<r2max and r2>0.:
                 
-                r = np.sqrt(r2)
+                r = sqrt(r2)
                 E = c*(erfs(r*beta)/r2-beta*exp(-beta**2*r2)/r)
                 Ep = 1./(4*np.pi*r2)
                 EpEr = (Ep-E)/r
