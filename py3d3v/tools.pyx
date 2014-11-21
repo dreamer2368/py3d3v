@@ -25,6 +25,12 @@ cdef extern from "par_tools.h":
                             const double *y, const double sy, double *yc,
                             const double *x, const double sx, double *xc)
 
+    void calc_E_short_range_par(int N,
+                                double* Ezp, const double* zp, double Lz,
+                                double* Eyp, const double* yp, double Ly,
+                                double* Exp, const double* xp, double Lx,
+                                const double* q, double rmax, double beta)
+
 
 def calc_Ez(phi, dz):
     
@@ -58,6 +64,29 @@ cdef double erfs(double z):
     return _erf_scale*erf(z)
 
 def calc_E_short_range(double[:] zp, double[:] yp, double[:] xp,
+                       double Lz, double Ly, double Lx,
+                       double[:] q, double rmax, double beta):
+            
+    cdef int N = len(zp)
+    cdef np.ndarray Ezp = np.ascontiguousarray(np.zeros(N, dtype=np.double))
+    cdef np.ndarray Eyp = np.ascontiguousarray(np.zeros(N, dtype=np.double))
+    cdef np.ndarray Exp = np.ascontiguousarray(np.zeros(N, dtype=np.double))
+    zp = np.ascontiguousarray(zp)
+    yp = np.ascontiguousarray(yp)
+    xp = np.ascontiguousarray(xp)
+    q  = np.ascontiguousarray(q)
+
+    calc_E_short_range_par(N,
+                           <double*>Ezp.data, &zp[0], Lz,
+                           <double*>Eyp.data, &yp[0], Ly,
+                           <double*>Exp.data, &xp[0], Lx,
+                           &q[0], rmax, beta)
+
+    return (Ezp, Eyp, Exp)
+
+    
+
+def calc_E_short_range2(double[:] zp, double[:] yp, double[:] xp,
                        double Lz, double Ly, double Lx,
                        double[:] q, double rmax, double beta):
     cdef int i, j
