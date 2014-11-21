@@ -83,48 +83,71 @@ void calc_E_short_range_par(int N,
 	double d = sqrt(M_PI)/2.;
 
 	int i, j;
-
-	double dz, dy, dx, r2, r;
-    double E, Ep, EpEr;
-
-    for(i=0; i<N-1; i++)
+    #pragma omp parallel private(i,j)
 	{
-        for(j=i+1; j<N; j++)
+		double dz, dy, dx, r2, r;
+		double E, Ep, EpEr, tmp;
+
+        #pragma omp for schedule(dynamic)
+		for(i=0; i<N-1; i++)
 		{
-			dz = zp[i]-zp[j];
-			dy = yp[i]-yp[j];
-			dx = xp[i]-xp[j];
-			if(fabs(dz)>rmax)
+			for(j=i+1; j<N; j++)
 			{
-				if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
-				else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
-			}
-			if(fabs(dy)>rmax)
-			{
-				if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
-				else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
-			}
-			if(fabs(dx)>rmax)
-			{
-				if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
-				else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
-			}
+				dz = zp[i]-zp[j];
+				dy = yp[i]-yp[j];
+				dx = xp[i]-xp[j];
+				if(fabs(dz)>rmax)
+				{
+					if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
+					else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
+				}
+				if(fabs(dy)>rmax)
+				{
+					if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
+					else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
+				}
+				if(fabs(dx)>rmax)
+				{
+					if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
+					else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
+				}
 
-			r2 = dz*dz+dy*dy+dx*dx;
-			if(r2<r2max && r2>0.)
-			{
-				r = sqrt(r2);
-				E = c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
-				Ep = fourpii/r2;
-				EpEr = (Ep-E)/r;
-				Ezp[i] +=  q[j]*dz*EpEr;
-				Ezp[j] += -q[i]*dz*EpEr;
-				Eyp[i] +=  q[j]*dy*EpEr;
-				Eyp[j] += -q[i]*dy*EpEr;
-				Exp[i] +=  q[j]*dx*EpEr;
-				Exp[j] += -q[i]*dx*EpEr;
-			}
+				r2 = dz*dz+dy*dy+dx*dx;
+				if(r2<r2max && r2>0.)
+				{
 
-		} // for j
-	} // for i
+					r    = sqrt(r2);
+					E    = c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
+					Ep   = fourpii/r2;
+					EpEr = (Ep-E)/r;
+
+					tmp = q[j]*dz*EpEr;
+					#pragma omp atomic
+					Ezp[i] += tmp;
+
+					tmp = -q[i]*dz*EpEr;
+					#pragma omp atomic
+					Ezp[j] += tmp;
+
+					tmp = q[j]*dy*EpEr;
+					#pragma omp atomic
+					Eyp[i] += tmp;
+
+					tmp = -q[i]*dy*EpEr;
+					#pragma omp atomic
+					Eyp[j] += tmp;
+
+					tmp = q[j]*dx*EpEr;
+					Exp[i] += tmp;
+					#pragma omp atomic
+
+					tmp = -q[i]*dx*EpEr;
+					#pragma omp atomic
+					Exp[j] += tmp;
+
+				}
+
+			} // for j
+		} // for i
+	}
 }
