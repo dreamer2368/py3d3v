@@ -138,8 +138,8 @@ void calc_E_short_range_par(int N,
 					Eyp[j] += tmp;
 
 					tmp = q[j]*dx*EpEr;
-					Exp[i] += tmp;
 					#pragma omp atomic
+					Exp[i] += tmp;
 
 					tmp = -q[i]*dx*EpEr;
 					#pragma omp atomic

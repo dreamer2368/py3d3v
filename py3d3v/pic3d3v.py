@@ -192,13 +192,11 @@ class PIC3DP3M(PIC3DPM):
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
 
         # Calculate short range forces
-        sz, sy, sx = calc_E_short_range(zp, yp, xp,
-                                        Lz, Ly, Lx,
-                                        q, self.rmax, self.beta)
-        Ezp += sz
-        Eyp += sy
-        Exp += sx
-        
+        calc_E_short_range(Ezp, zp, Lz,
+                           Eyp, yp, Ly,
+                           Exp, xp, Lx,
+                           q, self.rmax, self.beta)
+
         # Return results
         self.Ezp = Ezp
         self.Eyp = Eyp
