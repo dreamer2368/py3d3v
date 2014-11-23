@@ -28,7 +28,7 @@ class Landau3D(object):
         self.save_xa = save_xa
         self.save_rr = save_rr
         
-    def init_run(self):
+    def init_run(self, solver=None):
         Nz, Ny, Nx = self.Nz, self.Ny, self.Nx
         nz, ny, nx = self.nz, self.ny, self.nx
         Lz, Ly, Lx = self.Lz, self.Ly, self.Lx
@@ -69,10 +69,16 @@ class Landau3D(object):
 
         electron = Species(N, -q, m,   x0=x0a, z0=z0a, y0=y0a)
         species = [electron]
+
+        # Default to particle mesh solver with no special options
+        if solver is None:
+            pic = PIC3DPM(species, (Lz, Ly, Lx), (nz, ny, nx))
+            pic.init_run(dt)
+        else:
+            pic = solver[0](species, (Lz, Ly, Lx), (nz, ny, nx))
+            pic.init_run(dt, **solver[1])
         
-        pic = PIC3DP3M(species, (Lz, Ly, Lx), (nz, ny, nx))
-        
-        pic.init_run(dt, beta=5, rmax=.5)
+        #pic.init_run(dt, beta=5, rmax=.5)
 
         self.pic = pic
         self.dz, self.dy, self.dx = dz, dy, dx
