@@ -291,9 +291,10 @@ charge density of the form
 \[ \rho(\v{r}) = [\rho(\v{r})-G(\v{r})] + G(\v{r}) \]
 
 The short range potentials are evaluated exactly within some small
-fixed radius $r_{\text{max}}$. The long range potentials are
-evaluated by interpolating charge density to a uniform mesh and
-solving poissons equation on the resulting mesh charge density. 
+fixed radius $r_{\text{max}}$. The long range potentials are evaluated
+by interpolating charge density to a uniform mesh and solving poissons
+equation on the resulting mesh charge density.  The total potential is
+then simply the sum of the calculated short and long range potentials.
 
 For simplicity, the current implementation of P3M reuses many of the
 algorithms used in the PM method.
@@ -315,12 +316,12 @@ and Eastwood.
 *** Short Range Force Calculation (Particle-Particle Force)
 A straightforward (but algebra heavy) application of Gauss's law to
 the Gaussian charge distribution $G$ yields
-\[ |\v{E}_G(\v{r})| = \frac{q}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r^2}erf(r\beta)
+\[ |\v{E}_s(\v{r})| = \frac{q}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r^2}erf(r\beta)
                                              -\frac{\beta}{r}e^{-\beta^2 r^2}\right] \]
 
 The short range force between two particles is calcuated exactly as
 \begin{equation*}
-  |\v{F}_S(\v{r}_{ij})| =
+  |\v{F}_s(\v{r}_{ij}) | =
   \begin{cases}
   q_i q_j \left(\frac{1}{4\pi\epsilon_0 r_{ij}^2} -
   \frac{1}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r_{ij}^2}erf(r_{ij}\beta)
@@ -348,7 +349,7 @@ convolution theorem to efficently calculate
 The long-range potential is then easily calculated using the relation
 \[ k^2 \hat{\phi_l}(\v{k}) = \frac{\hat{\rho}(\v{k})}{\epsilon_0} \]
 An inverse FFT is then used to transform $\hat{\phi_l}(\v{k})$ to $\phi_l(\v{x}_p)$.
-The electric field $\v{E}$ at each grid point is calculated using second order
+The electric field $\v{E}_l$ at each grid point is calculated using second order
 centered finite differences, and interpolated to particle positions using
 CIC interpolation.
 
@@ -364,9 +365,10 @@ The P3M algorithm can be expressed compactly as follows:
 4) Solve $k^2 \hat{\phi}_l(\v{k}) = \frac{\hat{\rho}_l(\v{k})}{\epsilon_0}$ for
    $\hat{\phi}_l(\v{k})$
 5) Use IFFT to convert $\hat{\phi}_l(\v{k})$ to $\phi(\v{x}_p)$
-6) Solve $\v{E} = -\nabla \phi$ on the mesh points using second order
+6) Solve $\v{E}_l = -\nabla \phi$ on the mesh points using second order
    centered finite differences
-7) Interpolate $\v{E}(\v{x}_p)$ at mesh points to $\v{E}(\v{x}_i)$ at
-   particle positions using cloud in cell (CIC) interpolation
-8) Advance particle velocities $\v{v}_i(t-\Delta t/2) \to \v{v}_i(t+\Delta t/2)$ using $\v{E}_i$
-9) Advance particle positions $\v{x}_i(t) \to \v{x}_i(t+\Delta t)$ using $\v{v}_i(t+\Delta t/2)$
+7) Interpolate $\v{E}_l(\v{x}_p)$ at mesh points to $\v{E}_l(\v{x}_i)$
+   at particle positions using cloud in cell (CIC) interpolation
+8) Calculate short range fields $\v{E}_s(\v{x}_i)$
+9) Advance particle velocities and positions using the leap-frog time
+   integration scheme and total electric field $\v{E}=\v{E}_l+\v{E}_s$
