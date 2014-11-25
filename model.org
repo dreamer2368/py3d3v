@@ -1,6 +1,8 @@
 #+TITLE:  3d3v Electrostatic PIC Code
 #+AUTHOR: Scott High
+#+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \newcommand{\pd}[2]{\frac{\partial #1}{ \partial #2}}
+#+LATEX_HEADER: \renewcommand{\v}[1]{\bold{#1}}
 
 #+begin_src python :session :exports none
 import matplotlib
@@ -275,15 +277,96 @@ we get, after applying the double angle identity,
 #+RESULTS: disp-plot
 [[file:disp.png]]
 
-* Implementing P3M
-I am starting with a Gaussian (S3) to make life a little easier.
+* Particle-Particle-Particle-Mesh (P3M) Method
+P3M methods extend PM methods by splitting the potential from a
+particle into short range and long range components. This is done by
+utilizing the following trivial identity
+\[ \phi(\v{r}) = [\phi(\v{r})-f(\v{r})] + f(\v{r}) \]
+The function $f(\v{r})$ is chosen so the potential from the first term
+$\phi_s(\v{r}) = \phi(\v{r})-f(\v{r})$ decays rapidly in real space, and the
+fourier transform $\hat{f}(\v{k})$ of the second part $\phi_l(\v{r})=f(\v{r})$
+decays rapidly in $\v{k}$ space. These are the so called short range
+and long range potentials, and correspond to modifications in the
+charge density of the form
+\[ \rho(\v{r}) = [\rho(\v{r})-G(\v{r})] + G(\v{r}) \]
+
+The short range potentials are evaluated exactly within some small
+fixed radius $r_{\text{max}}$. The long range potentials are
+evaluated by interpolating charge density to a uniform mesh and
+solving poissons equation on the resulting mesh charge density. 
+
+For simplicity, the current implementation of P3M reuses many of the
+algorithms used in the PM method.
 
 ** Force calculation details
-The screen function S3 is defined as
-\[ f(r; \beta) = \frac{\beta^3}{\pi^{3/2}} e^{-\beta^2 x^2} \]
-\[ \hat{f}(k; \beta) = e^{-k^2/(2\beta)^2} \]
+The current version of my P3M code is implemented using a Gaussian
+screen function. This will be generalized shortly.
 
-The field produced by a gaussian charge distribution is
-\[ |E| = \frac{1}{2\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2R^2}erf(R\beta)-\frac{\beta}{R}e^{-\beta^2 R^2}\right] \]
-This follows by applying Gauss's law together with the
-definition of $f$.
+The screen function is defined as
+\[ G(\v{r}; \beta) = \frac{\beta^3}{\pi^{3/2}} e^{-\beta^2 r^2} \]
+and its fourier transform is
+\begin{align*}
+ \hat{G}(\v{k}; \beta) &= \int d^3v f(\v{r};\beta) e^{-i\v{k}\cdot\v{r}} \\
+                   &= e^{-k^2/(2\beta)^2}
+\end{align*}
+This is also called the S3 function in the notation of Hockney
+and Eastwood.
+
+*** Short Range Force Calculation (Particle-Particle Force)
+A straightforward (but algebra heavy) application of Gauss's law to
+the Gaussian charge distribution $G$ yields
+\[ |\v{E}_G(\v{r})| = \frac{q}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r^2}erf(r\beta)
+                                             -\frac{\beta}{r}e^{-\beta^2 r^2}\right] \]
+
+The short range force between two particles is calcuated exactly as
+\begin{equation*}
+  |\v{F}_S(\v{r}_{ij})| =
+  \begin{cases}
+  q_i q_j \left(\frac{1}{4\pi\epsilon_0 r_{ij}^2} -
+  \frac{1}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r_{ij}^2}erf(r_{ij}\beta)
+                                      -\frac{\beta}{r_{ij}}e^{-\beta^2 r_{ij}^2}\right]\right)
+  & \text{ if $r_{ij}<r_{\text{max}}$} \\
+  0 & \text{ otherwise }
+  \end{cases}
+\end{equation*}
+Where the parameter $r_{\text{max}}$ is the cut off radius. 
+
+Care must be taken to avoid calculating all $\mathcal{O}(N^2)$ interactions
+between particles. My code currently does not use any strategy to
+reduce the number of interactions calcuated. This will be added soon.
+
+*** Long Range Force Calculation (Particle-Mesh Force)
+Charges are first intepolated to the mesh using Cloud-In-Cell (CIC) weighting
+to find the mesh charge density $\rho_m$.
+
+The modified charge density $\rho_l$ at grid point $\v{x}_p$ is
+\[ \rho_l(\v{x}_p) = \sum_{p'} \rho_m(\v{x}_{p'}) G(\v{x}_p-\v{x}_{p'}) \]
+where the summation is understood to be over all periodic images
+of the domain. This is a discrete convolution, so we can use the fourier
+convolution theorem to efficently calculate
+\[ \hat{\rho}_l(\v{k}) = \hat{\rho}_m(\v{k}) \hat{G}(\v{k}) \]
+The long-range potential is then easily calculated using the relation
+\[ k^2 \hat{\phi_l}(\v{k}) = \frac{\hat{\rho}(\v{k})}{\epsilon_0} \]
+An inverse FFT is then used to transform $\hat{\phi_l}(\v{k})$ to $\phi_l(\v{x}_p)$.
+The electric field $\v{E}$ at each grid point is calculated using second order
+centered finite differences, and interpolated to particle positions using
+CIC interpolation.
+
+
+** Algorithm
+The P3M algorithm can be expressed compactly as follows:
+
+1) Weight charges $q_i$ to the uniform mesh to get charge density
+   $\rho_m$ using CIC weighting
+2) Use FFT to convert mesh charge density $\rho_m(\v{x}_p)$ to
+   $\hat{\rho}_m(\v{k})$
+3) Set $\hat{\rho}_l(\v{k}) = \hat{\rho}_m(\v{k}) \hat{G}(\v{k})$
+4) Solve $k^2 \hat{\phi}_l(\v{k}) = \frac{\hat{\rho}_l(\v{k})}{\epsilon_0}$ for
+   $\hat{\phi}_l(\v{k})$
+5) Use IFFT to convert $\hat{\phi}_l(\v{k})$ to $\phi(\v{x}_p)$
+6) Solve $\v{E} = -\nabla \phi$ on the mesh points using second order
+   centered finite differences
+7) Interpolate $\v{E}(\v{x}_p)$ at mesh points to $\v{E}(\v{x}_i)$ at
+   particle positions using cloud in cell (CIC) interpolation
+8) Advance particle velocities $\v{v}_i(t-\Delta t/2) \to \v{v}_i(t+\Delta t/2)$ using $\v{E}_i$
+9) Advance particle positions $\v{x}_i(t) \to \v{x}_i(t+\Delta t)$ using $\v{v}_i(t+\Delta t/2)$
