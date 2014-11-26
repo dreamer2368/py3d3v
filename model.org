@@ -307,7 +307,7 @@ The screen function is defined as
 \[ G(\v{r}; \beta) = \frac{\beta^3}{\pi^{3/2}} e^{-\beta^2 r^2} \]
 and its fourier transform is
 \begin{align*}
- \hat{G}(\v{k}; \beta) &= \int d^3v f(\v{r};\beta) e^{-i\v{k}\cdot\v{r}} \\
+ \hat{G}(\v{k}; \beta) &= \int d^3v G(\v{r};\beta) e^{-i\v{k}\cdot\v{r}} \\
                    &= e^{-k^2/(2\beta)^2}
 \end{align*}
 This is also called the S3 function in the notation of Hockney
@@ -371,4 +371,5 @@ The P3M algorithm can be expressed compactly as follows:
    at particle positions using cloud in cell (CIC) interpolation
 8) Calculate short range fields $\v{E}_s(\v{x}_i)$
 9) Advance particle velocities and positions using the leap-frog time
-   integration scheme and total electric field $\v{E}=\v{E}_l+\v{E}_s$
+   integration scheme with the total electric field
+   $\v{E}=\v{E}_l+\v{E}_s$
