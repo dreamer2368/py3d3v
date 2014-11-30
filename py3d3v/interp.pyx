@@ -6,7 +6,7 @@ import cython
 
 ctypedef np.float64_t DOUBLE
 
-cdef extern from "par_interp.h":
+cdef extern from "par_interp.hpp":
     void interp_cic_par(const int nz, const int ny, const int nx, const double *vals,
                         const int N, const double *z, const double dz,
                         const double *y, const double dy,

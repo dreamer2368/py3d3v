@@ -1,5 +1,5 @@
 
-#include "par_tools.h"
+#include "par_tools.hpp"
 
 void move_par(const int N, const double dt,
 			  double *zp, const double *vz,

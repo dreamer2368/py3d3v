@@ -6,11 +6,13 @@ import numpy as np
 setup(
     cmdclass = {'build_ext':build_ext},
     include_dirs = [np.get_include()],
-    ext_modules = [Extension("interp",["interp.pyx", "par_interp.c"],
+    ext_modules = [Extension("interp",["interp.pyx", "par_interp.cpp"],
                              libraries=["m"],
                              extra_compile_args=['-fopenmp'],
-                             extra_link_args=['-fopenmp']),
-                   Extension("tools",["tools.pyx", "par_tools.c"],
+                             extra_link_args=['-fopenmp'],
+                             language="c++"),
+                   Extension("tools",["tools.pyx", "par_tools.cpp"],
                              extra_compile_args=['-fopenmp'],
-                             extra_link_args=['-fopenmp'])]
+                             extra_link_args=['-fopenmp'],
+                             language="c++")]
     )

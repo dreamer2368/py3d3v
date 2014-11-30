@@ -6,7 +6,7 @@ from libc.math cimport floor, ceil, exp, erf, fabs, sqrt
 
 ctypedef np.float64_t DOUBLE
 
-cdef extern from "par_tools.h":
+cdef extern from "par_tools.hpp":
 
     void move_par(const int N, const double dt,
                   double *zp, const double *vz,
