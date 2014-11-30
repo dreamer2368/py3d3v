@@ -67,6 +67,20 @@ void scale_array_3_copy(const int N,
 
 }
 
+Gaussian::Gaussian(double beta_):
+	beta(beta_)
+{
+	beta2 = beta*beta;
+	c = 1./(2.*sqrt(M_PI*M_PI*M_PI));
+	d = sqrt(M_PI)/2.;
+}
+
+double Gaussian::E(double r)
+{
+	r2 = r*r;
+	return c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
+}
+
 void calc_E_short_range_par(int N,
 							double* Ezp, const double* zp, double Lz,
 							double* Eyp, const double* yp, double Ly,
@@ -74,13 +88,10 @@ void calc_E_short_range_par(int N,
 							const double* q, double rmax, double beta)
 {
 
-	double beta2 = beta*beta;
     double r2max = rmax*rmax;
-
-	// Constants in short range force calculation
 	double fourpii = 1./(4*M_PI);
-    double c = 1./(2.*sqrt(M_PI*M_PI*M_PI));
-	double d = sqrt(M_PI)/2.;
+
+	Gaussian G(beta);
 
 	int i, j;
     #pragma omp parallel private(i,j)
@@ -117,7 +128,7 @@ void calc_E_short_range_par(int N,
 				{
 
 					r    = sqrt(r2);
-					E    = c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
+					E    = G.E(r);
 					Ep   = fourpii/r2;
 					EpEr = (Ep-E)/r;
 
