@@ -25,11 +25,11 @@ cdef extern from "par_tools.hpp":
                             const double *y, const double sy, double *yc,
                             const double *x, const double sx, double *xc)
 
-    void calc_E_short_range_par(int N,
-                                double* Ezp, const double* zp, double Lz,
-                                double* Eyp, const double* yp, double Ly,
-                                double* Exp, const double* xp, double Lx,
-                                const double* q, double rmax, double beta)
+    void calc_E_short_range_par_gaussian(int N,
+                                         double* Ezp, const double* zp, double Lz,
+                                         double* Eyp, const double* yp, double Ly,
+                                         double* Exp, const double* xp, double Lx,
+                                         const double* q, double rmax, double beta)
 
 
 def calc_Ez(phi, dz):
@@ -70,11 +70,11 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
             
     cdef int N = len(zp)
 
-    calc_E_short_range_par(N,
-                           &Ezp[0], &zp[0], Lz,
-                           &Eyp[0], &yp[0], Ly,
-                           &Exp[0], &xp[0], Lx,
-                           &q[0],   rmax,   beta)
+    calc_E_short_range_par_gaussian(N,
+                                    &Ezp[0], &zp[0], Lz,
+                                    &Eyp[0], &yp[0], Ly,
+                                    &Exp[0], &xp[0], Lx,
+                                    &q[0],   rmax,   beta)
 
 
 def calc_E_short_range2(double[:] zp, double[:] yp, double[:] xp,

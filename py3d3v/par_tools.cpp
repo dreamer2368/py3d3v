@@ -81,6 +81,7 @@ double Gaussian::E(double r)
 	return c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
 }
 
+template<typename T>
 void calc_E_short_range_par(int N,
 							double* Ezp, const double* zp, double Lz,
 							double* Eyp, const double* yp, double Ly,
@@ -91,7 +92,7 @@ void calc_E_short_range_par(int N,
     double r2max = rmax*rmax;
 	double fourpii = 1./(4*M_PI);
 
-	Gaussian G(beta);
+	T G(beta);
 
 	int i, j;
     #pragma omp parallel private(i,j)
@@ -162,3 +163,16 @@ void calc_E_short_range_par(int N,
 		} // for i
 	}
 }
+
+// This is ugly. Find a better way.
+void calc_E_short_range_par_gaussian(int N,
+									 double* Ezp, const double* zp, double Lz,
+									 double* Eyp, const double* yp, double Ly,
+									 double* Exp, const double* xp, double Lx,
+									 const double* q, double rmax, double beta)
+{
+	return calc_E_short_range_par<Gaussian>(N, Ezp, zp, Lz, Eyp, yp, Ly,
+											Exp, xp, Lx, q, rmax, beta);
+}
+
+

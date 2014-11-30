@@ -21,11 +21,11 @@ void scale_array_3_copy(const int N,
 						const double *y, const double sy, double *yc,
 						const double *x, const double sx, double *xc);
 
-void calc_E_short_range_par(int N,
-							double* Ezp, const double* zp, double Lz,
-							double* Eyp, const double* yp, double Ly,
-							double* Exp, const double* xp, double Lx,
-							const double* q, double rmax, double beta);
+void calc_E_short_range_par_gaussian(int N,
+									 double* Ezp, const double* zp, double Lz,
+									 double* Eyp, const double* yp, double Ly,
+									 double* Exp, const double* xp, double Lx,
+									 const double* q, double rmax, double beta);
 
 struct Gaussian
 {
