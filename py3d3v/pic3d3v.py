@@ -58,6 +58,7 @@ class PIC3DBase(object):
         species = self.species
         N = 0
         for s in species: N += s.N
+        self.N = N
         B0 = self.B0
         q, qm, wc, zp, yp, xp, vz, vy, vx = [np.zeros(N) for _ in range(9)]
         count = 0 # Trailing count
@@ -191,6 +192,10 @@ class PIC3DP3M(PIC3DPM):
         Ex  = calc_Ex(grid, dx)
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
 
+        # Make sure particles are ordered corectly for
+        # short range force calculation
+        self.sort_by_cells()
+
         # Calculate short range forces
         calc_E_short_range(Ezp, zp, Lz,
                            Eyp, yp, Ly,
@@ -204,7 +209,8 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=100, rmax=.2, screen="gaussian", unpack=False):
+    def init_run(self, dt, beta=100, rmax=.2, screen="gaussian", N_cells=3, unpack=False):
+
         if unpack:
             self.unpack()
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
@@ -214,9 +220,41 @@ class PIC3DP3M(PIC3DPM):
         self.beta = beta
         self.rmax = rmax
         self.screen = screen
+        self.N_cells = N_cells
+        self.cell_vals = np.arange(N_cells**3,  dtype=np.int)
+        self.cell_span = np.zeros(N_cells**3+1, dtype=np.int)
         self.grid = np.zeros((self.nz, self.ny, self.nx))
+        self.cell = np.zeros_like(self.zp, dtype=np.double)
 
         Ezp, Eyp, Exp = self.calc_E_at_points()
         self.accel(Ezp, Eyp, Exp, -dt/2.)
-    
-        
+
+    def sort_by_cells(self):
+        zp, yp, xp = self.zp, self.yp, self.xp
+        vz, vy, vx = self.vz, self.vy, self.vx
+        Lz, Ly, Lx = self.Lz, self.Ly, self.Lx
+        cell       = self.cell
+        cell_span  = self.cell_span
+        N_cells    = self.N_cells
+
+        Cz = Lz/N_cells
+        Cy = Ly/N_cells
+        Cx = Lx/N_cells
+
+        zp_cell = np.trunc(zp/Cz)
+        yp_cell = np.trunc(yp/Cy)
+        xp_cell = np.trunc(xp/Cx)
+
+        cell[:] = xp_cell+yp_cell*N_cells+zp_cell*N_cells**2
+
+        s = cell.argsort()
+        zp[:] = zp[s]
+        yp[:] = yp[s]
+        xp[:] = xp[s]
+        vz[:] = vz[s]
+        vy[:] = vy[s]
+        vx[:] = vx[s]
+        cell[:] = cell[s]
+        cell_span[:-1] = np.searchsorted(cell, self.cell_vals)
+        cell_span[-1]  = self.N
+
