@@ -27,6 +27,14 @@ void calc_E_short_range_par_gaussian(int N,
 									 double* Exp, const double* xp, double Lx,
 									 const double* q, double rmax, double beta);
 
+void calc_E_short_range_par_gaussian(int N1, int N2,
+									 double* Ezp, const double* zp, double Lz,
+									 double* Eyp, const double* yp, double Ly,
+									 double* Exp, const double* xp, double Lx,
+									 const double* zp2, const double* yp2,
+									 const double* xp2, const double* q2,
+									 double rmax, double beta);
+
 void calc_E_short_range_par_s2(int N,
 							   double* Ezp, const double* zp, double Lz,
 							   double* Eyp, const double* yp, double Ly,

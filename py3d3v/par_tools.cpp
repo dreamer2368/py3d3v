@@ -182,6 +182,79 @@ void calc_E_short_range_par(int N,
 	}
 }
 
+template<typename T>
+void calc_E_short_range_par(int N1, int N2,
+							double* Ezp, const double* zp, double Lz,
+							double* Eyp, const double* yp, double Ly,
+							double* Exp, const double* xp, double Lx,
+							const double* zp2, const double* yp2,
+							const double* xp2, const double* q2,
+							double rmax, double beta)
+{
+
+    double r2max = rmax*rmax;
+	double fourpii = 1./(4*M_PI);
+
+	T G(beta);
+
+	int i, j;
+    #pragma omp parallel private(i,j)
+	{
+		double dz, dy, dx, r2, r;
+		double E, Ep, EpEr, tmp;
+
+        #pragma omp for schedule(dynamic)
+		for(i=0; i<N1; i++)
+		{
+			for(j=0; j<N2; j++)
+			{
+				dz = zp[i]-zp2[j];
+				dy = yp[i]-yp2[j];
+				dx = xp[i]-xp2[j];
+				if(fabs(dz)>rmax)
+				{
+					if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
+					else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
+				}
+				if(fabs(dy)>rmax)
+				{
+					if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
+					else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
+				}
+				if(fabs(dx)>rmax)
+				{
+					if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
+					else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
+				}
+
+				r2 = dz*dz+dy*dy+dx*dx;
+				if(r2<r2max && r2>0.)
+				{
+
+					r    = sqrt(r2);
+					E    = G.E(r);
+					Ep   = fourpii/r2;
+					EpEr = (Ep-E)/r;
+
+					tmp = q2[j]*dz*EpEr;
+					#pragma omp atomic
+					Ezp[i] += tmp;
+
+					tmp = q2[j]*dy*EpEr;
+					#pragma omp atomic
+					Eyp[i] += tmp;
+
+					tmp = q2[j]*dx*EpEr;
+					#pragma omp atomic
+					Exp[i] += tmp;
+
+				}
+
+			} // for j
+		} // for i
+	}
+}
+
 // This is ugly. Find a better way.
 void calc_E_short_range_par_gaussian(int N,
 									 double* Ezp, const double* zp, double Lz,
@@ -189,8 +262,21 @@ void calc_E_short_range_par_gaussian(int N,
 									 double* Exp, const double* xp, double Lx,
 									 const double* q, double rmax, double beta)
 {
-	return calc_E_short_range_par<Gaussian>(N, Ezp, zp, Lz, Eyp, yp, Ly,
-											Exp, xp, Lx, q, rmax, beta);
+	calc_E_short_range_par<Gaussian>(N, Ezp, zp, Lz, Eyp, yp, Ly,
+									 Exp, xp, Lx, q, rmax, beta);
+}
+
+void calc_E_short_range_par_gaussian(int N1, int N2,
+									 double* Ezp, const double* zp, double Lz,
+									 double* Eyp, const double* yp, double Ly,
+									 double* Exp, const double* xp, double Lx,
+									 const double* zp2, const double* yp2,
+									 const double* xp2, const double* q2,
+									 double rmax, double beta)
+{
+	calc_E_short_range_par<Gaussian>(N1, N2, Ezp, zp, Lz, Eyp, yp, Ly,
+									 Exp, xp, Lx, zp2, yp2, xp2,
+									 q2, rmax, beta);
 }
 
 void calc_E_short_range_par_s2(int N,
@@ -199,8 +285,8 @@ void calc_E_short_range_par_s2(int N,
 							   double* Exp, const double* xp, double Lx,
 							   const double* q, double rmax, double beta)
 {
-	return calc_E_short_range_par<S2>(N, Ezp, zp, Lz, Eyp, yp, Ly,
-									  Exp, xp, Lx, q, rmax, beta);
+	calc_E_short_range_par<S2>(N, Ezp, zp, Lz, Eyp, yp, Ly,
+							   Exp, xp, Lx, q, rmax, beta);
 }
 
 
