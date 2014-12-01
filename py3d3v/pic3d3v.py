@@ -170,6 +170,11 @@ class PIC3DPM(PIC3DBase):
 class PIC3DP3M(PIC3DPM):
 
     def calc_E_at_points(self):
+
+        # Make sure particles are ordered corectly for
+        # short range force calculation
+        self.sort_by_cells()
+
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
         nz, ny, nx = self.nz, self.ny, self.nx
@@ -191,10 +196,6 @@ class PIC3DP3M(PIC3DPM):
         Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
         Ex  = calc_Ex(grid, dx)
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
-
-        # Make sure particles are ordered corectly for
-        # short range force calculation
-        self.sort_by_cells()
 
         # Calculate short range forces
         calc_E_short_range(Ezp, zp, Lz,
