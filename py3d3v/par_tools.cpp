@@ -81,6 +81,24 @@ double Gaussian::E(double r)
 	return c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
 }
 
+S2::S2(double beta_):
+	beta(beta_)
+{
+	c = 4./(M_PI*beta*beta*beta*beta);
+	d = 2*beta;
+	b2 = beta/2.;
+	fpii = 1./(4*M_PI);
+}
+
+double S2::E(double r)
+{
+	r2 = r*r;
+	if(r<b2)
+		return c*(d*r-3*r2);
+	else
+		return fpii*r2;
+}
+
 template<typename T>
 void calc_E_short_range_par(int N,
 							double* Ezp, const double* zp, double Lz,
@@ -173,6 +191,16 @@ void calc_E_short_range_par_gaussian(int N,
 {
 	return calc_E_short_range_par<Gaussian>(N, Ezp, zp, Lz, Eyp, yp, Ly,
 											Exp, xp, Lx, q, rmax, beta);
+}
+
+void calc_E_short_range_par_s2(int N,
+							   double* Ezp, const double* zp, double Lz,
+							   double* Eyp, const double* yp, double Ly,
+							   double* Exp, const double* xp, double Lx,
+							   const double* q, double rmax, double beta)
+{
+	return calc_E_short_range_par<S2>(N, Ezp, zp, Lz, Eyp, yp, Ly,
+									  Exp, xp, Lx, q, rmax, beta);
 }
 
 

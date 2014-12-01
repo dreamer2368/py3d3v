@@ -373,3 +373,26 @@ The P3M algorithm can be expressed compactly as follows:
 9) Advance particle velocities and positions using the leap-frog time
    integration scheme with the total electric field
    $\v{E}=\v{E}_l+\v{E}_s$
+
+** HE P3M
+I am in the first stages of implementing P3M 
+From Hockney and Eastwood
+\begin{equation*}
+S2(r) =
+\begin{cases}
+\frac{48}{\pi \beta^4}\left(\frac{\beta}{2}-r\right) & \text{ if } r<\frac{\beta}{2} \\
+0 &\text{ otherwise }
+\end{cases}
+\end{equation*}
+and
+\[ \hat{S2}(k) = \frac{12}{(k\beta/2)^4}\left(2-2\cos\left(\frac{k\beta}{2}\right)
+-\frac{k\beta}{2}\sin\left(\frac{k\beta}{2}\right)\right) \]
+By Gauss's Law we can calculate the field from an $S2$ particle $x_i$ as
+\begin{equation*}
+|E_i(r)| =
+\begin{cases}
+ \frac{4 q_i}{\pi \epsilon_0 \beta^{4}} \left(2 \beta r - 3 r^2 \right) & \text{ if } r<\frac{\beta}{2} \\
+\frac{q_i}{4\pi\epsilon_0 r^2} &\text{ otherwise }
+\end{cases}
+\end{equation*}
+

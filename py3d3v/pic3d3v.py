@@ -195,7 +195,8 @@ class PIC3DP3M(PIC3DPM):
         calc_E_short_range(Ezp, zp, Lz,
                            Eyp, yp, Ly,
                            Exp, xp, Lx,
-                           q, self.rmax, self.beta)
+                           q, self.rmax, self.beta,
+                           self.screen)
 
         # Return results
         self.Ezp = Ezp
@@ -203,15 +204,16 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=100, rmax=.2, unpack=False):
+    def init_run(self, dt, beta=100, rmax=.2, screen="gaussian", unpack=False):
         if unpack:
             self.unpack()
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
                                      self.nx, self.dx,
-                                     beta=beta)
+                                     beta=beta, screen=screen)
         self.beta = beta
         self.rmax = rmax
+        self.screen = screen
         self.grid = np.zeros((self.nz, self.ny, self.nx))
 
         Ezp, Eyp, Exp = self.calc_E_at_points()

@@ -27,6 +27,12 @@ void calc_E_short_range_par_gaussian(int N,
 									 double* Exp, const double* xp, double Lx,
 									 const double* q, double rmax, double beta);
 
+void calc_E_short_range_par_s2(int N,
+							   double* Ezp, const double* zp, double Lz,
+							   double* Eyp, const double* yp, double Ly,
+							   double* Exp, const double* xp, double Lx,
+							   const double* q, double rmax, double beta);
+
 struct Gaussian
 {
 
@@ -40,6 +46,26 @@ private:
 public:
 
 	Gaussian(double beta_);
+
+	double E(double r);
+
+};
+
+/*! S2 from Hockney and Eastwood
+ */
+struct S2
+{
+
+private:
+
+	// Beta and Beta^2
+	double beta;
+	// Constants in E
+	double c, d, fpii, b2, r2;
+
+public:
+
+	S2(double beta_);
 
 	double E(double r);
 
