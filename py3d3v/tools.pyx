@@ -112,43 +112,43 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        double rmax, double beta,
                        screen="gaussian"):
 
-    for k in range(N_cells):
-        for j in range(N_cells):
-            for i in range(N_cells):
+    for loc in range(N_cells**3):
 
-                loc = i+j*N_cells+k*N_cells**2
+        k = int(floor(loc/(N_cells**2)))
+        j = int(floor((loc-k*N_cells**2)/N_cells))
+        i = int((loc-k*N_cells**2-j*N_cells))
+        
+        cs = cell_span[loc]
+        ce = cell_span[loc+1]
+        Np = ce-cs
 
-                cs = cell_span[loc]
-                ce = cell_span[loc+1]
-                Np = ce-cs
+        calc_E_short_range_internal(Np,
+                                    Ezp[cs:ce], zp[cs:ce], Lz, 
+                                    Eyp[cs:ce], yp[cs:ce], Ly,
+                                    Exp[cs:ce], xp[cs:ce], Lx, 
+                                    q[cs:ce], rmax, beta,
+                                    screen=screen)
 
-                calc_E_short_range_internal(Np,
-                                            Ezp[cs:ce], zp[cs:ce], Lz, 
-                                            Eyp[cs:ce], yp[cs:ce], Ly,
-                                            Exp[cs:ce], xp[cs:ce], Lx, 
-                                            q[cs:ce], rmax, beta,
-                                            screen=screen)
+        for rk0, rj0, ri0 in _offsets:
+            rk = (k+rk0)%N_cells
+            rj = (j+rj0)%N_cells
+            ri = (i+ri0)%N_cells                   
+            r_loc = ri+rj*N_cells+rk*N_cells**2
 
-                for rk0, rj0, ri0 in _offsets:
-                    rk = (k+rk0)%N_cells
-                    rj = (j+rj0)%N_cells
-                    ri = (i+ri0)%N_cells                   
-                    r_loc = ri+rj*N_cells+rk*N_cells**2
-
-                    rcs = cell_span[r_loc]
-                    rce = cell_span[r_loc+1]
-                    Npr = rce-rcs
+            rcs = cell_span[r_loc]
+            rce = cell_span[r_loc+1]
+            Npr = rce-rcs
 
 
-                    calc_E_short_range_external(Np, Npr,
-                                                Ezp[cs:ce], zp[cs:ce], Lz, 
-                                                Eyp[cs:ce], yp[cs:ce], Ly,
-                                                Exp[cs:ce], xp[cs:ce], Lx,
-                                                zp[rcs:rce],
-                                                yp[rcs:rce],
-                                                xp[rcs:rce],
-                                                q[rcs:rce], rmax, beta,
-                                                screen=screen)
+            calc_E_short_range_external(Np, Npr,
+                                        Ezp[cs:ce], zp[cs:ce], Lz, 
+                                        Eyp[cs:ce], yp[cs:ce], Ly,
+                                        Exp[cs:ce], xp[cs:ce], Lx,
+                                        zp[rcs:rce],
+                                        yp[rcs:rce],
+                                        xp[rcs:rce],
+                                        q[rcs:rce], rmax, beta,
+                                        screen=screen)
 
 def calc_E_short_range_internal(int N,
                                 double[:] Ezp, double[:] zp, double Lz,
