@@ -196,74 +196,52 @@ void calc_E_short_range_par(int N,
 
 	T G(beta);
 
-	int i, j;
-    #pragma omp parallel private(i,j)
+	double dz, dy, dx, r2, r;
+	double E, Ep, EpEr;
+
+	for(int i=0; i<N-1; i++)
 	{
-		double dz, dy, dx, r2, r;
-		double E, Ep, EpEr, tmp;
-
-        #pragma omp for schedule(dynamic)
-		for(i=0; i<N-1; i++)
+		for(int j=i+1; j<N; j++)
 		{
-			for(j=i+1; j<N; j++)
+			dz = zp[i]-zp[j];
+			dy = yp[i]-yp[j];
+			dx = xp[i]-xp[j];
+			if(fabs(dz)>rmax)
 			{
-				dz = zp[i]-zp[j];
-				dy = yp[i]-yp[j];
-				dx = xp[i]-xp[j];
-				if(fabs(dz)>rmax)
-				{
-					if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
-					else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
-				}
-				if(fabs(dy)>rmax)
-				{
-					if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
-					else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
-				}
-				if(fabs(dx)>rmax)
-				{
-					if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
-					else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
-				}
+				if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
+				else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
+			}
+			if(fabs(dy)>rmax)
+			{
+				if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
+				else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
+			}
+			if(fabs(dx)>rmax)
+			{
+				if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
+				else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
+			}
 
-				r2 = dz*dz+dy*dy+dx*dx;
-				if(r2<r2max && r2>0.)
-				{
+			r2 = dz*dz+dy*dy+dx*dx;
+			if(r2<r2max && r2>0.)
+			{
 
-					r    = sqrt(r2);
-					E    = G.E(r);
-					Ep   = fourpii/r2;
-					EpEr = (Ep-E)/r;
+				r    = sqrt(r2);
+				E    = G.E(r);
+				Ep   = fourpii/r2;
+				EpEr = (Ep-E)/r;
 
-					tmp = q[j]*dz*EpEr;
-					#pragma omp atomic
-					Ezp[i] += tmp;
+				Ezp[i] += q[j]*dz*EpEr;
+				Ezp[j] += -q[i]*dz*EpEr;
+				Eyp[i] += q[j]*dy*EpEr;
+				Eyp[j] += -q[i]*dy*EpEr;
+				Exp[i] += q[j]*dx*EpEr;
+				Exp[j] += -q[i]*dx*EpEr;
 
-					tmp = -q[i]*dz*EpEr;
-					#pragma omp atomic
-					Ezp[j] += tmp;
+			}
 
-					tmp = q[j]*dy*EpEr;
-					#pragma omp atomic
-					Eyp[i] += tmp;
-
-					tmp = -q[i]*dy*EpEr;
-					#pragma omp atomic
-					Eyp[j] += tmp;
-
-					tmp = q[j]*dx*EpEr;
-					#pragma omp atomic
-					Exp[i] += tmp;
-
-					tmp = -q[i]*dx*EpEr;
-					#pragma omp atomic
-					Exp[j] += tmp;
-
-				}
-
-			} // for j
-		} // for i
-	}
+		} // for j
+	} // for i
 }
 
 template<typename T>
@@ -281,54 +259,49 @@ void calc_E_short_range_par(int N1, int N2,
 
 	T G(beta);
 
-	int i, j;
-    #pragma omp parallel private(i,j)
+	double dz, dy, dx, r2, r;
+	double E, Ep, EpEr;
+
+	for(int i=0; i<N1; i++)
 	{
-		double dz, dy, dx, r2, r;
-		double E, Ep, EpEr;
-
-        #pragma omp for schedule(dynamic)
-		for(i=0; i<N1; i++)
+		for(int j=0; j<N2; j++)
 		{
-			for(j=0; j<N2; j++)
+			dz = zp[i]-zp2[j];
+			dy = yp[i]-yp2[j];
+			dx = xp[i]-xp2[j];
+			if(fabs(dz)>rmax)
 			{
-				dz = zp[i]-zp2[j];
-				dy = yp[i]-yp2[j];
-				dx = xp[i]-xp2[j];
-				if(fabs(dz)>rmax)
-				{
-					if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
-					else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
-				}
-				if(fabs(dy)>rmax)
-				{
-					if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
-					else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
-				}
-				if(fabs(dx)>rmax)
-				{
-					if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
-					else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
-				}
+				if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
+				else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
+			}
+			if(fabs(dy)>rmax)
+			{
+				if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
+				else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
+			}
+			if(fabs(dx)>rmax)
+			{
+				if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
+				else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
+			}
 
-				r2 = dz*dz+dy*dy+dx*dx;
-				if(r2<r2max && r2>0.)
-				{
+			r2 = dz*dz+dy*dy+dx*dx;
+			if(r2<r2max && r2>0.)
+			{
 
-					r    = sqrt(r2);
-					E    = G.E(r);
-					Ep   = fourpii/r2;
-					EpEr = (Ep-E)/r;
+				r    = sqrt(r2);
+				E    = G.E(r);
+				Ep   = fourpii/r2;
+				EpEr = (Ep-E)/r;
 					
-					Ezp[i] += q2[j]*dz*EpEr;
-					Eyp[i] += q2[j]*dy*EpEr;
-					Exp[i] += q2[j]*dx*EpEr;
+				Ezp[i] += q2[j]*dz*EpEr;
+				Eyp[i] += q2[j]*dy*EpEr;
+				Exp[i] += q2[j]*dx*EpEr;
 
-				}
+			}
 
-			} // for j
-		} // for i
-	}
+		} // for j
+	} // for i
 }
 
 template<typename T>
@@ -341,54 +314,59 @@ void calc_E_short_range_par_cells(int N,
 								  double rmax, double beta)
 {
 
-	int i, j, k, cs, ce, Np;
-	int r_loc, rcs, rce, Npr;
-	int rk, rj, ri;
-	int N_tot = N_cells*N_cells*N_cells;
-	int N_cells2 = N_cells*N_cells;
+	const int N_tot = N_cells*N_cells*N_cells;
+	const int N_cells2 = N_cells*N_cells;
 
-    for(int loc=0; loc<N_tot; loc++)
+    #pragma omp parallel
 	{
+		int i, j, k, cs, ce, Np;
+		int r_loc, rcs, rce, Npr;
+		int rk, rj, ri;
 
-        k = (int)(floor(loc/(N_cells2)));
-        j = (int)(floor((loc-k*N_cells2)/N_cells));
-        i = (int)((loc-k*N_cells2-j*N_cells));
+        #pragma omp for schedule(dynamic)
+		for(int loc=0; loc<N_tot; loc++)
+		{
+
+			k = (int)(floor(loc/(N_cells2)));
+			j = (int)(floor((loc-k*N_cells2)/N_cells));
+			i = (int)((loc-k*N_cells2-j*N_cells));
         
-        cs = cell_span[loc];
-        ce = cell_span[loc+1];
-        Np = ce-cs;
+			cs = cell_span[loc];
+			ce = cell_span[loc+1];
+			Np = ce-cs;
 
-		if(Np>0)
-			calc_E_short_range_par<T>(Np,
-									  &Ezp[cs], &zp[cs], Lz, 
-									  &Eyp[cs], &yp[cs], Ly,
-									  &Exp[cs], &xp[cs], Lx, 
-									  &q[cs], rmax, beta);
+			if(Np>0)
+				calc_E_short_range_par<T>(Np,
+										  &Ezp[cs], &zp[cs], Lz, 
+										  &Eyp[cs], &yp[cs], Ly,
+										  &Exp[cs], &xp[cs], Lx, 
+										  &q[cs], rmax, beta);
 
-		for(int rk0=-1; rk0<=1; rk0++)
-			for(int rj0=-1; rj0<=1; rj0++)
-				for(int ri0=-1; ri0<=1; ri0++)
-				{
+			for(int rk0=-1; rk0<=1; rk0++)
+				for(int rj0=-1; rj0<=1; rj0++)
+					for(int ri0=-1; ri0<=1; ri0++)
+					{
 
-					rk = (k+rk0)<0 ? N_cells-1:(k+rk0)%N_cells;
-					rj = (j+rj0)<0 ? N_cells-1:(j+rj0)%N_cells;
-					ri = (i+ri0)<0 ? N_cells-1:(i+ri0)%N_cells;
-					r_loc = ri+rj*N_cells+rk*N_cells2;
+						rk = (k+rk0)<0 ? N_cells-1:(k+rk0)%N_cells;
+						rj = (j+rj0)<0 ? N_cells-1:(j+rj0)%N_cells;
+						ri = (i+ri0)<0 ? N_cells-1:(i+ri0)%N_cells;
+						r_loc = ri+rj*N_cells+rk*N_cells2;
 
-					rcs = cell_span[r_loc];
-					rce = cell_span[r_loc+1];
-					Npr = rce-rcs;
+						rcs = cell_span[r_loc];
+						rce = cell_span[r_loc+1];
+						Npr = rce-rcs;
 
-					if(rk0!=0 || rj0!=0 || ri0!=0)
-						if(Np>0 && Npr>0)
-							calc_E_short_range_par<T>(Np, Npr,
-													  &Ezp[cs], &zp[cs], Lz, 
-													  &Eyp[cs], &yp[cs], Ly,
-													  &Exp[cs], &xp[cs], Lx,
-													  &zp[rcs], &yp[rcs], &xp[rcs],
-													  &q[rcs], rmax, beta);
-				}
+						if(rk0!=0 || rj0!=0 || ri0!=0)
+							if(Np>0 && Npr>0)
+								calc_E_short_range_par<T>(Np, Npr,
+														  &Ezp[cs], &zp[cs], Lz, 
+														  &Eyp[cs], &yp[cs], Ly,
+														  &Exp[cs], &xp[cs], Lx,
+														  &zp[rcs], &yp[rcs], &xp[rcs],
+														  &q[rcs], rmax, beta);
+					}
 
+		}
 	}
 }
 
