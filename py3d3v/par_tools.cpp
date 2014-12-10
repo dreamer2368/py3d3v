@@ -206,21 +206,6 @@ void calc_E_short_range_par(int N,
 			dz = zp[i]-zp[j];
 			dy = yp[i]-yp[j];
 			dx = xp[i]-xp[j];
-			if(fabs(dz)>rmax)
-			{
-				if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
-				else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
-			}
-			if(fabs(dy)>rmax)
-			{
-				if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
-				else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
-			}
-			if(fabs(dx)>rmax)
-			{
-				if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
-				else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
-			}
 
 			r2 = dz*dz+dy*dy+dx*dx;
 			if(r2<r2max && r2>0.)
