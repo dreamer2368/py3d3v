@@ -201,7 +201,7 @@ void calc_E_short_range_par(int N1, int N2,
     #pragma omp parallel private(i,j)
 	{
 		double dz, dy, dx, r2, r;
-		double E, Ep, EpEr, tmp;
+		double E, Ep, EpEr;
 
         #pragma omp for schedule(dynamic)
 		for(i=0; i<N1; i++)
@@ -235,18 +235,10 @@ void calc_E_short_range_par(int N1, int N2,
 					E    = G.E(r);
 					Ep   = fourpii/r2;
 					EpEr = (Ep-E)/r;
-
-					tmp = q2[j]*dz*EpEr;
-					#pragma omp atomic
-					Ezp[i] += tmp;
-
-					tmp = q2[j]*dy*EpEr;
-					#pragma omp atomic
-					Eyp[i] += tmp;
-
-					tmp = q2[j]*dx*EpEr;
-					#pragma omp atomic
-					Exp[i] += tmp;
+					
+					Ezp[i] += q2[j]*dz*EpEr;
+					Eyp[i] += q2[j]*dy*EpEr;
+					Exp[i] += q2[j]*dx*EpEr;
 
 				}
 
