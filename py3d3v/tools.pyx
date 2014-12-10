@@ -29,30 +29,9 @@ cdef extern from "par_tools.hpp":
                                          double* Ezp, const double* zp, double Lz,
                                          double* Eyp, const double* yp, double Ly,
                                          double* Exp, const double* xp, double Lx,
-                                         const double* q, double rmax, double beta)
-
-    void calc_E_short_range_par_gaussian(int N1, int N2,
-                                         double* Ezp, const double* zp, double Lz,
-                                         double* Eyp, const double* yp, double Ly,
-                                         double* Exp, const double* xp, double Lx,
-                                         const double* zp2, const double* yp2,
-                                         const double* xp2, const double* q2,
-                                         double rmax, double beta)    
-
-    void calc_E_short_range_par_s2(int N,
-                                   double* Ezp, const double* zp, double Lz,
-                                   double* Eyp, const double* yp, double Ly,
-                                   double* Exp, const double* xp, double Lx,
-                                   const double* q, double rmax, double beta)
-
-    
-    void calc_E_short_range_par_cells(int N,
-                                      double* Ezp, const double* zp, double Lz,
-                                      double* Eyp, const double* yp, double Ly,
-                                      double* Exp, const double* xp, double Lx,
-                                      const double* q,
-                                      long N_cells, const long* cell_span, 
-                                      double rmax, double beta)
+                                         const double* q,
+                                         long N_cells, const long* cell_span, 
+                                         double rmax, double beta)
 
 
 def calc_Ez(phi, dz):
@@ -86,34 +65,6 @@ cdef double _erf_scale = np.sqrt(np.pi)/2.
 cdef double erfs(double z):
     return _erf_scale*erf(z)
 
-def calc_E_short_range_old(double[:] Ezp, double[:] zp, double Lz,
-                           double[:] Eyp, double[:] yp, double Ly,
-                           double[:] Exp, double[:] xp, double Lx,
-                           double[:] q, double rmax, double beta,
-                           screen="gaussian"):
-            
-    cdef int N = len(zp)
-
-    if screen=="gaussian":
-        calc_E_short_range_par_gaussian(N,
-                                        &Ezp[0], &zp[0], Lz,
-                                        &Eyp[0], &yp[0], Ly,
-                                        &Exp[0], &xp[0], Lx,
-                                        &q[0],   rmax,   beta)
-    elif screen=="S2":
-        calc_E_short_range_par_s2(N,
-                                  &Ezp[0], &zp[0], Lz,
-                                  &Eyp[0], &yp[0], Ly,
-                                  &Exp[0], &xp[0], Lx,
-                                  &q[0],   rmax,   beta)
-
-_offsets = []
-for k in (-1,0,1):
-    for j in (-1,0,1):
-        for i in (-1,0,1):
-            _offsets.append((k, j, i))
-_offsets.remove((0,0,0))        
-
 def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        double[:] Eyp, double[:] yp, double Ly,
                        double[:] Exp, double[:] xp, double Lx,
@@ -122,45 +73,17 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        screen="gaussian"):
 
     cdef int N = len(zp)
-    calc_E_short_range_par_cells(N,
-                                 &Ezp[0], &zp[0], Lz,
-                                 &Eyp[0], &yp[0], Ly,
-                                 &Exp[0], &xp[0], Lx,
-                                 &q[0],
-                                 N_cells, &cell_span[0],
-                                 rmax, beta)
-
-def calc_E_short_range_internal(int N,
-                                double[:] Ezp, double[:] zp, double Lz,
-                                double[:] Eyp, double[:] yp, double Ly,
-                                double[:] Exp, double[:] xp, double Lx,
-                                double[:] q, double rmax, double beta,
-                                screen="gaussian"):
-
-    if N>0:
+    if screen=="gaussian":
         calc_E_short_range_par_gaussian(N,
                                         &Ezp[0], &zp[0], Lz,
                                         &Eyp[0], &yp[0], Ly,
                                         &Exp[0], &xp[0], Lx,
-                                        &q[0],   rmax,   beta)
+                                        &q[0],
+                                        N_cells, &cell_span[0],
+                                        rmax, beta)
 
-def calc_E_short_range_external(int N1, int N2,
-                                double[:] Ezp, double[:] zp, double Lz,
-                                double[:] Eyp, double[:] yp, double Ly,
-                                double[:] Exp, double[:] xp, double Lx,
-                                double[:] zp2, double[:] yp2, double[:] xp2,
-                                double[:] q2, double rmax, double beta,
-                                screen="gaussian"):
-
-    if N1>0 and N2>0:
-        calc_E_short_range_par_gaussian(N1, N2,
-                                        &Ezp[0], &zp[0], Lz,
-                                        &Eyp[0], &yp[0], Ly,
-                                        &Exp[0], &xp[0], Lx,
-                                        &zp2[0], &yp2[0], &xp2[0],
-                                        &q2[0], rmax, beta)
-    
-
+# The purpose of this function is for double checking the short range
+# forces calculated by the more sophisticated functions
 def calc_E_short_range2(double[:] zp, double[:] yp, double[:] xp,
                        double Lz, double Ly, double Lx,
                        double[:] q, double rmax, double beta):
