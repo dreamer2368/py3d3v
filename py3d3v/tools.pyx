@@ -77,11 +77,11 @@ cdef double _erf_scale = np.sqrt(np.pi)/2.
 cdef double erfs(double z):
     return _erf_scale*erf(z)
 
-def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
-                       double[:] Eyp, double[:] yp, double Ly,
-                       double[:] Exp, double[:] xp, double Lx,
-                       double[:] q, double rmax, double beta,
-                       screen="gaussian"):
+def calc_E_short_range_old(double[:] Ezp, double[:] zp, double Lz,
+                           double[:] Eyp, double[:] yp, double Ly,
+                           double[:] Exp, double[:] xp, double Lx,
+                           double[:] q, double rmax, double beta,
+                           screen="gaussian"):
             
     cdef int N = len(zp)
 
@@ -97,7 +97,58 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                                   &Eyp[0], &yp[0], Ly,
                                   &Exp[0], &xp[0], Lx,
                                   &q[0],   rmax,   beta)
-        
+
+_offsets = []
+for k in (-1,0,1):
+    for j in (-1,0,1):
+        for i in (-1,0,1):
+            _offsets.append((k, j, i))
+_offsets.remove((0,0,0))        
+
+def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
+                       double[:] Eyp, double[:] yp, double Ly,
+                       double[:] Exp, double[:] xp, double Lx,
+                       double[:] q, long N_cells, long[:] cell_span, 
+                       double rmax, double beta,
+                       screen="gaussian"):
+
+    for k in range(N_cells):
+        for j in range(N_cells):
+            for i in range(N_cells):
+
+                loc = i+j*N_cells+k*N_cells**2
+
+                cs = cell_span[loc]
+                ce = cell_span[loc+1]
+                Np = ce-cs
+
+                calc_E_short_range_internal(Np,
+                                            Ezp[cs:ce], zp[cs:ce], Lz, 
+                                            Eyp[cs:ce], yp[cs:ce], Ly,
+                                            Exp[cs:ce], xp[cs:ce], Lx, 
+                                            q[cs:ce], rmax, beta,
+                                            screen=screen)
+
+                for rk0, rj0, ri0 in _offsets:
+                    rk = (k+rk0)%N_cells
+                    rj = (j+rj0)%N_cells
+                    ri = (i+ri0)%N_cells                   
+                    r_loc = ri+rj*N_cells+rk*N_cells**2
+
+                    rcs = cell_span[r_loc]
+                    rce = cell_span[r_loc+1]
+                    Npr = rce-rcs
+
+
+                    calc_E_short_range_external(Np, Npr,
+                                                Ezp[cs:ce], zp[cs:ce], Lz, 
+                                                Eyp[cs:ce], yp[cs:ce], Ly,
+                                                Exp[cs:ce], xp[cs:ce], Lx,
+                                                zp[rcs:rce],
+                                                yp[rcs:rce],
+                                                xp[rcs:rce],
+                                                q[rcs:rce], rmax, beta,
+                                                screen=screen)
 
 def calc_E_short_range_internal(int N,
                                 double[:] Ezp, double[:] zp, double Lz,

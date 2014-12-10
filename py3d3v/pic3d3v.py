@@ -200,8 +200,9 @@ class PIC3DP3M(PIC3DPM):
         # Calculate short range forces
         calc_E_short_range(Ezp, zp, Lz,
                            Eyp, yp, Ly,
-                           Exp, xp, Lx,
-                           q, self.rmax, self.beta,
+                           Exp, xp, Lx, q,
+                           self.N_cells, self.cell_span,
+                           self.rmax, self.beta,
                            self.screen)
 
         # Return results
