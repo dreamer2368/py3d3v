@@ -231,9 +231,9 @@ void calc_E_short_range_par(int N,
 
 template<typename T>
 void calc_E_short_range_par(int N1, int N2,
-							double* Ezp, const double* zp, double Lz,
-							double* Eyp, const double* yp, double Ly,
-							double* Exp, const double* xp, double Lx,
+							double* Ezp, const double* zp, double Lz, double sz,
+							double* Eyp, const double* yp, double Ly, double sy,
+							double* Exp, const double* xp, double Lx, double sx,
 							const double* zp2, const double* yp2,
 							const double* xp2, const double* q2,
 							double rmax, double beta)
@@ -251,24 +251,9 @@ void calc_E_short_range_par(int N1, int N2,
 	{
 		for(int j=0; j<N2; j++)
 		{
-			dz = zp[i]-zp2[j];
-			dy = yp[i]-yp2[j];
-			dx = xp[i]-xp2[j];
-			if(fabs(dz)>rmax)
-			{
-				if(     fabs(dz-Lz)<rmax) dz = dz-Lz;
-				else if(fabs(dz+Lz)<rmax) dz = dz+Lz;
-			}
-			if(fabs(dy)>rmax)
-			{
-				if(     fabs(dy-Ly)<rmax) dy = dy-Ly;
-				else if(fabs(dy+Ly)<rmax) dy = dy+Ly;
-			}
-			if(fabs(dx)>rmax)
-			{
-				if(     fabs(dx-Lx)<rmax) dx = dx-Lx;
-				else if(fabs(dx+Lx)<rmax) dx = dx+Lx;
-			}
+			dz = zp[i]-zp2[j]+sz;
+			dy = yp[i]-yp2[j]+sy;
+			dx = xp[i]-xp2[j]+sx;
 
 			r2 = dz*dz+dy*dy+dx*dx;
 			if(r2<r2max && r2>0.)
@@ -302,13 +287,14 @@ void calc_E_short_range_par_cells(int N,
 	const int N_tot = N_cells*N_cells*N_cells;
 	const int N_cells2 = N_cells*N_cells;
 
-    #pragma omp parallel
+#pragma omp parallel
 	{
 		int i, j, k, cs, ce, Np;
 		int r_loc, rcs, rce, Npr;
 		int rk, rj, ri;
+		double sz, sy, sx;
 
-        #pragma omp for schedule(dynamic)
+#pragma omp for schedule(dynamic)
 		for(int loc=0; loc<N_tot; loc++)
 		{
 
@@ -331,10 +317,55 @@ void calc_E_short_range_par_cells(int N,
 				for(int rj0=-1; rj0<=1; rj0++)
 					for(int ri0=-1; ri0<=1; ri0++)
 					{
+		
+						if((k+rk0)<0)
+						{
+							rk = N_cells-1;
+							sz = -Lz;
+						}
+						else if((k+rk0)>=N_cells)
+						{
+							rk = 0;
+							sz = +Lz;
+						}
+						else
+						{
+							rk = k+rk0;
+							sz = 0.;
+						}
 
-						rk = (k+rk0)<0 ? N_cells-1:(k+rk0)%N_cells;
-						rj = (j+rj0)<0 ? N_cells-1:(j+rj0)%N_cells;
-						ri = (i+ri0)<0 ? N_cells-1:(i+ri0)%N_cells;
+						if((j+rj0)<0)
+						{
+							rj = N_cells-1;
+							sy = -Ly;
+						}
+						else if((j+rj0)>=N_cells)
+						{
+							rj = 0;
+							sy = +Ly;
+						}
+						else
+						{
+							rj = j+rj0;
+							sy = 0;
+						}
+
+						if((i+ri0)<0)
+						{
+							ri = N_cells-1;
+							sx = -Lx;
+						}
+						else if((i+ri0)>=N_cells)
+						{
+							ri = 0;
+							sx = +Lx;
+						}
+						else
+						{
+							ri = i+ri0;
+							sx = 0.;
+						}
+						
 						r_loc = ri+rj*N_cells+rk*N_cells2;
 
 						rcs = cell_span[r_loc];
@@ -344,9 +375,9 @@ void calc_E_short_range_par_cells(int N,
 						if(rk0!=0 || rj0!=0 || ri0!=0)
 							if(Np>0 && Npr>0)
 								calc_E_short_range_par<T>(Np, Npr,
-														  &Ezp[cs], &zp[cs], Lz, 
-														  &Eyp[cs], &yp[cs], Ly,
-														  &Exp[cs], &xp[cs], Lx,
+														  &Ezp[cs], &zp[cs], Lz, sz,
+														  &Eyp[cs], &yp[cs], Ly, sy,
+														  &Exp[cs], &xp[cs], Lx, sx,
 														  &zp[rcs], &yp[rcs], &xp[rcs],
 														  &q[rcs], rmax, beta);
 					}
