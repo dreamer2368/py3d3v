@@ -45,6 +45,15 @@ cdef extern from "par_tools.hpp":
                                    double* Exp, const double* xp, double Lx,
                                    const double* q, double rmax, double beta)
 
+    
+    void calc_E_short_range_par_cells(int N,
+                                      double* Ezp, const double* zp, double Lz,
+                                      double* Eyp, const double* yp, double Ly,
+                                      double* Exp, const double* xp, double Lx,
+                                      const double* q,
+                                      long N_cells, const long* cell_span, 
+                                      double rmax, double beta)
+
 
 def calc_Ez(phi, dz):
     
@@ -112,43 +121,14 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        double rmax, double beta,
                        screen="gaussian"):
 
-    for loc in range(N_cells**3):
-
-        k = int(floor(loc/(N_cells**2)))
-        j = int(floor((loc-k*N_cells**2)/N_cells))
-        i = int((loc-k*N_cells**2-j*N_cells))
-        
-        cs = cell_span[loc]
-        ce = cell_span[loc+1]
-        Np = ce-cs
-
-        calc_E_short_range_internal(Np,
-                                    Ezp[cs:ce], zp[cs:ce], Lz, 
-                                    Eyp[cs:ce], yp[cs:ce], Ly,
-                                    Exp[cs:ce], xp[cs:ce], Lx, 
-                                    q[cs:ce], rmax, beta,
-                                    screen=screen)
-
-        for rk0, rj0, ri0 in _offsets:
-            rk = (k+rk0)%N_cells
-            rj = (j+rj0)%N_cells
-            ri = (i+ri0)%N_cells                   
-            r_loc = ri+rj*N_cells+rk*N_cells**2
-
-            rcs = cell_span[r_loc]
-            rce = cell_span[r_loc+1]
-            Npr = rce-rcs
-
-
-            calc_E_short_range_external(Np, Npr,
-                                        Ezp[cs:ce], zp[cs:ce], Lz, 
-                                        Eyp[cs:ce], yp[cs:ce], Ly,
-                                        Exp[cs:ce], xp[cs:ce], Lx,
-                                        zp[rcs:rce],
-                                        yp[rcs:rce],
-                                        xp[rcs:rce],
-                                        q[rcs:rce], rmax, beta,
-                                        screen=screen)
+    cdef int N = len(zp)
+    calc_E_short_range_par_cells(N,
+                                 &Ezp[0], &zp[0], Lz,
+                                 &Eyp[0], &yp[0], Ly,
+                                 &Exp[0], &xp[0], Lx,
+                                 &q[0],
+                                 N_cells, &cell_span[0],
+                                 rmax, beta)
 
 def calc_E_short_range_internal(int N,
                                 double[:] Ezp, double[:] zp, double Lz,

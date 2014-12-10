@@ -281,4 +281,62 @@ void calc_E_short_range_par_s2(int N,
 							   Exp, xp, Lx, q, rmax, beta);
 }
 
+void calc_E_short_range_par_cells(int N,
+								  double* Ezp, const double* zp, double Lz,
+								  double* Eyp, const double* yp, double Ly,
+								  double* Exp, const double* xp, double Lx,
+								  const double* q,
+								  long N_cells, const long* cell_span, 
+								  double rmax, double beta)
+{
 
+	int i, j, k, cs, ce, Np;
+	int r_loc, rcs, rce, Npr;
+	int rk, rj, ri;
+	int N_tot = N_cells*N_cells*N_cells;
+	int N_cells2 = N_cells*N_cells;
+
+    for(int loc=0; loc<N_tot; loc++)
+	{
+
+        k = (int)(floor(loc/(N_cells2)));
+        j = (int)(floor((loc-k*N_cells2)/N_cells));
+        i = (int)((loc-k*N_cells2-j*N_cells));
+        
+        cs = cell_span[loc];
+        ce = cell_span[loc+1];
+        Np = ce-cs;
+
+		if(Np>0)
+			calc_E_short_range_par_gaussian(Np,
+											&Ezp[cs], &zp[cs], Lz, 
+											&Eyp[cs], &yp[cs], Ly,
+											&Exp[cs], &xp[cs], Lx, 
+											&q[cs], rmax, beta);
+
+		for(int rk0=-1; rk0<=1; rk0++)
+			for(int rj0=-1; rj0<=1; rj0++)
+				for(int ri0=-1; ri0<=1; ri0++)
+				{
+
+					rk = (k+rk0)<0 ? N_cells-1:(k+rk0)%N_cells;
+					rj = (j+rj0)<0 ? N_cells-1:(j+rj0)%N_cells;
+					ri = (i+ri0)<0 ? N_cells-1:(i+ri0)%N_cells;
+					r_loc = ri+rj*N_cells+rk*N_cells2;
+
+					rcs = cell_span[r_loc];
+					rce = cell_span[r_loc+1];
+					Npr = rce-rcs;
+
+					if(rk0!=0 || rj0!=0 || ri0!=0)
+						if(Np>0 && Npr>0)
+							calc_E_short_range_par_gaussian(Np, Npr,
+															&Ezp[cs], &zp[cs], Lz, 
+															&Eyp[cs], &yp[cs], Ly,
+															&Exp[cs], &xp[cs], Lx,
+															&zp[rcs], &yp[rcs], &xp[rcs],
+															&q[rcs], rmax, beta);
+				}
+
+	}
+}
