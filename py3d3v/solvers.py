@@ -39,6 +39,8 @@ class Poisson3DFFTLR(object):
             self.k2 = build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
         elif screen=="S2":
             self.k2 = build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
+        else:
+            assert False, "Invalid Screen %s"%(screen,)
         
     def solve(self, rho):
         

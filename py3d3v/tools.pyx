@@ -33,6 +33,14 @@ cdef extern from "par_tools.hpp":
                                          long N_cells, const long* cell_span, 
                                          double rmax, double beta)
 
+    void calc_E_short_range_par_s2(int N,
+                                   double* Ezp, const double* zp, double Lz,
+                                   double* Eyp, const double* yp, double Ly,
+                                   double* Exp, const double* xp, double Lx,
+                                   const double* q,
+                                   long N_cells, const long* cell_span, 
+                                   double rmax, double beta)
+    
 
 def calc_Ez(phi, dz):
     
@@ -81,6 +89,16 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                                         &q[0],
                                         N_cells, &cell_span[0],
                                         rmax, beta)
+    elif screen=="S2":
+        calc_E_short_range_par_s2(N,
+                                  &Ezp[0], &zp[0], Lz,
+                                  &Eyp[0], &yp[0], Ly,
+                                  &Exp[0], &xp[0], Lx,
+                                  &q[0],
+                                  N_cells, &cell_span[0],
+                                  rmax, beta)
+    else:
+        assert False, "Invalid Screen %s"%(screen,)
 
 # The purpose of this function is for double checking the short range
 # forces calculated by the more sophisticated functions

@@ -30,6 +30,15 @@ void calc_E_short_range_par_gaussian(int N,
 									 long N_cells, const long* cell_span, 
 									 double rmax, double beta);
 
+void calc_E_short_range_par_s2(int N,
+							   double* Ezp, const double* zp, double Lz,
+							   double* Eyp, const double* yp, double Ly,
+							   double* Exp, const double* xp, double Lx,
+							   const double* q,
+							   long N_cells, const long* cell_span, 
+							   double rmax, double beta);
+
+
 struct Gaussian
 {
 
