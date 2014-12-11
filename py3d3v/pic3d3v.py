@@ -211,14 +211,21 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=100, rmax=.2, screen="gaussian", N_cells=3, unpack=False):
+    def init_run(self, dt, beta=10, rmax=.2, screen="gaussian", N_cells=None, unpack=False):
 
         if unpack:
             self.unpack()
+
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
                                      self.nx, self.dx,
                                      beta=beta, screen=screen)
+
+        # Choose the largest number of cells possible
+        if N_cells is None:
+            Lmin = np.min([self.Lz, self.Ly, self.Lx])
+            N_cells = int(np.floor(Lmin/rmax))
+
         self.beta = beta
         self.rmax = rmax
         self.screen = screen
