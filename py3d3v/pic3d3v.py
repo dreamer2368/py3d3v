@@ -173,7 +173,7 @@ class PIC3DP3M(PIC3DPM):
 
         # Make sure particles are ordered corectly for
         # short range force calculation
-        #self.sort_by_cells()
+        self.sort_by_cells()
 
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
@@ -200,8 +200,9 @@ class PIC3DP3M(PIC3DPM):
         # Calculate short range forces
         calc_E_short_range(Ezp, zp, Lz,
                            Eyp, yp, Ly,
-                           Exp, xp, Lx,
-                           q, self.rmax, self.beta,
+                           Exp, xp, Lx, q,
+                           self.N_cells, self.cell_span,
+                           self.rmax, self.beta,
                            self.screen)
 
         # Return results
@@ -210,14 +211,21 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=100, rmax=.2, screen="gaussian", N_cells=3, unpack=False):
+    def init_run(self, dt, beta=10, rmax=.2, screen="gaussian", N_cells=None, unpack=False):
 
         if unpack:
             self.unpack()
+
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
                                      self.nx, self.dx,
                                      beta=beta, screen=screen)
+
+        # Choose the largest number of cells possible
+        if N_cells is None:
+            Lmin = np.min([self.Lz, self.Ly, self.Lx])
+            N_cells = int(np.floor(Lmin/rmax))
+
         self.beta = beta
         self.rmax = rmax
         self.screen = screen

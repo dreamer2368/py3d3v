@@ -29,13 +29,17 @@ cdef extern from "par_tools.hpp":
                                          double* Ezp, const double* zp, double Lz,
                                          double* Eyp, const double* yp, double Ly,
                                          double* Exp, const double* xp, double Lx,
-                                         const double* q, double rmax, double beta)
+                                         const double* q,
+                                         long N_cells, const long* cell_span, 
+                                         double rmax, double beta)
 
     void calc_E_short_range_par_s2(int N,
                                    double* Ezp, const double* zp, double Lz,
                                    double* Eyp, const double* yp, double Ly,
                                    double* Exp, const double* xp, double Lx,
-                                   const double* q, double rmax, double beta)
+                                   const double* q,
+                                   long N_cells, const long* cell_span, 
+                                   double rmax, double beta)
     
 
 def calc_Ez(phi, dz):
@@ -72,25 +76,32 @@ cdef double erfs(double z):
 def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        double[:] Eyp, double[:] yp, double Ly,
                        double[:] Exp, double[:] xp, double Lx,
-                       double[:] q, double rmax, double beta,
+                       double[:] q, long N_cells, long[:] cell_span, 
+                       double rmax, double beta,
                        screen="gaussian"):
-            
-    cdef int N = len(zp)
 
+    cdef int N = len(zp)
     if screen=="gaussian":
         calc_E_short_range_par_gaussian(N,
                                         &Ezp[0], &zp[0], Lz,
                                         &Eyp[0], &yp[0], Ly,
                                         &Exp[0], &xp[0], Lx,
-                                        &q[0],   rmax,   beta)
+                                        &q[0],
+                                        N_cells, &cell_span[0],
+                                        rmax, beta)
     elif screen=="S2":
         calc_E_short_range_par_s2(N,
                                   &Ezp[0], &zp[0], Lz,
                                   &Eyp[0], &yp[0], Ly,
                                   &Exp[0], &xp[0], Lx,
-                                  &q[0],   rmax,   beta)
-        
+                                  &q[0],
+                                  N_cells, &cell_span[0],
+                                  rmax, beta)
+    else:
+        assert False, "Invalid Screen %s"%(screen,)
 
+# The purpose of this function is for double checking the short range
+# forces calculated by the more sophisticated functions
 def calc_E_short_range2(double[:] zp, double[:] yp, double[:] xp,
                        double Lz, double Ly, double Lx,
                        double[:] q, double rmax, double beta):
