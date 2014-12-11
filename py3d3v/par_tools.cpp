@@ -251,9 +251,9 @@ void calc_E_short_range_par(int N1, int N2,
 	{
 		for(int j=0; j<N2; j++)
 		{
-			dz = zp[i]-zp2[j]+sz;
-			dy = yp[i]-yp2[j]+sy;
-			dx = xp[i]-xp2[j]+sx;
+			dz = zp[i]-(zp2[j]+sz);
+			dy = yp[i]-(yp2[j]+sy);
+			dx = xp[i]-(xp2[j]+sx);
 
 			r2 = dz*dz+dy*dy+dx*dx;
 			if(r2<r2max && r2>0.)
