@@ -173,7 +173,8 @@ class PIC3DP3M(PIC3DPM):
 
         # Make sure particles are ordered corectly for
         # short range force calculation
-        self.sort_by_cells()
+        if self.N_cells>1:
+            self.sort_by_cells()
 
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
