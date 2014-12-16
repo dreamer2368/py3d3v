@@ -1,3 +1,5 @@
 tools.cpp
 interp.cpp
 ewald.cpp
+*.pdf
+
