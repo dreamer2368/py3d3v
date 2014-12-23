@@ -316,12 +316,12 @@ and Eastwood.
 *** Short Range Force Calculation (Particle-Particle Force)
 A straightforward (but algebra heavy) application of Gauss's law to
 the Gaussian charge distribution $G$ yields
-\[ |\v{E}_s(\v{r})| = \frac{q}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r^2}erf(r\beta)
+\[ E_s(r) = \frac{q}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r^2}erf(r\beta)
                                              -\frac{\beta}{r}e^{-\beta^2 r^2}\right] \]
 
 The short range force between two particles is calcuated exactly as
 \begin{equation*}
-  |\v{F}_s(\v{r}_{ij}) | =
+  F_s(r_{ij}) =
   \begin{cases}
   q_i q_j \left(\frac{1}{4\pi\epsilon_0 r_{ij}^2} -
   \frac{1}{2\epsilon_0\pi^{3/2}}\left[\frac{\sqrt{\pi}}{2r_{ij}^2}erf(r_{ij}\beta)
@@ -330,7 +330,8 @@ The short range force between two particles is calcuated exactly as
   0 & \text{ otherwise }
   \end{cases}
 \end{equation*}
-Where the parameter $r_{\text{max}}$ is the cut off radius. 
+Where $\v{r}_{ij} = \v{r}_i-\v{r}_j$ and $r_{\text{max}}$ is the
+cut-off radius.
 
 Care must be taken to avoid calculating all $\mathcal{O}(N^2)$ interactions
 between particles. My code currently does not use any strategy to
