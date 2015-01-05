@@ -1,6 +1,7 @@
 #+TITLE:  3d3v Electrostatic PIC Code
 #+AUTHOR: Scott High
 #+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
 #+LATEX_HEADER: \newcommand{\pd}[2]{\frac{\partial #1}{ \partial #2}}
 #+LATEX_HEADER: \renewcommand{\v}[1]{\bold{#1}}
 
@@ -338,17 +339,38 @@ between particles. My code currently does not use any strategy to
 reduce the number of interactions calcuated. This will be added soon.
 
 *** Long Range Force Calculation (Particle-Mesh Force)
-Charges are first intepolated to the mesh using Cloud-In-Cell (CIC) weighting
-to find the mesh charge density $\rho_m$.
+It is well known that the fourier transform of Poisson's equation is
+\[ k^2 \hat{\phi}(\v{k}) = \frac{\hat{\rho}(\v{k})}{\epsilon_0} \]
+From this it is simple to solve for $\hat{\phi}(\v{k})$ and recover
+$\phi(\v{x})$ by using the inverse fourier transform.
+The discrete fourier transform is the fourier transform for values
+defined on a uniform mesh. It is defined as
+\[ \hat{\rho}(\v{k}) = \sum_p \rho(\v{x}_p) e^{-i \v{k}\cdot\v{x}_p} \]
+where the summation is over all mesh points $\v{x}_p$. The $i^\text{th}$
+component of $\v{k}$ can take the values
+$k_i \in \left\{ 2\frac{2\pi}{L_i}, 3\frac{2\pi}{L_i},
+\ldots, \frac{N_i}{2} \frac{2\pi}{L_i} \right\}$
+where $N_i$ and $L_i$ are the number of grid points and length
+of the $i^\text{th}$ dimension.
+The inverse discrete fourier transform is defined similarly as
+\[ \rho(\v{x}) = \sum_\v{k} \hat{\rho}(\v{k}) e^{i \v{k}\cdot\v{x}} \]
+where the summation is over all values of $\v{k}$ defined by the
+discrete fourier transform on the mesh.
+These discrete transforms can be calculated efficiently using the
+Fast Fourier Transform (FFT) and Inverse Fast Fourier Transform (IFFT)
+algorithms.
 
+To calculate long range forces the charges are first intepolated
+to the mesh using Cloud-In-Cell (CIC) weighting to find the mesh
+charge density $\rho_m$.
 The modified charge density $\rho_l$ at grid point $\v{x}_p$ is
 \[ \rho_l(\v{x}_p) = \sum_{p'} \rho_m(\v{x}_{p'}) G(\v{x}_p-\v{x}_{p'}) \]
 where the summation is understood to be over all periodic images
 of the domain. This is a discrete convolution, so we can use the fourier
 convolution theorem to efficently calculate
 \[ \hat{\rho}_l(\v{k}) = \hat{\rho}_m(\v{k}) \hat{G}(\v{k}) \]
-The long-range potential is then easily calculated using the relation
-\[ k^2 \hat{\phi_l}(\v{k}) = \frac{\hat{\rho}(\v{k})}{\epsilon_0} \]
+The long-range potential is easily calculated using the relation
+\[ k^2 \hat{\phi_l}(\v{k}) = \frac{\hat{\rho}_l(\v{k})}{\epsilon_0} \]
 An inverse FFT is then used to transform $\hat{\phi_l}(\v{k})$ to $\phi_l(\v{x}_p)$.
 The electric field $\v{E}_l$ at each grid point is calculated using second order
 centered finite differences, and interpolated to particle positions using
