@@ -66,6 +66,7 @@ ltxpng
 
 # Figures
 *.png
+*.pdf
 
 # Generated model description files
 model.pdf
