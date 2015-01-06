@@ -358,18 +358,25 @@ Gaussian screen function is calcuated exactly as
   0 & \text{ otherwise }
   \end{cases}
 \end{equation*}
-Where $\v{r}_{ij} = \v{r}_i-\v{r}_j$ and $r_{\text{max}}$ is the
-cut-off radius.
+where $\v{r}_{ij} = \v{r}_i-\v{r}_j$ and $r_{\text{max}}$ is the
+cut-off radius. This is shown in Figure \ref{fig:gaussian-screen}.
+
 
 Care must be taken to avoid calculating all $\mathcal{O}(N^2)$
 interactions between particles. To reduce the number of interations
 calculated a second coarse mesh is defined that covers the
-computational mesh. Each particle belongs to one and only one cell,
-defined as the region bounded by the 8 nodes closest to the point, in
-the coarse mesh. For each particle short range interactions are then
-calculated with the particles sharing its cell and those in
+computational mesh, this is shown in Figure
+\ref{fig:coarse-fine}. Each particle is assigned to one and only one
+cell, defined as the region bounded by the 8 nodes closest to the
+point, in the coarse mesh. For each particle short range interactions
+are then calculated with the particles sharing its cell and those in
 neighbooring cells. This reduces the interactions calculated to those
 particles in the 27 cells nearest the particle.
+
+#+CAPTION: The field produced by a Gaussian screen and associated short range
+#+CAPTION: forces between particles with unit charge.
+#+LABEL: fig:gaussian-screen
+[[file:p3m-gaussian-fields.pdf]]
 
 #+BEGIN_LATEX
 \begin{figure}[h]
