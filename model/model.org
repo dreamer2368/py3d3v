@@ -279,7 +279,7 @@ we get, after applying the double angle identity,
 #+RESULTS: disp-plot
 [[file:disp.png]]
 
-* Particle-Particle-Particle-Mesh (P3M) Method
+* Particle-Particle Particle-Mesh (P3M) Method
 P3M methods extend PM methods by splitting the potential from a
 particle into short range and long range components. This is done by
 utilizing the following trivial identity
@@ -294,7 +294,7 @@ charge density of the form
 
 The short range potentials are evaluated exactly within some small
 fixed radius $r_{\text{max}}$. The long range potentials are evaluated
-by interpolating charge density to a uniform mesh and solving poissons
+by interpolating charge density to a uniform mesh and solving Poisson's
 equation on the resulting mesh charge density.  The total potential is
 then simply the sum of the calculated short and long range potentials.
 
@@ -310,7 +310,7 @@ The Gaussian screen is defined as
 and its fourier transform is
 \begin{align*}
  \hat{G}(\v{k}; \beta) &= \int d^3v G(\v{r};\beta) e^{-i\v{k}\cdot\v{r}} \\
-                   &= e^{-k^2/(2\beta)^2}
+ &= e^{-k^2/(2\beta)^2}
 \end{align*}
 This is also called the S3 function in the notation of Hockney
 and Eastwood.
@@ -342,12 +342,13 @@ E(r) =
 
 
 *** Short Range Force Calculation (Particle-Particle Force)
+:PROPERTIES:
+:ID:       4dea2865-d70f-4c47-9e60-14453cba27d5
+:END:
 Since the field from a point particle and the field produced by the
 screen functions are both known the short range forces can be
-calculated exactly.
-
-For example, the short range force between two particles using a
-Gaussian screen function is calcuated exactly as
+calculated exactly. For example, the short range force between two
+particles using a Gaussian screen function is calculated exactly as
 \begin{equation*}
   F_s(r_{ij}) =
   \begin{cases}
@@ -363,15 +364,17 @@ cut-off radius. This is shown in Figure \ref{fig:gaussian-screen}.
 
 
 Care must be taken to avoid calculating all $\mathcal{O}(N^2)$
-interactions between particles. To reduce the number of interations
-calculated a second coarse mesh is defined that covers the
+interactions between particles. To reduce the number of interactions a
+set of regular non-overlapping cells are defined that cover the
 computational mesh, this is shown in Figure
 \ref{fig:coarse-fine}. Each particle is assigned to one and only one
-cell, defined as the region bounded by the 8 nodes closest to the
-point, in the coarse mesh. For each particle short range interactions
-are then calculated with the particles sharing its cell and those in
-neighbooring cells. This reduces the interactions calculated to those
-particles in the 27 cells nearest the particle.
+cell. The cell size is chosen such that for each particle $\v{x}_i$,
+$|\v{x}_i-\v{x}|<r_\text{max}$ implies that $\v{x}$ is in that
+particles cell or one of its 26 neighboors. For each particle short
+range interactions are then calculated with the particles sharing its
+cell and those in neighboring cells, reducing the interactions
+calculated to only those particles in the 27 cells nearest the
+particle.
 
 #+CAPTION: The field produced by a Gaussian screen and associated short range
 #+CAPTION: forces between particles with unit charge.
@@ -393,7 +396,9 @@ particles in the 27 cells nearest the particle.
 \draw[thick] (P) circle (2);
 \draw[->,thick] (P) -- ++(0:2) node [midway, below] {$r_\text{max}$};
 \end{tikzpicture}
-\caption{Coarse and fine mesh}
+\caption{Relationship between coarse cells and the computational mesh.
+The lines define cells and the points of the computational mesh
+are the gray dots.}
 \label{fig:coarse-fine}
 \end{figure}
 #+END_LATEX
@@ -420,16 +425,16 @@ These discrete transforms can be calculated efficiently using the
 Fast Fourier Transform (FFT) and Inverse Fast Fourier Transform (IFFT)
 algorithms.
 
-To calculate long range forces the charges are first intepolated
+To calculate long range forces the charges are first interpolated
 to the mesh using linear interpolation  weighting to find the mesh
 charge density $\rho_m$. In the context of particle methods linear
-interpolation is often refered to as Cloud-In-Cell (CIC) weighting. 
+interpolation is often referred to as Cloud-In-Cell (CIC) weighting. 
 The modified charge density $\rho_l$ at grid point $\v{x}_p$ is
 \[ \rho_l(\v{x}_p) = \sum_{p'} \rho_m(\v{x}_{p'}) G(\v{x}_p-\v{x}_{p'}) \]
 where the summation is understood to be over mesh points $\v{x}_{p'}$ in
 all periodic images of the domain.
 This is a discrete convolution, so we can use the fourier
-convolution theorem to efficently calculate
+convolution theorem to efficiently calculate
 \[ \hat{\rho}_l(\v{k}) = \hat{\rho}_m(\v{k}) \hat{G}(\v{k}) \]
 The long-range potential is easily calculated using the relation
 \[ k^2 \hat{\phi_l}(\v{k}) = \frac{\hat{\rho}_l(\v{k})}{\epsilon_0} \]
