@@ -68,6 +68,9 @@ ltxpng
 *.png
 *.pdf
 
-# Generated model description files
+# Generated latex
 model.pdf
 model.tex
+*.dpth
+*.aux*
+*.log
