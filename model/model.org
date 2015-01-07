@@ -1,7 +1,6 @@
 #+TITLE:  3d3v Electrostatic PIC Code
 #+AUTHOR: Scott High
 #+LATEX_HEADER: \usepackage{amsmath}
-#+LATEX_HEADER: \usepackage{tikz}
 #+LATEX_HEADER: \usepackage[margin=1in]{geometry}
 #+LATEX_HEADER: \newcommand{\pd}[2]{\frac{\partial #1}{ \partial #2}}
 #+LATEX_HEADER: \renewcommand{\v}[1]{\bold{#1}}
@@ -360,6 +359,11 @@ where $\v{r}_{ij} = \v{r}_i-\v{r}_j$ and $r_{\text{max}}$ is the
 cut-off radius. This is shown in Figure \ref{fig:gaussian-screen} to
 exhibit rapid decay as expected.
 
+#+CAPTION: The field produced by a Gaussian screen and associated short range
+#+CAPTION: forces between particles with unit charge.
+#+LABEL: fig:gaussian-screen
+#+ATTR_LATEX: :placement [h!]
+[[file:figs/p3m-gaussian-fields.pdf]]
 
 Care must be taken to avoid calculating all $\mathcal{O}(N^2)$
 interactions between particles. To reduce the number of interactions a
@@ -374,31 +378,11 @@ cell and those in neighboring cells, reducing the interactions
 calculated to only those particles in the 27 cells nearest the
 particle.
 
-#+CAPTION: The field produced by a Gaussian screen and associated short range
-#+CAPTION: forces between particles with unit charge.
-#+LABEL: fig:gaussian-screen
-[[file:p3m-gaussian-fields.pdf]]
-
-#+BEGIN_LATEX
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[scale=.75]
-\draw[step=2] (0,0) grid (8, 8);
-\foreach \x in {0,...,16}
-\foreach \y in {0,...,16}
-{
-  \fill[gray] (\x/2,\y/2) circle (.03);
-}
-\path (3-.4,3) coordinate (P);
-\fill (P) circle (.1);
-\draw[thick] (P) circle (2);
-\draw[->,thick] (P) -- ++(0:2) node [midway, below] {$r_\text{max}$};
-\end{tikzpicture}
-\caption{Relationship between coarse cells and the computational mesh.
-The lines define cells and gray dots are the points of the computational mesh.}
-\label{fig:coarse-fine}
-\end{figure}
-#+END_LATEX
+#+CAPTION: Relationship between coarse cells and the computational mesh.
+#+CAPTION: The lines define cells and gray dots are the points of the computational mesh.
+#+LABEL: fig:coarse-fine
+#+ATTR_LATEX: :width .4\textwidth :placement [h!]
+[[file:figs/coarse-cell-particle.pdf]]
 
 *** Long Range Force Calculation (Particle-Mesh Force)
 It is well known that the fourier transform of Poisson's equation is

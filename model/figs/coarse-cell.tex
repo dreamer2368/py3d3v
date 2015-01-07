@@ -1,0 +1,28 @@
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{external}
+\tikzexternalize
+
+
+\begin{document}
+
+\tikzsetnextfilename{coarse-cell-particle}
+\begin{tikzpicture}[scale=.75]
+  \draw[step=2] (0,0) grid (8, 8);
+  \foreach \x in {0,...,16}
+  \foreach \y in {0,...,16}
+  {
+    \fill[gray] (\x/2,\y/2) circle (.03);
+  }
+  \path (3-.4,3) coordinate (P);
+  \fill (P) circle (.1);
+  \draw[thick] (P) circle (2);
+  \draw[->,thick] (P) -- ++(0:2) node [midway, below] {$r_{\text{max}}$};
+\end{tikzpicture}
+
+
+
+\end{document}
