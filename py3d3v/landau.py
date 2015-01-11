@@ -8,7 +8,7 @@ from solvers import *
 class Landau3D(object):
     
     def __init__(self, 
-                 part_dims = (128, 128, 128),
+                 part_dims = (64, 64, 64),
                  grid_dims = (64, 64, 64),
                  cube_dims = (2*np.pi, 2*np.pi, 2*np.pi),
                  mode = 1, A = 0.01, wp = 1., B0 = 0, 
