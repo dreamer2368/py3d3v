@@ -19,5 +19,9 @@ setup(
                    Extension("core",["core.pyx", "par_core.cpp"],
                              extra_compile_args=['-fopenmp'],
                              extra_link_args=['-fopenmp'],
+                             language="c++"),
+                   Extension("solvers",["solvers.pyx", "par_core.cpp"],
+                             extra_compile_args=['-fopenmp'],
+                             extra_link_args=['-fopenmp'],
                              language="c++")]
-    )
+)

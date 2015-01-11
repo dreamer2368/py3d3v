@@ -1,5 +1,6 @@
 core.cpp
 interp.cpp
 ewald.cpp
+solvers.cpp
 *.pdf
 
