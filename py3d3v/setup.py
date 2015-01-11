@@ -16,7 +16,7 @@ setup(
                              extra_compile_args=['-fopenmp'],
                              extra_link_args=['-fopenmp'],
                              language="c++"),
-                   Extension("tools",["tools.pyx", "par_tools.cpp"],
+                   Extension("core",["core.pyx", "par_core.cpp"],
                              extra_compile_args=['-fopenmp'],
                              extra_link_args=['-fopenmp'],
                              language="c++")]

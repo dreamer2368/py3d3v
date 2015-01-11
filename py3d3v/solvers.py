@@ -1,6 +1,6 @@
 
 import numpy as np
-from tools import *
+from core import *
 import scipy as sp
 import scipy.sparse
 import scipy.sparse.linalg

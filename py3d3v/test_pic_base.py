@@ -4,7 +4,7 @@ import numpy as np
 import unittest
 from nose.tools import set_trace
 from pic3d3v import *
-from tools import *
+from core import *
 
 
 class TestSpecies(unittest.TestCase):

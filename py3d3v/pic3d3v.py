@@ -3,7 +3,7 @@ import numpy as np
 import scipy as np
 from solvers import *
 from interp import weight_cic, interp_cic
-from tools import *
+from core import *
 
 class Species(object):
 

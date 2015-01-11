@@ -2,7 +2,7 @@
 import numpy as np
 import unittest
 from nose.tools import set_trace
-from tools import *
+from core import *
 
 norm = lambda x: np.max(np.abs(x))
 

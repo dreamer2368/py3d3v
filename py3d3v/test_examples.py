@@ -5,7 +5,7 @@ import numpy as np
 import unittest
 from nose.tools import set_trace
 from pic3d3v import *
-from tools import *
+from core import *
 from interp import *
 
 norm = lambda x: np.max(np.abs(x))
