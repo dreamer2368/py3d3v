@@ -7,7 +7,7 @@ from core import *
 
 ctypedef np.float64_t DOUBLE
 
-cdef extern from "par_core.hpp":
+cdef extern from "par_solvers.hpp":
 
     void calc_E_short_range_par_gaussian(int N,
                                          double* Ezp, const double* zp, double Lz,
