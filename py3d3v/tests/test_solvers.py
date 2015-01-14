@@ -67,7 +67,3 @@ class TestShortRangeCalc(unittest.TestCase):
         self.assertTrue(norm(Ezp1-Ezp2)<self.tol)
         self.assertTrue(norm(Eyp1-Eyp2)<self.tol)
         self.assertTrue(norm(Exp1-Exp2)<self.tol)
-
-
-    def test_short_range_against_sr2(self):
-        pass

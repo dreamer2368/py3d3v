@@ -26,12 +26,6 @@ cdef extern from "par_solvers.hpp":
                                    double rmax, double beta)
 
 
-
-cdef double _erf_scale = np.sqrt(np.pi)/2.
-cdef double erfs(double z):
-    return _erf_scale*erf(z)
-
-
 def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        double[:] Eyp, double[:] yp, double Ly,
                        double[:] Exp, double[:] xp, double Lx,
@@ -59,55 +53,6 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
     else:
         assert False, "Invalid Screen %s"%(screen,)
 
-
-# The purpose of this function is for double checking the short range
-# forces calculated by the more sophisticated functions
-def calc_E_short_range2(double[:] zp, double[:] yp, double[:] xp,
-                       double Lz, double Ly, double Lx,
-                       double[:] q, double rmax, double beta):
-    cdef int i, j
-    cdef double dz, dy, dx, r2, r2max, r
-    cdef double E, Ep, c, EpEr
-    
-    cdef int N = len(zp)
-    r2max = rmax**2
-    c = 1./(2*np.sqrt(np.pi**3))
-    cdef np.ndarray Ezp = np.zeros(N, dtype=np.double)
-    cdef np.ndarray Eyp = np.zeros(N, dtype=np.double)
-    cdef np.ndarray Exp = np.zeros(N, dtype=np.double)
-
-    for i in range(N-1):
-        for j in range(i+1, N):
-            dz = zp[i]-zp[j]
-            dy = yp[i]-yp[j]
-            dx = xp[i]-xp[j]
-            if fabs(dz)>rmax:
-                if fabs(dz-Lz)<rmax: dz = dz-Lz
-                if fabs(dz+Lz)<rmax: dz = dz+Lz
-            if fabs(dy)>rmax:
-                if fabs(dy-Ly)<rmax: dy = dy-Ly
-                if fabs(dy+Ly)<rmax: dy = dy+Ly
-            if fabs(dx)>rmax:
-                if fabs(dx-Lx)<rmax: dx = dx-Lx
-                if fabs(dx+Lx)<rmax: dx = dx+Lx
-
-            r2 = dz**2+dy**2+dx**2
-            if r2<r2max and r2>0.:
-                
-                r = sqrt(r2)
-                E = c*(erfs(r*beta)/r2-beta*exp(-beta**2*r2)/r)
-                Ep = 1./(4*np.pi*r2)
-                EpEr = (Ep-E)/r
-                Ezp[i] +=  q[j]*dz*EpEr 
-                Ezp[j] += -q[i]*dz*EpEr
-                Eyp[i] +=  q[j]*dy*EpEr
-                Eyp[j] += -q[i]*dy*EpEr
-                Exp[i] +=  q[j]*dx*EpEr
-                Exp[j] += -q[i]*dx*EpEr
-                
-    return (Ezp, Eyp, Exp)        
-
-    
 cpdef build_k2(int nz, double dz,
                int ny, double dy,
                int nx, double dx):
