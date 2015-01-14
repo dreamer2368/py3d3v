@@ -109,3 +109,34 @@ class Landau3D(object):
                 self.xa[i,:] = pic.xp[:]
             if self.save_rr:
                 self.rr[i] = self.calc_rr()
+
+def dispersion_calc(ntc, nx0, Nx0, mode, solver=None):
+    
+    l3d = Landau3D(save_rr=True, nt=ntc, mode=mode,
+                   grid_dims=(nx0,nx0,nx0),
+                   part_dims=(Nx0,Nx0,Nx0))
+    
+    if not solver is None:
+        l3d.init_run(solver=solver)
+    else:
+        l3d.init_run()
+    l3d.run()
+
+    t_vals = np.linspace(0, l3d.nt*l3d.dt, l3d.nt+1)
+    wpe = np.cos(l3d.k*l3d.dx/2)*l3d.wp
+
+    # Calc omega
+    rr = l3d.rr
+    omega = np.mean(np.arccos(2*rr[1:ntc+1]/rr[0]-1)/(2*t_vals[1:ntc+1]))
+
+    # Get rid of the memory heavy part of l3d
+    l3d.pic   = None
+    # Set constants and results
+    l3d.wpe   = wpe
+    l3d.omega = omega
+    # Unpack solver args into l3d
+    if not solver is None:
+        for k, v in solver[1].iteritems():
+            setattr(l3d, k, v)
+    
+    return l3d
