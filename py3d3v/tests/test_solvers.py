@@ -4,6 +4,7 @@ import unittest
 from nose.tools import set_trace
 from pic3d3v import *
 from solvers import *
+from landau import *
 
 norm = lambda x: np.max(np.abs(x))
 
@@ -67,3 +68,22 @@ class TestShortRangeCalc(unittest.TestCase):
         self.assertTrue(norm(Ezp1-Ezp2)<self.tol)
         self.assertTrue(norm(Eyp1-Eyp2)<self.tol)
         self.assertTrue(norm(Exp1-Exp2)<self.tol)
+
+
+class TestLangmuirDispersion(unittest.TestCase):
+
+    def test_p3m_dispersion(self):
+
+        ntc = 10
+        nx0 = 64
+        Nx0 = int(nx0*.5)
+        beta = 5
+
+        for mode in [1, 5, 10]:
+
+            solver = (PIC3DP3M, {"beta":beta, "rmax":.5})
+            l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
+            self.assertTrue(np.abs(l3d.omega-l3d.wpe)<.1)
+
+
+
