@@ -122,10 +122,12 @@ class TestLangmuirDispersion(unittest.TestCase):
         ntc = 10
         nx0 = 64
         Nx0 = int(nx0*.5)
-        beta = 5
+        wpe = 1.
 
-        for mode in [1, 5, 10]:
+        for screen, beta in [("gaussian", 4.), ("S2", 1.)]:
+            for mode in [1, 5, 10]:
 
-            solver = (PIC3DP3M, {"beta":beta, "rmax":.5})
-            l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
-            self.assertTrue(np.abs(l3d.omega-l3d.wpe)<.1)
+                solver = (PIC3DP3M, {"beta":beta, "rmax":.5, "screen":screen})
+                l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
+
+                self.assertTrue(np.abs(l3d.omega-wpe)<.1)
