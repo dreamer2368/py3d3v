@@ -196,8 +196,7 @@ class Screen(object):
 class GaussianScreen(Screen):
 
     @staticmethod
-    def influence_function(self,
-                           int nz, double dz,
+    def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
                            double beta):
@@ -223,13 +222,12 @@ class GaussianScreen(Screen):
 class S2Screen(Screen):
 
     @staticmethod
-    def influence_function(self,
-                           int nz, double dz,
+    def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
                            double beta):
 
-        return build_k2_lr_sr(nz, dz, ny, dy, nx, dx, beta)
+        return build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
 
     @staticmethod
     def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
