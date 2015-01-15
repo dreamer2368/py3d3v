@@ -25,23 +25,9 @@ cdef extern from "par_solvers.hpp":
                                    long N_cells, const long* cell_span, 
                                    double rmax, double beta)
 
-
-def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
-                       double[:] Eyp, double[:] yp, double Ly,
-                       double[:] Exp, double[:] xp, double Lx,
-                       double[:] q, long N_cells, long[:] cell_span, 
-                       double rmax, double beta,
-                       screen="gaussian"):
-
-    ScreenClass = get_screen(screen)
-
-    ScreenClass.calc_E_short_range(Ezp, zp, Lz, Eyp, yp, Ly,
-                                   Exp, xp, Lx, q, N_cells,
-                                   cell_span, rmax, beta)
         
 def get_k_vals(n, d):
     return (np.fft.fftfreq(n)*2*np.pi/d)
-
 
 
 cpdef build_k2(int nz, double dz,
@@ -249,16 +235,6 @@ class S2Screen(Screen):
                                       N_cells, &cell_span[0],
                                       rmax, beta)
 
-def get_screen(screen):       
-     
-    if screen=="gaussian":
-        ScreenClass = GaussianScreen
-    elif screen=="S2":
-        ScreenClass = S2Screen
-    else:
-        assert False, "Invalid Screen %s"%(screen,)
-
-    return ScreenClass
 
 class Poisson3DFFT(object):
     
@@ -283,16 +259,15 @@ class Poisson3DFFT(object):
 
 class Poisson3DFFTLR(object):
     
-    def __init__(self, nz, dz, ny, dy, nx, dx, beta, screen="gaussian"):
+    def __init__(self, nz, dz, ny, dy, nx, dx, beta, screen=GaussianScreen):
         
         self.nz = nz; self.dz = dz
         self.ny = ny; self.dy = dy
         self.nx = nx; self.dx = dx
         self.beta = beta
         self.screen = screen
-        self.ScreenClass = get_screen(screen)
-        self.k2 = self.ScreenClass.influence_function(nz, dz, ny, dy,
-                                                      nx, dx, beta)
+        self.k2 = self.screen.influence_function(nz, dz, ny, dy,
+                                                 nx, dx, beta)
         
     def solve(self, rho):
         

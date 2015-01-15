@@ -124,7 +124,7 @@ class TestLangmuirDispersion(unittest.TestCase):
         Nx0 = int(nx0*.5)
         wpe = 1.
 
-        for screen, beta in [("gaussian", 4.), ("S2", 1.)]:
+        for screen, beta in [(GaussianScreen, 4.), (S2Screen, 1.)]:
             for mode in [1, 5, 10]:
 
                 solver = (PIC3DP3M, {"beta":beta, "rmax":.5, "screen":screen})

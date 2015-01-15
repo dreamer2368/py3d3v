@@ -20,6 +20,7 @@ class TestShortRangeCalc(unittest.TestCase):
         range logic, not the correctness of the screen functions.
         """
         np.random.seed(9999)
+        screen = GaussianScreen
         N = 16**3
         Lz = Ly = Lx = np.pi
         xp = np.random.rand(N).astype(np.double)*Lx
@@ -47,23 +48,23 @@ class TestShortRangeCalc(unittest.TestCase):
         Eyp1 = np.zeros(N, dtype=np.double)
         Exp1 = np.zeros(N, dtype=np.double)
 
-        calc_E_short_range(Ezp1, zp, Lz, 
-                           Eyp1, yp, Ly,
-                           Exp1, xp, Lx, 
-                           q, 1, cell_span, 
-                           rmax, beta)
+        screen.calc_E_short_range(Ezp1, zp, Lz, 
+                                  Eyp1, yp, Ly,
+                                  Exp1, xp, Lx, 
+                                  q, 1, cell_span, 
+                                  rmax, beta)
 
         # Using the default number of cells
         Ezp2 = np.zeros(N, dtype=np.double)
         Eyp2 = np.zeros(N, dtype=np.double)
         Exp2 = np.zeros(N, dtype=np.double)
 
-        calc_E_short_range(Ezp2, zp, Lz,
-                           Eyp2, yp, Ly,
-                           Exp2, xp, Lx,
-                           q, 
-                           N_cells, cell_span,
-                           rmax, beta)
+        screen.calc_E_short_range(Ezp2, zp, Lz,
+                                  Eyp2, yp, Ly,
+                                  Exp2, xp, Lx,
+                                  q, 
+                                  N_cells, cell_span,
+                                  rmax, beta)
 
         self.assertTrue(norm(Ezp1-Ezp2)<self.tol)
         self.assertTrue(norm(Eyp1-Eyp2)<self.tol)

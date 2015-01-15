@@ -199,11 +199,11 @@ class PIC3DP3M(PIC3DPM):
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
 
         # Calculate short range forces
-        self.ScreenClass.calc_E_short_range(Ezp, zp, Lz,
-                                            Eyp, yp, Ly,
-                                            Exp, xp, Lx, q,
-                                            self.N_cells, self.cell_span,
-                                            self.rmax, self.beta)
+        self.screen.calc_E_short_range(Ezp, zp, Lz,
+                                       Eyp, yp, Ly,
+                                       Exp, xp, Lx, q,
+                                       self.N_cells, self.cell_span,
+                                       self.rmax, self.beta)
 
         # Return results
         self.Ezp = Ezp
@@ -211,7 +211,7 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=10, rmax=.2, screen="gaussian", N_cells=None, unpack=False):
+    def init_run(self, dt, beta=10, rmax=.2, screen=GaussianScreen, N_cells=None, unpack=False):
 
         if unpack:
             self.unpack()
@@ -229,7 +229,6 @@ class PIC3DP3M(PIC3DPM):
         self.beta = beta
         self.rmax = rmax
         self.screen = screen
-        self.ScreenClass = get_screen(screen)
         self.N_cells = N_cells
         self.cell_vals = np.arange(N_cells**3,  dtype=np.int)
         self.cell_span = np.zeros(N_cells**3+1, dtype=np.int)
