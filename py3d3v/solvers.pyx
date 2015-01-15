@@ -39,15 +39,19 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                                    Exp, xp, Lx, q, N_cells,
                                    cell_span, rmax, beta)
         
+def get_k_vals(n, d):
+    return (np.fft.fftfreq(n)*2*np.pi/d)
+
+
 
 cpdef build_k2(int nz, double dz,
                int ny, double dy,
                int nx, double dx):
     """k2 for CIC weighting
     """
-    cdef np.ndarray kz = (np.fft.fftfreq(nz)*2*np.pi/dz)
-    cdef np.ndarray ky = (np.fft.fftfreq(ny)*2*np.pi/dy)
-    cdef np.ndarray kx = (np.fft.fftfreq(nx)*2*np.pi/dx)
+    cdef np.ndarray kz = get_k_vals(nz, dz)
+    cdef np.ndarray ky = get_k_vals(ny, dy)
+    cdef np.ndarray kx = get_k_vals(nx, dx)
 
     cdef np.ndarray skz2 = np.sin(kz*dz/2.)**2
     cdef np.ndarray sky2 = np.sin(ky*dy/2.)**2
@@ -90,9 +94,9 @@ cpdef build_k2_lr_s2(int nz, double dz,
                      double beta):
     """k2 for CIC weighting
     """
-    cdef np.ndarray kz = (np.fft.fftfreq(nz)*2*np.pi/dz)
-    cdef np.ndarray ky = (np.fft.fftfreq(ny)*2*np.pi/dy)
-    cdef np.ndarray kx = (np.fft.fftfreq(nx)*2*np.pi/dx)
+    cdef np.ndarray kz = get_k_vals(nz, dz)
+    cdef np.ndarray ky = get_k_vals(ny, dy)
+    cdef np.ndarray kx = get_k_vals(nx, dx)
 
     cdef np.ndarray kz2 = (kz)**2
     cdef np.ndarray ky2 = (ky)**2
@@ -143,9 +147,9 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
                            double beta):
     """k2 for CIC weighting
     """
-    cdef np.ndarray kz = (np.fft.fftfreq(nz)*2*np.pi/dz)
-    cdef np.ndarray ky = (np.fft.fftfreq(ny)*2*np.pi/dy)
-    cdef np.ndarray kx = (np.fft.fftfreq(nx)*2*np.pi/dx)
+    cdef np.ndarray kz = get_k_vals(nz, dz)
+    cdef np.ndarray ky = get_k_vals(ny, dy)
+    cdef np.ndarray kx = get_k_vals(nx, dx)
 
     cdef np.ndarray kz2 = (kz)**2
     cdef np.ndarray ky2 = (ky)**2
