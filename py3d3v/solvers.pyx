@@ -33,25 +33,12 @@ def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
                        double rmax, double beta,
                        screen="gaussian"):
 
-    cdef int N = len(zp)
-    if screen=="gaussian":
-        calc_E_short_range_par_gaussian(N,
-                                        &Ezp[0], &zp[0], Lz,
-                                        &Eyp[0], &yp[0], Ly,
-                                        &Exp[0], &xp[0], Lx,
-                                        &q[0],
-                                        N_cells, &cell_span[0],
-                                        rmax, beta)
-    elif screen=="S2":
-        calc_E_short_range_par_s2(N,
-                                  &Ezp[0], &zp[0], Lz,
-                                  &Eyp[0], &yp[0], Ly,
-                                  &Exp[0], &xp[0], Lx,
-                                  &q[0],
-                                  N_cells, &cell_span[0],
-                                  rmax, beta)
-    else:
-        assert False, "Invalid Screen %s"%(screen,)
+    ScreenClass = get_screen(screen)
+
+    ScreenClass.calc_E_short_range(Ezp, zp, Lz, Eyp, yp, Ly,
+                                   Exp, xp, Lx, q, N_cells,
+                                   cell_span, rmax, beta)
+        
 
 cpdef build_k2(int nz, double dz,
                int ny, double dy,
