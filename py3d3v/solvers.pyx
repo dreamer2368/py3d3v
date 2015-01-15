@@ -255,8 +255,6 @@ def get_screen(screen):
         assert False, "Invalid Screen %s"%(screen,)
 
     return ScreenClass
-            
-
 
 class Poisson3DFFT(object):
     
@@ -288,12 +286,9 @@ class Poisson3DFFTLR(object):
         self.nx = nx; self.dx = dx
         self.beta = beta
         self.screen = screen
-        if screen=="gaussian":
-            self.k2 = build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
-        elif screen=="S2":
-            self.k2 = build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
-        else:
-            assert False, "Invalid Screen %s"%(screen,)
+        self.ScreenClass = get_screen(screen)
+        self.k2 = self.ScreenClass.influence_function(nz, dz, ny, dy,
+                                                      nx, dx, beta)
         
     def solve(self, rho):
         
