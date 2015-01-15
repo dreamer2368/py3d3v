@@ -203,6 +203,76 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
     return k2_vals
     
 
+class Screen(object):
+    pass
+
+class GaussianScreen(Screen):
+
+    @staticmethod
+    def influence_function(self,
+                           int nz, double dz,
+                           int ny, double dy,
+                           int nx, double dx,
+                           double beta):
+
+        return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+
+    @staticmethod
+    def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
+                           double[:] Eyp, double[:] yp, double Ly,
+                           double[:] Exp, double[:] xp, double Lx,
+                           double[:] q, long N_cells, long[:] cell_span, 
+                           double rmax, double beta):
+        
+            cdef int N = len(zp)
+            calc_E_short_range_par_gaussian(N,
+                                            &Ezp[0], &zp[0], Lz,
+                                            &Eyp[0], &yp[0], Ly,
+                                            &Exp[0], &xp[0], Lx,
+                                            &q[0],
+                                            N_cells, &cell_span[0],
+                                            rmax, beta)
+
+class S2Screen(Screen):
+
+    @staticmethod
+    def influence_function(self,
+                           int nz, double dz,
+                           int ny, double dy,
+                           int nx, double dx,
+                           double beta):
+
+        return build_k2_lr_sr(nz, dz, ny, dy, nx, dx, beta)
+
+    @staticmethod
+    def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
+                           double[:] Eyp, double[:] yp, double Ly,
+                           double[:] Exp, double[:] xp, double Lx,
+                           double[:] q, long N_cells, long[:] cell_span, 
+                           double rmax, double beta):
+        
+            cdef int N = len(zp)
+            calc_E_short_range_par_s2(N,
+                                      &Ezp[0], &zp[0], Lz,
+                                      &Eyp[0], &yp[0], Ly,
+                                      &Exp[0], &xp[0], Lx,
+                                      &q[0],
+                                      N_cells, &cell_span[0],
+                                      rmax, beta)
+
+def get_screen(screen):       
+     
+    if screen=="gaussian":
+        ScreenClass = GaussianScreen
+    elif screen=="S2":
+        ScreenClass = S2Screen
+    else:
+        assert False, "Invalid Screen %s"%(screen,)
+
+    return ScreenClass
+            
+
+
 class Poisson3DFFT(object):
     
     def __init__(self, nz, dz, ny, dy, nx, dx):
