@@ -428,6 +428,24 @@ $E_i = \frac{\phi_{i+1} - \phi_{i-1}}{dx_j}$.
 The field is interpolated to particle positions using
 linear (CIC) interpolation.
 
+*** Optimized influence function
+Hockney and eastwood derive an optimized influence function
+\begin{equation}
+  \hat{G}_{opt}(\v{k}) =
+  \frac{\hat{\v{D}}(\v{k}) \cdot \sum_\v{m} \hat{U}^2(\v{k}+\v{m})\hat{\v{R}}(\v{k}+\v{m})}
+  { |\hat{\v{D}}(\v{k})|^2 \left[\sum_\v{m} \hat{U}^2(\v{k}+\v{m})\right]^2}
+\end{equation}
+where
+\begin{align}
+  \hat{\v{R}}(\v{k}) &= -i \v{k} \frac{\hat{g}(\v{k})}{k^2} \\
+  \hat{U}(\v{k}) &= \left( \frac{\sin \frac{k_x dx}{2} }{\frac{k_x dx}{2}}
+                           \frac{\sin \frac{k_y dy}{2} }{\frac{k_y dy}{2}}
+                           \frac{\sin \frac{k_z dz}{2} }{\frac{k_z dz}{2}}
+                           \right)^{p+1} \\
+  \hat{D}_j &= i\frac{\sin k_j dx}{dx}
+\end{align}
+
+
 ** Algorithm
 The P3M algorithm can be expressed compactly as follows:
 
