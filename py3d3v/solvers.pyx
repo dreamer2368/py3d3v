@@ -178,7 +178,98 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
     k2_vals[0,0,0] = 1.
 
     return k2_vals
-    
+
+
+
+cdef double U(double ki, double d):
+
+    if ki!=0:
+        return sin(ki*d/2.)/(ki*d/2.)
+    else:
+        return 1.
+
+cpdef build_k2_lr_gaussian_optim(int nz, double dz,
+                                 int ny, double dy,
+                                 int nx, double dx,
+                                 double beta):
+
+    cdef np.ndarray kz = get_k_vals(nz, dz)
+    cdef np.ndarray ky = get_k_vals(ny, dy)
+    cdef np.ndarray kx = get_k_vals(nx, dx)
+
+    cdef np.ndarray kz2 = (kz)**2
+    cdef np.ndarray ky2 = (ky)**2
+    cdef np.ndarray kx2 = (kx)**2
+    cdef double kz2i, ky2i
+
+    cdef int nkz, nky, nkx
+    cdef int iz, iy, ix, i, j, k
+
+    cdef double c = 1.
+    cdef double d = -1./beta**2/4.
+    cdef double k2, k2p
+    cdef double res, ex
+    cdef double msz, msy, msx
+    msz = 2*np.pi/dz
+    msy = 2*np.pi/dy
+    msx = 2*np.pi/dx
+    cdef double kzi, kyi, kxi
+
+    cdef double Uk, Usum
+    cdef double Dkz, Dky, Dkx
+    cdef double num, numz, numy, numx # numerator sum variables
+    cdef double denom
+    cdef double Rz, Ry, Rx
+
+    nkz, nky, nkx = len(kz2), len(ky2), len(kx2)
+    cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
+    for iz in range(nkz):
+        kz2i = kz2[iz]
+        kzi  = kz[iz]
+        for iy in range(nky):
+            ky2i = ky2[iy]
+            kyi  = ky[iy]
+            for ix in range(nkx):
+                k2 = (kz2i+ky2i+kx2[ix])
+                kxi = kx[ix]
+                if k2!=0:
+
+                    Dkz = sin(kzi*dz)/dz
+                    Dky = sin(kyi*dy)/dy
+                    Dkx = sin(kxi*dx)/dx
+
+                    res = 0.
+                    Usum = 0.
+                    numz = numy = numx = 0.
+                    for i in range(-2, 3):
+                        for j in range(-2, 3):
+                            for k in range(-2, 3):
+                                
+                                Uk = U(kzi+i*msz, dz)*U(kyi+j*msy, dy)*U(kxi+k*msx, dx)
+                                Uk = Uk*Uk
+                                Uk = Uk*Uk
+                                Usum += Uk
+
+                                k2p = (kzi+i*msz)**2+(kyi+j*msy)**2+(kxi+k*msx)**2
+                                if k2p!=0.:
+                                    ex = exp(d*k2p)/k2p
+                                    Rz = (kzi+i*msz)*ex
+                                    Ry = (kyi+j*msy)*ex
+                                    Rx = (kxi+k*msx)*ex
+
+                                    numz += Rz*Uk
+                                    numy += Ry*Uk
+                                    numx += Rx*Uk
+
+                    num = numz*Dkz+numy*Dky+numx*Dkx
+                    denom = (Dkz*Dkz+Dky*Dky+Dkx*Dkx)*Usum*Usum
+
+                    k2_vals[iz,iy,ix] = num/denom
+
+    k2_vals[0,0,0] = 1.
+
+    return k2_vals
+
 
 class Screen(object):
     pass
@@ -191,7 +282,8 @@ class GaussianScreen(Screen):
                            int nx, double dx,
                            double beta):
 
-        return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+        #return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+        return build_k2_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta)
 
     @staticmethod
     def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
