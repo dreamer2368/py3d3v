@@ -280,10 +280,13 @@ class GaussianScreen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta):
+                           double beta, optimized=True):
 
-        #return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
-        return build_k2_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta)
+        if optimized:
+            return build_k2_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta)
+        else:
+            return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+        
 
     @staticmethod
     def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
@@ -355,15 +358,22 @@ class Poisson3DFFT(object):
 
 class Poisson3DFFTLR(object):
     
-    def __init__(self, nz, dz, ny, dy, nx, dx, beta, screen=GaussianScreen):
+    def __init__(self, nz, dz, ny, dy, nx, dx, beta,
+                 screen=GaussianScreen):
         
         self.nz = nz; self.dz = dz
         self.ny = ny; self.dy = dy
         self.nx = nx; self.dx = dx
         self.beta = beta
-        self.screen = screen
+        if hasattr(screen, "__len__"):
+            self.screen = screen[0]
+            self.screen_options= screen[1]
+        else:
+            self.screen = screen
+            self.screen_options= {}
         self.k2 = self.screen.influence_function(nz, dz, ny, dy,
-                                                 nx, dx, beta)
+                                                 nx, dx, beta,
+                                                 **self.screen_options)
         
     def solve(self, rho):
         
