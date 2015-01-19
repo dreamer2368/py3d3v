@@ -136,14 +136,11 @@ class PIC3DPM(PIC3DBase):
         # Calculate phi
         weight_cic(grid, zp, dz, yp, dy, xp, dx, self.q)
         grid[:] = grid*(1./self.V)
-        grid[:] = self.solver.solve(grid)
+        Ez, Ey, Ex = self.solver.solve(grid)
 
         # Calculate E fields at points
-        Ez  = calc_Ez(grid, dz) 
         Ezp = interp_cic(Ez, zp, dz, yp, dy, xp, dx)
-        Ey  = calc_Ey(grid, dy)
         Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
-        Ex  = calc_Ex(grid, dx)
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
         self.Ezp = Ezp
         self.Eyp = Eyp
@@ -188,14 +185,11 @@ class PIC3DP3M(PIC3DPM):
         ## Calculate phi
         weight_cic(grid, zp, dz, yp, dy, xp, dx, self.q)
         grid[:] = grid*(1./self.V)
-        grid[:] = self.solver.solve(grid)
+        Ez, Ey, Ex = self.solver.solve(grid)
 
         ## Calculate E fields at points
-        Ez  = calc_Ez(grid, dz) 
         Ezp = interp_cic(Ez, zp, dz, yp, dy, xp, dx)
-        Ey  = calc_Ey(grid, dy)
         Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
-        Ex  = calc_Ex(grid, dx)
         Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
 
         # Calculate short range forces

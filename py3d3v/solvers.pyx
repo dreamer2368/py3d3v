@@ -250,8 +250,12 @@ class Poisson3DFFT(object):
         rhok = np.fft.fftn(rho)
         phik = rhok/self.k2
         phik[0,0,0] = 0.
-        phi = np.fft.ifftn(phik)
-        return np.real(phi)
+        phi = np.real(np.fft.ifftn(phik))
+        Ez  = calc_Ez(phi, self.dz) 
+        Ey  = calc_Ey(phi, self.dy)
+        Ex  = calc_Ex(phi, self.dx)
+
+        return (Ez, Ey, Ex)
     
     def __call__(self, rho):
         return self.solve(rho)
@@ -274,8 +278,12 @@ class Poisson3DFFTLR(object):
         rhok = np.fft.fftn(rho)
         phik = rhok*self.k2
         phik[0,0,0] = 0.
-        phi = np.fft.ifftn(phik)
-        return np.real(phi)
+        phi = np.real(np.fft.ifftn(phik))
+        Ez  = calc_Ez(phi, self.dz) 
+        Ey  = calc_Ey(phi, self.dy)
+        Ex  = calc_Ex(phi, self.dx)
+
+        return Ez, Ey, Ex
     
     def __call__(self, rho):
         return self.solve(rho)
