@@ -123,8 +123,6 @@ cpdef build_k2_lr_s2(int nz, double dz,
                                 res += d*(2.-2.*cos(kb2)-kb2*sin(kb2))/ex**3
                     k2_vals[iz,iy,ix] = c*res
 
-    k2_vals[0,0,0] = 1.
-
     return k2_vals
 
 cpdef build_k2_lr_gaussian(int nz, double dz,
@@ -174,8 +172,6 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
                                 ex = (kzi+i*msz)**2+(kyi+j*msy)**2+(kxi+k*msx)**2
                                 res += exp(d*ex)/ex
                     k2_vals[iz,iy,ix] = c*res
-
-    k2_vals[0,0,0] = 1.
 
     return k2_vals
 
@@ -349,8 +345,6 @@ cpdef build_k2_lr_s2_optim(int nz, double dz,
                     denom = (Dkz*Dkz+Dky*Dky+Dkx*Dkx)*Usum*Usum
 
                     k2_vals[iz,iy,ix] = num/denom
-
-    k2_vals[0,0,0] = 1.
 
     return k2_vals
     
