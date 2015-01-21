@@ -393,80 +393,85 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
     const double msy = 2*M_PI/dy;
     const double msx = 2*M_PI/dx;
 
-	double k2p;
-    double ex;
-    double kzi, kyi, kxi;
-	double kzim, kyim, kxim;
-	double kzim2, kyim2, kxim2;
+#pragma omp parallel
+	{
 
-    double Uk, Usum;
-	double Ukzim, Ukyim;
-    double Dkz, Dky, Dkx;
-	double Dkz2, Dky2;
-    double num, numz, numy, numx; 
-	double denom;
-    double Rz, Ry, Rx;
+		double k2p;
+		double ex;
+		double kzi, kyi, kxi;
+		double kzim, kyim, kxim;
+		double kzim2, kyim2;
 
-    for(int iz=0; iz<nkz; iz++)
-    {
-        kzi  = kz[iz];
-		Dkz = sin(kzi*dz)/dz;
-		Dkz2 = Dkz*Dkz;
-        for(int iy=0; iy<nky; iy++)
+		double Uk, Usum;
+		double Ukzim, Ukyim;
+		double Dkz, Dky, Dkx;
+		double Dkz2, Dky2;
+		double num, numz, numy, numx; 
+		double denom;
+		double Rz, Ry, Rx;
+
+#pragma omp for
+		for(int iz=0; iz<nkz; iz++)
 		{
-            kyi  = ky[iy];
-			Dky = sin(kyi*dy)/dy;
-			Dky2 = Dky*Dky;
-            for(int ix=0; ix<nkx; ix++)
+			kzi  = kz[iz];
+			Dkz = sin(kzi*dz)/dz;
+			Dkz2 = Dkz*Dkz;
+			for(int iy=0; iy<nky; iy++)
 			{
-                kxi = kx[ix];
-                if(iz!=0 || iy!=0 || ix!=0)
+				kyi  = ky[iy];
+				Dky = sin(kyi*dy)/dy;
+				Dky2 = Dky*Dky;
+				for(int ix=0; ix<nkx; ix++)
 				{
-                    
-                    Dkx = sin(kxi*dx)/dx;
-                    Usum = 0.;
-                    numz = numy = numx = 0.;
-                    for(int i=-2; i<3; i++)
+					kxi = kx[ix];
+					if(iz!=0 || iy!=0 || ix!=0)
 					{
-						kzim = kzi+i*msz;
-						kzim2 = kzim*kzim;
-						Ukzim = U(kzim, dz);
-                        for(int j=-2; j<3; j++)
+                    
+						Dkx = sin(kxi*dx)/dx;
+						Usum = 0.;
+						numz = numy = numx = 0.;
+						for(int i=-2; i<3; i++)
 						{
-							kyim = kyi+j*msy;
-							kyim2 = kyim*kyim;
-							Ukyim = U(kyim, dy);
-                            for(int k=-2; k<3; k++)
+							kzim = kzi+i*msz;
+							kzim2 = kzim*kzim;
+							Ukzim = U(kzim, dz);
+							for(int j=-2; j<3; j++)
 							{
-								
-								kxim = kxi+k*msx;
-                                Uk = Ukzim*Ukyim*U(kxim, dx);
-                                Uk = Uk*Uk*Uk*Uk;
-                                Usum += Uk;
-
-                                k2p = kzim2+kyim2+kxim*kxim;
-                                if(k2p!=0.)
+								kyim = kyi+j*msy;
+								kyim2 = kyim*kyim;
+								Ukyim = U(kyim, dy);
+								for(int k=-2; k<3; k++)
 								{
-                                    ex = exp(d*k2p)/k2p;
-                                    Rz = kzim*ex;
-                                    Ry = kyim*ex;
-                                    Rx = kxim*ex;
+								
+									kxim = kxi+k*msx;
+									Uk = Ukzim*Ukyim*U(kxim, dx);
+									Uk = Uk*Uk*Uk*Uk;
+									Usum += Uk;
 
-                                    numz += Rz*Uk;
-                                    numy += Ry*Uk;
-                                    numx += Rx*Uk;
+									k2p = kzim2+kyim2+kxim*kxim;
+									if(k2p!=0.)
+									{
+										ex = exp(d*k2p)/k2p;
+										Rz = kzim*ex;
+										Ry = kyim*ex;
+										Rx = kxim*ex;
+
+										numz += Rz*Uk;
+										numy += Ry*Uk;
+										numx += Rx*Uk;
+									}
 								}
 							}
 						}
+
+						num = numz*Dkz+numy*Dky+numx*Dkx;
+						denom = (Dkz2+Dky2+Dkx*Dkx)*Usum*Usum;
+
+						k2_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
 					}
+				}
+			}
 
-					num = numz*Dkz+numy*Dky+numx*Dkx;
-					denom = (Dkz2+Dky2+Dkx*Dkx)*Usum*Usum;
-
-					k2_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
-		    }
 		}
 	}
-
 }
-										}
