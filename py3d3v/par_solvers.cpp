@@ -371,4 +371,99 @@ void calc_E_short_range_par_s2(int N,
 
 }
 
+double U(double ki, double d)
+{
 
+    if(ki!=0)
+        return sin(ki*d/2.)/(ki*d/2.);
+    else
+        return 1.;
+}
+
+
+void build_k2_lr_gaussian_optim_par(double* k2_vals,
+									double* kz, int nkz, double dz,		
+									double* ky, int nky, double dy,
+									double* kx, int nkx, double dx,
+									double beta)
+{
+
+    double d = -1./(beta*beta)/4.;
+    double k2p;
+    double res, ex;
+    double msz, msy, msx;
+    msz = 2*M_PI/dz;
+    msy = 2*M_PI/dy;
+    msx = 2*M_PI/dx;
+    double kzi, kyi, kxi;
+	double kzim, kyim, kxim;
+
+    double Uk, Usum;
+    double Dkz, Dky, Dkx;
+    double num, numz, numy, numx; 
+	double denom;
+    double Rz, Ry, Rx;
+
+    
+    for(int iz=0; iz<nkz; iz++)
+    {
+        kzi  = kz[iz];
+        for(int iy=0; iy<nky; iy++)
+		{
+            kyi  = ky[iy];
+            for(int ix=0; ix<nkx; ix++)
+			{
+                kxi = kx[ix];
+                if(iz!=0 || iy!=0 || ix!=0)
+				{
+
+                    Dkz = sin(kzi*dz)/dz;
+                    Dky = sin(kyi*dy)/dy;
+                    Dkx = sin(kxi*dx)/dx;
+
+                    res = 0.;
+                    Usum = 0.;
+                    numz = numy = numx = 0.;
+                    for(int i=-2; i<3; i++)
+					{
+                        for(int j=-2; j<3; j++)
+						{
+                            for(int k=-2; k<3; k++)
+							{
+
+								kzim = kzi+i*msz;
+								kyim = kyi+j*msy;
+								kxim = kxi+k*msx;
+
+                                Uk = U(kzim, dz)*U(kyim, dy)*U(kxim, dx);
+                                Uk = Uk*Uk;
+                                Uk = Uk*Uk;
+                                Usum += Uk;
+
+                                k2p = kzim*kzim+kyim*kyim+kxim*kxim;
+                                if(k2p!=0.)
+								{
+                                    ex = exp(d*k2p)/k2p;
+                                    Rz = kzim*ex;
+                                    Ry = kyim*ex;
+                                    Rx = kxim*ex;
+
+                                    numz += Rz*Uk;
+                                    numy += Ry*Uk;
+                                    numx += Rx*Uk;
+								}
+							}
+						}
+					}
+				
+
+					num = numz*Dkz+numy*Dky+numx*Dkx;
+					denom = (Dkz*Dkz+Dky*Dky+Dkx*Dkx)*Usum*Usum;
+
+					k2_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
+		    }
+		}
+	}
+
+}
+										}

@@ -25,6 +25,12 @@ cdef extern from "par_solvers.hpp":
                                    long N_cells, const long* cell_span, 
                                    double rmax, double beta)
 
+    void build_k2_lr_gaussian_optim_par(double* k2_vals,
+                                        double* kz, int nkz, double dz,		
+                                        double* ky, int nky, double dy,
+                                        double* kx, int nkx, double dx,
+                                        double beta)
+
         
 def get_k_vals(n, d):
     return (np.fft.fftfreq(n)*2*np.pi/d)
@@ -262,9 +268,31 @@ cpdef build_k2_lr_gaussian_optim(int nz, double dz,
 
                     k2_vals[iz,iy,ix] = num/denom
 
-    k2_vals[0,0,0] = 1.
+    return k2_vals
+
+cpdef test_build_k2_lr_gaussian_optim(int nz, double dz,
+                                      int ny, double dy,
+                                      int nx, double dx,
+                                      double beta):
+
+    cdef double[:] kz = get_k_vals(nz, dz)
+    cdef double[:] ky = get_k_vals(ny, dy)
+    cdef double[:] kx = get_k_vals(nx, dx)
+
+    cdef int nkz = kz.shape[0]
+    cdef int nky = ky.shape[0]
+    cdef int nkx = kx.shape[0]
+    cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
+
+    build_k2_lr_gaussian_optim_par(<double*>k2_vals.data,
+                                   &kz[0], nkz, dz,		
+                                   &ky[0], nky, dy,
+                                   &kx[0], nkx, dx,
+                                   beta);
+
 
     return k2_vals
+    
 
 
 cpdef build_k2_lr_s2_optim(int nz, double dz,
