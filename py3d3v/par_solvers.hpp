@@ -27,6 +27,12 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 									double* kx, int nkx, double dx,
 									double beta);
 
+void build_k2_lr_s2_optim_par(double* k2_vals,
+							  double* kz, int nkz, double dz,		
+							  double* ky, int nky, double dy,
+							  double* kx, int nkx, double dx,
+							  double beta);
+
 
 struct Gaussian
 {
@@ -36,13 +42,17 @@ private:
 	// Beta and Beta^2
 	double beta, beta2;
 	// Constants in E
-	double c, d, r2;
+	double c, d, e, r2;
 
 public:
 
 	Gaussian(double beta_);
 
+	// Field from screen
 	double E(double r);
+
+	// Fourier transform at k2=k*k
+	double g(double k2);
 
 };
 
@@ -56,12 +66,14 @@ private:
 	// Beta and Beta^2
 	double beta;
 	// Constants in E
-	double c, d, fpii, b2, r2;
+	double c, d, e, fpii, b2, r2, kb2;
 
 public:
 
 	S2(double beta_);
 
 	double E(double r);
+
+	double g(double k2);
 
 };

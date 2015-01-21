@@ -7,6 +7,7 @@ Gaussian::Gaussian(double beta_):
 	beta2 = beta*beta;
 	c = 1./(2.*sqrt(M_PI*M_PI*M_PI));
 	d = sqrt(M_PI)/2.;
+	e = -1./(beta*beta)/4.;
 }
 
 double Gaussian::E(double r)
@@ -15,11 +16,17 @@ double Gaussian::E(double r)
 	return c*(d*erf(r*beta)/r2-beta*exp(-beta2*r2)/r);
 }
 
+double Gaussian::g(double k2)
+{
+	return exp(e*k2);
+}
+
 S2::S2(double beta_):
 	beta(beta_)
 {
 	c = 4./(M_PI*beta*beta*beta*beta);
 	d = 2*beta;
+	e = 12./pow(beta/2., 4);
 	b2 = beta/2.;
 	fpii = 1./(4*M_PI);
 }
@@ -31,6 +38,12 @@ double S2::E(double r)
 		return c*(d*r-3*r2);
 	else
 		return fpii*r2;
+}
+
+double S2::g(double k2)
+{
+	kb2 = sqrt(k2)*b2;
+	return e*(2.-2.*cos(kb2)-kb2*sin(kb2))/(k2*k2);
 }
 
 template<typename T>
@@ -381,15 +394,15 @@ double difh(double ki, double d)
         return 1.;
 }
 
-
-void build_k2_lr_gaussian_optim_par(double* k2_vals,
-									double* kz, int nkz, double dz,		
-									double* ky, int nky, double dy,
-									double* kx, int nkx, double dx,
-									double beta)
+template<typename T>
+void build_k2_lr_optim_par(double* k2_vals,
+						   double* kz, int nkz, double dz,		
+						   double* ky, int nky, double dy,
+						   double* kx, int nkx, double dx,
+						   double beta)
 {
 
-    const double d = -1./(beta*beta)/4.;
+	T screen(beta);
     const double msz = 2*M_PI/dz;
     const double msy = 2*M_PI/dy;
     const double msx = 2*M_PI/dx;
@@ -456,7 +469,7 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 									k2p = kzim2+kyim2+kxim*kxim;
 									if(k2p!=0.)
 									{
-										ex = exp(d*k2p)/k2p;
+										ex = screen.g(k2p)/k2p;
 										Rz = kzim*ex;
 										Ry = kyim*ex;
 										Rx = kxim*ex;
@@ -479,4 +492,30 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 
 		} // Sum over k
 	}// omp parallel
+}
+
+void build_k2_lr_gaussian_optim_par(double* k2_vals,
+									double* kz, int nkz, double dz,		
+									double* ky, int nky, double dy,
+									double* kx, int nkx, double dx,
+									double beta)
+{
+
+	build_k2_lr_optim_par<Gaussian>(k2_vals, kz, nkz, dz,		
+									ky, nky, dy, kx, nkx, dx,
+									beta);
+	
+}
+
+void build_k2_lr_s2_optim_par(double* k2_vals,
+							  double* kz, int nkz, double dz,		
+							  double* ky, int nky, double dy,
+							  double* kx, int nkx, double dx,
+							  double beta)
+{
+
+	build_k2_lr_optim_par<S2>(k2_vals, kz, nkz, dz,		
+							  ky, nky, dy, kx, nkx, dx,
+							  beta);
+	
 }

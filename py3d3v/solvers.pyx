@@ -31,6 +31,13 @@ cdef extern from "par_solvers.hpp":
                                         double* kx, int nkx, double dx,
                                         double beta)
 
+    void build_k2_lr_s2_optim_par(double* k2_vals,
+                                  double* kz, int nkz, double dz,		
+                                  double* ky, int nky, double dy,
+                                  double* kx, int nkx, double dx,
+                                  double beta)
+
+
         
 def get_k_vals(n, d):
     return (np.fft.fftfreq(n)*2*np.pi/d)
@@ -200,91 +207,31 @@ cpdef build_k2_lr_gaussian_optim(int nz, double dz,
                                    &kz[0], nkz, dz,		
                                    &ky[0], nky, dy,
                                    &kx[0], nkx, dx,
-                                   beta);
+                                   beta)
 
 
     return k2_vals
     
-
-
 cpdef build_k2_lr_s2_optim(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
                            double beta):
 
-    cdef np.ndarray kz = get_k_vals(nz, dz)
-    cdef np.ndarray ky = get_k_vals(ny, dy)
-    cdef np.ndarray kx = get_k_vals(nx, dx)
+    cdef double[:] kz = get_k_vals(nz, dz)
+    cdef double[:] ky = get_k_vals(ny, dy)
+    cdef double[:] kx = get_k_vals(nx, dx)
 
-    cdef np.ndarray kz2 = (kz)**2
-    cdef np.ndarray ky2 = (ky)**2
-    cdef np.ndarray kx2 = (kx)**2
-    cdef double kz2i, ky2i
-
-    cdef int nkz, nky, nkx
-    cdef int iz, iy, ix, i, j, k
-
-    cdef double c = 1.
-    cdef double d = 12./(beta/2.)**4
-    cdef double k2, k2p, kb2
-    cdef double res, ex
-    cdef double msz, msy, msx
-    msz = 2*np.pi/dz
-    msy = 2*np.pi/dy
-    msx = 2*np.pi/dx
-    cdef double kzi, kyi, kxi
-
-    cdef double Uk, Usum
-    cdef double Dkz, Dky, Dkx
-    cdef double num, numz, numy, numx # numerator sum variables
-    cdef double denom
-    cdef double Rz, Ry, Rx
-
-    nkz, nky, nkx = len(kz2), len(ky2), len(kx2)
+    cdef int nkz = kz.shape[0]
+    cdef int nky = ky.shape[0]
+    cdef int nkx = kx.shape[0]
     cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
-    for iz in range(nkz):
-        kz2i = kz2[iz]
-        kzi  = kz[iz]
-        for iy in range(nky):
-            ky2i = ky2[iy]
-            kyi  = ky[iy]
-            for ix in range(nkx):
-                k2 = (kz2i+ky2i+kx2[ix])
-                kxi = kx[ix]
-                if k2!=0:
 
-                    Dkz = sin(kzi*dz)/dz
-                    Dky = sin(kyi*dy)/dy
-                    Dkx = sin(kxi*dx)/dx
+    build_k2_lr_s2_optim_par(<double*>k2_vals.data,
+                             &kz[0], nkz, dz,		
+                             &ky[0], nky, dy,
+                             &kx[0], nkx, dx,
+                             beta)
 
-                    res = 0.
-                    Usum = 0.
-                    numz = numy = numx = 0.
-                    for i in range(-2, 3):
-                        for j in range(-2, 3):
-                            for k in range(-2, 3):
-                                
-                                Uk = U(kzi+i*msz, dz)*U(kyi+j*msy, dy)*U(kxi+k*msx, dx)
-                                Uk = Uk*Uk
-                                Uk = Uk*Uk
-                                Usum += Uk
-
-                                k2p = (kzi+i*msz)**2+(kyi+j*msy)**2+(kxi+k*msx)**2
-                                if k2p!=0.:
-                                    kb2 = sqrt(k2p)*beta/2.
-                                    ex = d*(2.-2.*cos(kb2)-kb2*sin(kb2))/k2p**3
-                                    Rz = (kzi+i*msz)*ex
-                                    Ry = (kyi+j*msy)*ex
-                                    Rx = (kxi+k*msx)*ex
-
-                                    numz += Rz*Uk
-                                    numy += Ry*Uk
-                                    numx += Rx*Uk
-
-                    num = numz*Dkz+numy*Dky+numx*Dkx
-                    denom = (Dkz*Dkz+Dky*Dky+Dkx*Dkx)*Usum*Usum
-
-                    k2_vals[iz,iy,ix] = num/denom
 
     return k2_vals
     
