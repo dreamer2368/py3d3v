@@ -388,59 +388,63 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 									double beta)
 {
 
-    double d = -1./(beta*beta)/4.;
-    double k2p;
-    double res, ex;
-    double msz, msy, msx;
-    msz = 2*M_PI/dz;
-    msy = 2*M_PI/dy;
-    msx = 2*M_PI/dx;
+    const double d = -1./(beta*beta)/4.;
+    const double msz = 2*M_PI/dz;
+    const double msy = 2*M_PI/dy;
+    const double msx = 2*M_PI/dx;
+
+	double k2p;
+    double ex;
     double kzi, kyi, kxi;
 	double kzim, kyim, kxim;
+	double kzim2, kyim2, kxim2;
 
     double Uk, Usum;
+	double Ukzim, Ukyim;
     double Dkz, Dky, Dkx;
+	double Dkz2, Dky2;
     double num, numz, numy, numx; 
 	double denom;
     double Rz, Ry, Rx;
 
-    
     for(int iz=0; iz<nkz; iz++)
     {
         kzi  = kz[iz];
+		Dkz = sin(kzi*dz)/dz;
+		Dkz2 = Dkz*Dkz;
         for(int iy=0; iy<nky; iy++)
 		{
             kyi  = ky[iy];
+			Dky = sin(kyi*dy)/dy;
+			Dky2 = Dky*Dky;
             for(int ix=0; ix<nkx; ix++)
 			{
                 kxi = kx[ix];
                 if(iz!=0 || iy!=0 || ix!=0)
 				{
-
-                    Dkz = sin(kzi*dz)/dz;
-                    Dky = sin(kyi*dy)/dy;
+                    
                     Dkx = sin(kxi*dx)/dx;
-
-                    res = 0.;
                     Usum = 0.;
                     numz = numy = numx = 0.;
                     for(int i=-2; i<3; i++)
 					{
+						kzim = kzi+i*msz;
+						kzim2 = kzim*kzim;
+						Ukzim = U(kzim, dz);
                         for(int j=-2; j<3; j++)
 						{
+							kyim = kyi+j*msy;
+							kyim2 = kyim*kyim;
+							Ukyim = U(kyim, dy);
                             for(int k=-2; k<3; k++)
 							{
-
-								kzim = kzi+i*msz;
-								kyim = kyi+j*msy;
+								
 								kxim = kxi+k*msx;
-
-                                Uk = U(kzim, dz)*U(kyim, dy)*U(kxim, dx);
-                                Uk = Uk*Uk;
-                                Uk = Uk*Uk;
+                                Uk = Ukzim*Ukyim*U(kxim, dx);
+                                Uk = Uk*Uk*Uk*Uk;
                                 Usum += Uk;
 
-                                k2p = kzim*kzim+kyim*kyim+kxim*kxim;
+                                k2p = kzim2+kyim2+kxim*kxim;
                                 if(k2p!=0.)
 								{
                                     ex = exp(d*k2p)/k2p;
@@ -455,10 +459,9 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 							}
 						}
 					}
-				
 
 					num = numz*Dkz+numy*Dky+numx*Dkx;
-					denom = (Dkz*Dkz+Dky*Dky+Dkx*Dkx)*Usum*Usum;
+					denom = (Dkz2+Dky2+Dkx*Dkx)*Usum*Usum;
 
 					k2_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
 		    }
