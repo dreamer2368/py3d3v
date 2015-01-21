@@ -371,7 +371,8 @@ void calc_E_short_range_par_s2(int N,
 
 }
 
-double U(double ki, double d)
+// equivalent to dif(k*d/2)
+double difh(double ki, double d)
 {
 
     if(ki!=0)
@@ -410,6 +411,9 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 		double denom;
 		double Rz, Ry, Rx;
 
+		// The iz,iy,ix loops are over the values of k in fourier
+		// space mesh
+		// The loops over i,j,k are the k+2pim/h sums
 #pragma omp for
 		for(int iz=0; iz<nkz; iz++)
 		{
@@ -424,6 +428,7 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 				for(int ix=0; ix<nkx; ix++)
 				{
 					kxi = kx[ix];
+					// Sum over k+2pim/h
 					if(iz!=0 || iy!=0 || ix!=0)
 					{
                     
@@ -434,17 +439,17 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 						{
 							kzim = kzi+i*msz;
 							kzim2 = kzim*kzim;
-							Ukzim = U(kzim, dz);
+							Ukzim = difh(kzim, dz);
 							for(int j=-2; j<3; j++)
 							{
 								kyim = kyi+j*msy;
 								kyim2 = kyim*kyim;
-								Ukyim = U(kyim, dy);
+								Ukyim = difh(kyim, dy);
 								for(int k=-2; k<3; k++)
 								{
 								
 									kxim = kxi+k*msx;
-									Uk = Ukzim*Ukyim*U(kxim, dx);
+									Uk = Ukzim*Ukyim*difh(kxim, dx);
 									Uk = Uk*Uk*Uk*Uk;
 									Usum += Uk;
 
@@ -468,10 +473,10 @@ void build_k2_lr_gaussian_optim_par(double* k2_vals,
 						denom = (Dkz2+Dky2+Dkx*Dkx)*Usum*Usum;
 
 						k2_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
-					}
+					} // Sum over m
 				}
 			}
 
-		}
-	}
+		} // Sum over k
+	}// omp parallel
 }
