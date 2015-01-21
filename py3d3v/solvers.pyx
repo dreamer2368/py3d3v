@@ -25,17 +25,17 @@ cdef extern from "par_solvers.hpp":
                                    long N_cells, const long* cell_span, 
                                    double rmax, double beta)
 
-    void build_k2_lr_gaussian_optim_par(double* k2_vals,
-                                        double* kz, int nkz, double dz,		
-                                        double* ky, int nky, double dy,
-                                        double* kx, int nkx, double dx,
-                                        double beta)
+    void build_inf_lr_gaussian_optim_par(double* k2_vals,
+                                         double* kz, int nkz, double dz,		
+                                         double* ky, int nky, double dy,
+                                         double* kx, int nkx, double dx,
+                                         double beta)
 
-    void build_k2_lr_s2_optim_par(double* k2_vals,
-                                  double* kz, int nkz, double dz,		
-                                  double* ky, int nky, double dy,
-                                  double* kx, int nkx, double dx,
-                                  double beta)
+    void build_inf_lr_s2_optim_par(double* k2_vals,
+                                   double* kz, int nkz, double dz,		
+                                   double* ky, int nky, double dy,
+                                   double* kx, int nkx, double dx,
+                                   double beta)
 
 
         
@@ -189,10 +189,10 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
     return k2_vals
 
 
-cpdef build_k2_lr_gaussian_optim(int nz, double dz,
-                                 int ny, double dy,
-                                 int nx, double dx,
-                                 double beta):
+cpdef build_inf_lr_gaussian_optim(int nz, double dz,
+                                  int ny, double dy,
+                                  int nx, double dx,
+                                  double beta):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -203,19 +203,19 @@ cpdef build_k2_lr_gaussian_optim(int nz, double dz,
     cdef int nkx = kx.shape[0]
     cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
 
-    build_k2_lr_gaussian_optim_par(<double*>k2_vals.data,
-                                   &kz[0], nkz, dz,		
-                                   &ky[0], nky, dy,
-                                   &kx[0], nkx, dx,
-                                   beta)
+    build_inf_lr_gaussian_optim_par(<double*>k2_vals.data,
+                                    &kz[0], nkz, dz,		
+                                    &ky[0], nky, dy,
+                                    &kx[0], nkx, dx,
+                                    beta)
 
 
     return k2_vals
     
-cpdef build_k2_lr_s2_optim(int nz, double dz,
-                           int ny, double dy,
-                           int nx, double dx,
-                           double beta):
+cpdef build_inf_lr_s2_optim(int nz, double dz,
+                            int ny, double dy,
+                            int nx, double dx,
+                            double beta):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -226,11 +226,11 @@ cpdef build_k2_lr_s2_optim(int nz, double dz,
     cdef int nkx = kx.shape[0]
     cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
 
-    build_k2_lr_s2_optim_par(<double*>k2_vals.data,
-                             &kz[0], nkz, dz,		
-                             &ky[0], nky, dy,
-                             &kx[0], nkx, dx,
-                             beta)
+    build_inf_lr_s2_optim_par(<double*>k2_vals.data,
+                              &kz[0], nkz, dz,		
+                              &ky[0], nky, dy,
+                              &kx[0], nkx, dx,
+                              beta)
 
 
     return k2_vals
@@ -248,7 +248,7 @@ class GaussianScreen(Screen):
                            double beta, optimized=True):
 
         if optimized:
-            return build_k2_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta)
+            return build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta)
         else:
             return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
         
@@ -278,7 +278,7 @@ class S2Screen(Screen):
                            double beta, optimized=True):
 
         if optimized:
-            return build_k2_lr_s2_optim(nz, dz, ny, dy, nx, dx, beta)
+            return build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx, beta)
         else:
             return build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
 

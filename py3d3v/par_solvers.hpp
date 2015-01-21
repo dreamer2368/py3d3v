@@ -21,17 +21,17 @@ void calc_E_short_range_par_s2(int N,
 							   long N_cells, const long* cell_span, 
 							   double rmax, double beta);
 
-void build_k2_lr_gaussian_optim_par(double* k2_vals,
-									double* kz, int nkz, double dz,		
-									double* ky, int nky, double dy,
-									double* kx, int nkx, double dx,
-									double beta);
+void build_inf_lr_gaussian_optim_par(double* k2_vals,
+									 double* kz, int nkz, double dz,		
+									 double* ky, int nky, double dy,
+									 double* kx, int nkx, double dx,
+									 double beta);
 
-void build_k2_lr_s2_optim_par(double* k2_vals,
-							  double* kz, int nkz, double dz,		
-							  double* ky, int nky, double dy,
-							  double* kx, int nkx, double dx,
-							  double beta);
+void build_inf_lr_s2_optim_par(double* k2_vals,
+							   double* kz, int nkz, double dz,		
+							   double* ky, int nky, double dy,
+							   double* kx, int nkx, double dx,
+							   double beta);
 
 
 struct Gaussian

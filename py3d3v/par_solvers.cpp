@@ -395,11 +395,11 @@ double difh(double ki, double d)
 }
 
 template<typename T>
-void build_k2_lr_optim_par(double* k2_vals,
-						   double* kz, int nkz, double dz,		
-						   double* ky, int nky, double dy,
-						   double* kx, int nkx, double dx,
-						   double beta)
+void build_inf_lr_optim_par(double* inf_vals,
+							double* kz, int nkz, double dz,		
+							double* ky, int nky, double dy,
+							double* kx, int nkx, double dx,
+							double beta)
 {
 
 	T screen(beta);
@@ -485,7 +485,7 @@ void build_k2_lr_optim_par(double* k2_vals,
 						num = numz*Dkz+numy*Dky+numx*Dkx;
 						denom = (Dkz2+Dky2+Dkx*Dkx)*Usum*Usum;
 
-						k2_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
+						inf_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
 					} // Sum over m
 				}
 			}
@@ -494,28 +494,28 @@ void build_k2_lr_optim_par(double* k2_vals,
 	}// omp parallel
 }
 
-void build_k2_lr_gaussian_optim_par(double* k2_vals,
-									double* kz, int nkz, double dz,		
-									double* ky, int nky, double dy,
-									double* kx, int nkx, double dx,
-									double beta)
+void build_inf_lr_gaussian_optim_par(double* inf_vals,
+									 double* kz, int nkz, double dz,		
+									 double* ky, int nky, double dy,
+									 double* kx, int nkx, double dx,
+									 double beta)
 {
 
-	build_k2_lr_optim_par<Gaussian>(k2_vals, kz, nkz, dz,		
-									ky, nky, dy, kx, nkx, dx,
-									beta);
+	build_inf_lr_optim_par<Gaussian>(inf_vals, kz, nkz, dz,		
+									 ky, nky, dy, kx, nkx, dx,
+									 beta);
 	
 }
 
-void build_k2_lr_s2_optim_par(double* k2_vals,
-							  double* kz, int nkz, double dz,		
-							  double* ky, int nky, double dy,
-							  double* kx, int nkx, double dx,
-							  double beta)
+void build_inf_lr_s2_optim_par(double* inf_vals,
+							   double* kz, int nkz, double dz,		
+							   double* ky, int nky, double dy,
+							   double* kx, int nkx, double dx,
+							   double beta)
 {
 
-	build_k2_lr_optim_par<S2>(k2_vals, kz, nkz, dz,		
-							  ky, nky, dy, kx, nkx, dx,
-							  beta);
+	build_inf_lr_optim_par<S2>(inf_vals, kz, nkz, dz,		
+							   ky, nky, dy, kx, nkx, dx,
+							   beta);
 	
 }
