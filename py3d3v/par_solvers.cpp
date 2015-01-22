@@ -399,7 +399,7 @@ void build_inf_lr_optim_par(double* inf_vals,
 							double* kz, int nkz, double dz,		
 							double* ky, int nky, double dy,
 							double* kx, int nkx, double dx,
-							double beta)
+							double beta, int m_max)
 {
 
 	T screen(beta);
@@ -448,17 +448,17 @@ void build_inf_lr_optim_par(double* inf_vals,
 						Dkx = sin(kxi*dx)/dx;
 						Usum = 0.;
 						numz = numy = numx = 0.;
-						for(int i=-2; i<3; i++)
+						for(int i=-m_max; i<=m_max; i++)
 						{
 							kzim = kzi+i*msz;
 							kzim2 = kzim*kzim;
 							Ukzim = difh(kzim, dz);
-							for(int j=-2; j<3; j++)
+							for(int j=-m_max; j<=m_max; j++)
 							{
 								kyim = kyi+j*msy;
 								kyim2 = kyim*kyim;
 								Ukyim = difh(kyim, dy);
-								for(int k=-2; k<3; k++)
+								for(int k=-m_max; k<=m_max; k++)
 								{
 								
 									kxim = kxi+k*msx;
@@ -498,12 +498,12 @@ void build_inf_lr_gaussian_optim_par(double* inf_vals,
 									 double* kz, int nkz, double dz,		
 									 double* ky, int nky, double dy,
 									 double* kx, int nkx, double dx,
-									 double beta)
+									 double beta, int m_max)
 {
 
 	build_inf_lr_optim_par<Gaussian>(inf_vals, kz, nkz, dz,		
 									 ky, nky, dy, kx, nkx, dx,
-									 beta);
+									 beta, m_max);
 	
 }
 
@@ -511,11 +511,11 @@ void build_inf_lr_s2_optim_par(double* inf_vals,
 							   double* kz, int nkz, double dz,		
 							   double* ky, int nky, double dy,
 							   double* kx, int nkx, double dx,
-							   double beta)
+							   double beta, int m_max)
 {
 
 	build_inf_lr_optim_par<S2>(inf_vals, kz, nkz, dz,		
 							   ky, nky, dy, kx, nkx, dx,
-							   beta);
+							   beta, m_max);
 	
 }

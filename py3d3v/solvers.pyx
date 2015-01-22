@@ -29,13 +29,13 @@ cdef extern from "par_solvers.hpp":
                                          double* kz, int nkz, double dz,		
                                          double* ky, int nky, double dy,
                                          double* kx, int nkx, double dx,
-                                         double beta)
+                                         double beta, int m_max)
 
     void build_inf_lr_s2_optim_par(double* k2_vals,
                                    double* kz, int nkz, double dz,		
                                    double* ky, int nky, double dy,
                                    double* kx, int nkx, double dx,
-                                   double beta)
+                                   double beta, int m_max)
 
 
         
@@ -192,7 +192,7 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
 cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                   int ny, double dy,
                                   int nx, double dx,
-                                  double beta):
+                                  double beta, int m_max=2):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -207,7 +207,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                     &kz[0], nkz, dz,		
                                     &ky[0], nky, dy,
                                     &kx[0], nkx, dx,
-                                    beta)
+                                    beta, m_max)
 
 
     return k2_vals
@@ -215,7 +215,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
 cpdef build_inf_lr_s2_optim(int nz, double dz,
                             int ny, double dy,
                             int nx, double dx,
-                            double beta):
+                            double beta, int m_max=2):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -230,7 +230,7 @@ cpdef build_inf_lr_s2_optim(int nz, double dz,
                               &kz[0], nkz, dz,		
                               &ky[0], nky, dy,
                               &kx[0], nkx, dx,
-                              beta)
+                              beta, m_max)
 
 
     return k2_vals

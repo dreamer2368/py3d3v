@@ -25,13 +25,13 @@ void build_inf_lr_gaussian_optim_par(double* k2_vals,
 									 double* kz, int nkz, double dz,		
 									 double* ky, int nky, double dy,
 									 double* kx, int nkx, double dx,
-									 double beta);
+									 double beta, int m_max);
 
 void build_inf_lr_s2_optim_par(double* k2_vals,
 							   double* kz, int nkz, double dz,		
 							   double* ky, int nky, double dy,
 							   double* kx, int nkx, double dx,
-							   double beta);
+							   double beta, int m_max);
 
 
 struct Gaussian
