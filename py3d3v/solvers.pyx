@@ -323,16 +323,17 @@ class Poisson3DFFT(object):
     def __call__(self, rho):
         return self.solve(rho)
 
-
 class Poisson3DFFTLR(object):
     
     def __init__(self, nz, dz, ny, dy, nx, dx, beta,
-                 screen=GaussianScreen):
+                 screen=GaussianScreen,
+                 diff_type="spectral"):
         
         self.nz = nz; self.dz = dz
         self.ny = ny; self.dy = dy
         self.nx = nx; self.dx = dx
         self.beta = beta
+
         if hasattr(screen, "__len__"):
             self.screen = screen[0]
             self.screen_options= screen[1]
@@ -342,18 +343,52 @@ class Poisson3DFFTLR(object):
         self.k2 = self.screen.influence_function(nz, dz, ny, dy,
                                                  nx, dx, beta,
                                                  **self.screen_options)
+
+        if diff_type=="fd":
+            self.diff_func = self.diff_fd
+        elif diff_type=="spectral":
+            self.diff_func = self.diff_spectral
+            # negative i k (nik)
+            ni = np.complex(0, -1)
+            self.nikz = get_k_vals(nz, dz).reshape((nz,1,1))*ni
+            self.niky = get_k_vals(ny, dy).reshape((1,ny,1))*ni
+            self.nikx = get_k_vals(nx, dx).reshape((1,1,nx))*ni
+        else:
+            raise ValueError("Invalid diff function: %s"%(diff_type,))
+
+    def diff_fd(self, phik):
+
+        phi = np.real(np.fft.ifftn(phik))
+
+        Ez  = calc_Ez(phi, self.dz) 
+        Ey  = calc_Ey(phi, self.dy)
+        Ex  = calc_Ex(phi, self.dx)
+
+        return Ez, Ey, Ex
+
+    def diff_spectral(self, phik):
+
+        grid = np.zeros_like(phik)
+
+        grid[:] = phik*self.nikz
+        Ez = np.real(np.fft.ifftn(grid))
+
+        grid[:] = phik*self.niky
+        Ey = np.real(np.fft.ifftn(grid))
+
+        grid[:] = phik*self.nikx
+        Ex = np.real(np.fft.ifftn(grid))
+
+        return Ez, Ey, Ex
         
     def solve(self, rho):
         
         rhok = np.fft.fftn(rho)
         phik = rhok*self.k2
         phik[0,0,0] = 0.
-        phi = np.real(np.fft.ifftn(phik))
-        Ez  = calc_Ez(phi, self.dz) 
-        Ey  = calc_Ey(phi, self.dy)
-        Ex  = calc_Ex(phi, self.dx)
-
-        return Ez, Ey, Ex
+        #phi = np.real(np.fft.ifftn(phik))
+        
+        return self.diff_func(phik)
     
     def __call__(self, rho):
         return self.solve(rho)
