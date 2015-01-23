@@ -205,15 +205,22 @@ class PIC3DP3M(PIC3DPM):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, beta=10, rmax=.2, screen=GaussianScreen, N_cells=None, unpack=False):
+    def init_run(self, dt, beta=10, rmax=.2,
+                 screen=GaussianScreen,
+                 N_cells=None, unpack=False,
+                 solver_opts={}):
 
         if unpack:
             self.unpack()
 
+        solver_opts["screen"] = screen
+        solver_opts["beta"]   = beta
+        self.solver_opts = solver_opts
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
                                      self.nx, self.dx,
-                                     beta=beta, screen=screen)
+                                     **self.solver_opts)
+                                     #beta=beta, screen=screen)
 
         # Choose the largest number of cells possible
         if N_cells is None:

@@ -327,7 +327,7 @@ class Poisson3DFFTLR(object):
     
     def __init__(self, nz, dz, ny, dy, nx, dx, beta,
                  screen=GaussianScreen,
-                 diff_type="spectral"):
+                 diff_type="fd"):
         
         self.nz = nz; self.dz = dz
         self.ny = ny; self.dy = dy
