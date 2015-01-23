@@ -192,7 +192,7 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
 cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                   int ny, double dy,
                                   int nx, double dx,
-                                  double beta, int m_max=2, int diff_order=1):
+                                  double beta, int m_max, int diff_order):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -215,7 +215,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
 cpdef build_inf_lr_s2_optim(int nz, double dz,
                             int ny, double dy,
                             int nx, double dx,
-                            double beta, int m_max=2, int diff_order=1):
+                            double beta, int m_max, int diff_order):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -245,10 +245,11 @@ class GaussianScreen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta, optimized=True, diff_order=1):
+                           double beta, optimized=True, diff_order=None, m_max=2):
 
         if optimized:
-            return build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta, diff_order)
+            return build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta,
+                                               m_max, diff_order)
         else:
             return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
         
@@ -275,10 +276,11 @@ class S2Screen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta, optimized=True, diff_order=1):
+                           double beta, optimized=True, diff_order=None, m_max=2):
 
         if optimized:
-            return build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx, beta, diff_order)
+            return build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx,
+                                         beta, m_max, diff_order)
         else:
             return build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
 

@@ -220,7 +220,7 @@ class PIC3DP3M(PIC3DPM):
                                      self.ny, self.dy,
                                      self.nx, self.dx,
                                      **self.solver_opts)
-                                     #beta=beta, screen=screen)
+        self.screen = self.solver.screen
 
         # Choose the largest number of cells possible
         if N_cells is None:
@@ -229,7 +229,6 @@ class PIC3DP3M(PIC3DPM):
 
         self.beta = beta
         self.rmax = rmax
-        self.screen = screen
         self.N_cells = N_cells
         self.cell_vals = np.arange(N_cells**3,  dtype=np.int)
         self.cell_span = np.zeros(N_cells**3+1, dtype=np.int)
