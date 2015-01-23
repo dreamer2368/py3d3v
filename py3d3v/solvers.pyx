@@ -192,7 +192,7 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
 cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                   int ny, double dy,
                                   int nx, double dx,
-                                  double beta, int m_max=2, int p=1):
+                                  double beta, int m_max=2, int diff_order=1):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -207,7 +207,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                     &kz[0], nkz, dz,		
                                     &ky[0], nky, dy,
                                     &kx[0], nkx, dx,
-                                    beta, m_max, p)
+                                    beta, m_max, diff_order)
 
 
     return k2_vals
@@ -215,7 +215,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
 cpdef build_inf_lr_s2_optim(int nz, double dz,
                             int ny, double dy,
                             int nx, double dx,
-                            double beta, int m_max=2, int p=1):
+                            double beta, int m_max=2, int diff_order=1):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -230,7 +230,7 @@ cpdef build_inf_lr_s2_optim(int nz, double dz,
                               &kz[0], nkz, dz,		
                               &ky[0], nky, dy,
                               &kx[0], nkx, dx,
-                              beta, m_max, p)
+                              beta, m_max, diff_order)
 
 
     return k2_vals
@@ -341,7 +341,7 @@ class Poisson3DFFTLR(object):
             self.diff_func = self.diff_spectral
             self.diff_order = 0
             # negative i k (nik)
-            ni = np.complex(0, -1)
+            ni = np.complex(0, -1.)
             self.nikz = get_k_vals(nz, dz).reshape((nz,1,1))*ni
             self.niky = get_k_vals(ny, dy).reshape((1,ny,1))*ni
             self.nikx = get_k_vals(nx, dx).reshape((1,1,nx))*ni

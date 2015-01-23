@@ -441,21 +441,21 @@ void build_inf_lr_optim_par(double* inf_vals,
 
 		// Precompute Dk and Dk^2 vals
 		double tmp;
-#pragma omp for
+#pragma omp for private(tmp)
 		for(int iz=0; iz<nkz; iz++)
 		{
 			tmp = Dk(kz[iz], dz, diff_order);
 			Dkz_vals[iz]  = tmp;
 			Dkz2_vals[iz] = tmp*tmp;
 		}
-#pragma omp for		
+#pragma omp for private(tmp)
 		for(int iy=0; iy<nky; iy++)
 		{
 			tmp = Dk(ky[iy], dy, diff_order);
 			Dky_vals[iy]  = tmp;
 			Dky2_vals[iy] = tmp*tmp;
 		}
-#pragma omp for		
+#pragma omp for	private(tmp)
 		for(int ix=0; ix<nkx; ix++)
 		{
 			tmp = Dk(kx[ix], dx, diff_order);
@@ -489,12 +489,12 @@ void build_inf_lr_optim_par(double* inf_vals,
 						numz = numy = numx = 0.;
 						for(int i=-m_max; i<=m_max; i++)
 						{
-							kzim = kzi+i*msz;
+							kzim  = kzi+i*msz;
 							kzim2 = kzim*kzim;
 							Ukzim = difh(kzim, dz);
 							for(int j=-m_max; j<=m_max; j++)
 							{
-								kyim = kyi+j*msy;
+								kyim  = kyi+j*msy;
 								kyim2 = kyim*kyim;
 								Ukyim = difh(kyim, dy);
 								for(int k=-m_max; k<=m_max; k++)
