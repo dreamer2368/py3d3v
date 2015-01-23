@@ -29,13 +29,13 @@ cdef extern from "par_solvers.hpp":
                                          double* kz, int nkz, double dz,		
                                          double* ky, int nky, double dy,
                                          double* kx, int nkx, double dx,
-                                         double beta, int m_max)
+                                         double beta, int m_max, int diff_order)
 
     void build_inf_lr_s2_optim_par(double* k2_vals,
                                    double* kz, int nkz, double dz,		
                                    double* ky, int nky, double dy,
                                    double* kx, int nkx, double dx,
-                                   double beta, int m_max)
+                                   double beta, int m_max, int diff_order)
 
 
         
@@ -192,7 +192,7 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
 cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                   int ny, double dy,
                                   int nx, double dx,
-                                  double beta, int m_max=2):
+                                  double beta, int m_max=2, int p=1):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -207,7 +207,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                     &kz[0], nkz, dz,		
                                     &ky[0], nky, dy,
                                     &kx[0], nkx, dx,
-                                    beta, m_max)
+                                    beta, m_max, p)
 
 
     return k2_vals
@@ -215,7 +215,7 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
 cpdef build_inf_lr_s2_optim(int nz, double dz,
                             int ny, double dy,
                             int nx, double dx,
-                            double beta, int m_max=2):
+                            double beta, int m_max=2, int p=1):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -230,7 +230,7 @@ cpdef build_inf_lr_s2_optim(int nz, double dz,
                               &kz[0], nkz, dz,		
                               &ky[0], nky, dy,
                               &kx[0], nkx, dx,
-                              beta, m_max)
+                              beta, m_max, p)
 
 
     return k2_vals
@@ -245,10 +245,10 @@ class GaussianScreen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta, optimized=True):
+                           double beta, optimized=True, diff_order=1):
 
         if optimized:
-            return build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta)
+            return build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta, diff_order)
         else:
             return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
         
@@ -275,10 +275,10 @@ class S2Screen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta, optimized=True):
+                           double beta, optimized=True, diff_order=1):
 
         if optimized:
-            return build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx, beta)
+            return build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx, beta, diff_order)
         else:
             return build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
 
@@ -334,20 +334,12 @@ class Poisson3DFFTLR(object):
         self.nx = nx; self.dx = dx
         self.beta = beta
 
-        if hasattr(screen, "__len__"):
-            self.screen = screen[0]
-            self.screen_options= screen[1]
-        else:
-            self.screen = screen
-            self.screen_options= {}
-        self.k2 = self.screen.influence_function(nz, dz, ny, dy,
-                                                 nx, dx, beta,
-                                                 **self.screen_options)
-
         if diff_type=="fd":
             self.diff_func = self.diff_fd
+            self.diff_order = 1
         elif diff_type=="spectral":
             self.diff_func = self.diff_spectral
+            self.diff_order = 0
             # negative i k (nik)
             ni = np.complex(0, -1)
             self.nikz = get_k_vals(nz, dz).reshape((nz,1,1))*ni
@@ -355,6 +347,17 @@ class Poisson3DFFTLR(object):
             self.nikx = get_k_vals(nx, dx).reshape((1,1,nx))*ni
         else:
             raise ValueError("Invalid diff function: %s"%(diff_type,))
+
+        if hasattr(screen, "__len__"):
+            self.screen = screen[0]
+            self.screen_options= screen[1]
+        else:
+            self.screen = screen
+            self.screen_options= {}
+        self.k2 = self.screen.influence_function(nz, dz, ny, dy,
+                                                 nx, dx, beta, diff_order=self.diff_order,
+                                                 **self.screen_options)
+            
 
     def diff_fd(self, phik):
 

@@ -394,18 +394,33 @@ double difh(double ki, double d)
         return 1.;
 }
 
+double Dk(double k, double d, int diff_order)
+{
+	if(diff_order>0)
+		return sin(diff_order*k*d)/(d*diff_order);
+	else
+		return k;
+}
+
 template<typename T>
 void build_inf_lr_optim_par(double* inf_vals,
 							double* kz, int nkz, double dz,		
 							double* ky, int nky, double dy,
 							double* kx, int nkx, double dx,
-							double beta, int m_max)
+							double beta, int m_max, int diff_order)
 {
 
 	T screen(beta);
     const double msz = 2*M_PI/dz;
     const double msy = 2*M_PI/dy;
     const double msx = 2*M_PI/dx;
+
+	std::vector<double> Dkz_vals(nkz, 0);
+	std::vector<double> Dkz2_vals(nkz, 0);
+	std::vector<double> Dky_vals(nky, 0);
+	std::vector<double> Dky2_vals(nky, 0);
+	std::vector<double> Dkx_vals(nkx, 0);
+	std::vector<double> Dkx2_vals(nkx, 0);
 
 #pragma omp parallel
 	{
@@ -424,6 +439,31 @@ void build_inf_lr_optim_par(double* inf_vals,
 		double denom;
 		double Rz, Ry, Rx;
 
+		// Precompute Dk and Dk^2 vals
+		double tmp;
+#pragma omp for
+		for(int iz=0; iz<nkz; iz++)
+		{
+			tmp = Dk(kz[iz], dz, diff_order);
+			Dkz_vals[iz]  = tmp;
+			Dkz2_vals[iz] = tmp*tmp;
+		}
+#pragma omp for		
+		for(int iy=0; iy<nky; iy++)
+		{
+			tmp = Dk(ky[iy], dy, diff_order);
+			Dky_vals[iy]  = tmp;
+			Dky2_vals[iy] = tmp*tmp;
+		}
+#pragma omp for		
+		for(int ix=0; ix<nkx; ix++)
+		{
+			tmp = Dk(kx[ix], dx, diff_order);
+			Dkx_vals[ix]  = tmp;
+			Dkx2_vals[ix] = tmp*tmp;
+		}
+		
+
 		// The iz,iy,ix loops are over the values of k in fourier
 		// space mesh
 		// The loops over i,j,k are the k+2pim/h sums
@@ -431,21 +471,20 @@ void build_inf_lr_optim_par(double* inf_vals,
 		for(int iz=0; iz<nkz; iz++)
 		{
 			kzi  = kz[iz];
-			Dkz = sin(kzi*dz)/dz;
-			Dkz2 = Dkz*Dkz;
+			Dkz  = Dkz_vals[iz];
+			Dkz2 = Dkz2_vals[iz];
 			for(int iy=0; iy<nky; iy++)
 			{
 				kyi  = ky[iy];
-				Dky = sin(kyi*dy)/dy;
-				Dky2 = Dky*Dky;
+				Dky  = Dky_vals[iy];
+				Dky2 = Dky2_vals[iy];
 				for(int ix=0; ix<nkx; ix++)
 				{
 					kxi = kx[ix];
 					// Sum over k+2pim/h
 					if(iz!=0 || iy!=0 || ix!=0)
 					{
-                    
-						Dkx = sin(kxi*dx)/dx;
+						Dkx  = Dkx_vals[ix];
 						Usum = 0.;
 						numz = numy = numx = 0.;
 						for(int i=-m_max; i<=m_max; i++)
@@ -483,7 +522,7 @@ void build_inf_lr_optim_par(double* inf_vals,
 						}
 
 						num = numz*Dkz+numy*Dky+numx*Dkx;
-						denom = (Dkz2+Dky2+Dkx*Dkx)*Usum*Usum;
+						denom = (Dkz2+Dky2+Dkx2_vals[ix])*Usum*Usum;
 
 						inf_vals[iz*nky*nkx+iy*nkx+ix] = num/denom;
 					} // Sum over m
@@ -498,12 +537,12 @@ void build_inf_lr_gaussian_optim_par(double* inf_vals,
 									 double* kz, int nkz, double dz,		
 									 double* ky, int nky, double dy,
 									 double* kx, int nkx, double dx,
-									 double beta, int m_max)
+									 double beta, int m_max, int diff_order)
 {
 
 	build_inf_lr_optim_par<Gaussian>(inf_vals, kz, nkz, dz,		
 									 ky, nky, dy, kx, nkx, dx,
-									 beta, m_max);
+									 beta, m_max, diff_order);
 	
 }
 
@@ -511,11 +550,11 @@ void build_inf_lr_s2_optim_par(double* inf_vals,
 							   double* kz, int nkz, double dz,		
 							   double* ky, int nky, double dy,
 							   double* kx, int nkx, double dx,
-							   double beta, int m_max)
+							   double beta, int m_max, int diff_order)
 {
 
 	build_inf_lr_optim_par<S2>(inf_vals, kz, nkz, dz,		
 							   ky, nky, dy, kx, nkx, dx,
-							   beta, m_max);
+							   beta, m_max, diff_order);
 	
 }

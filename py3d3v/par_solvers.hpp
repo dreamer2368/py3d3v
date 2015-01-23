@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <math.h>
 #include <stdlib.h>
+#include <vector>
 
 void calc_E_short_range_par_gaussian(int N,
 									 double* Ezp, const double* zp, double Lz,
@@ -25,13 +26,13 @@ void build_inf_lr_gaussian_optim_par(double* k2_vals,
 									 double* kz, int nkz, double dz,		
 									 double* ky, int nky, double dy,
 									 double* kx, int nkx, double dx,
-									 double beta, int m_max);
+									 double beta, int m_max, int diff_order);
 
 void build_inf_lr_s2_optim_par(double* k2_vals,
 							   double* kz, int nkz, double dz,		
 							   double* ky, int nky, double dy,
 							   double* kx, int nkx, double dx,
-							   double beta, int m_max);
+							   double beta, int m_max, int diff_order);
 
 
 struct Gaussian
