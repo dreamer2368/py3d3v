@@ -241,17 +241,29 @@ class Screen(object):
 
 class GaussianScreen(Screen):
 
+    last_args = ()
+    last      = None
+
     @staticmethod
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
                            double beta, optimized=True, diff_order=None, m_max=2):
 
+        args = (nz, dz, ny, dy, nx, dx, beta,
+                optimized, m_max, diff_order)
+        if args == GaussianScreen.last_args:
+            return GaussianScreen.last
+        
+        GaussianScreen.last_args = args
         if optimized:
-            return build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta,
-                                               m_max, diff_order)
+            inf = build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta,
+                                              m_max, diff_order)
         else:
-            return build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+            inf = build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
+
+        GaussianScreen.last = inf
+        return inf
         
 
     @staticmethod
@@ -272,17 +284,29 @@ class GaussianScreen(Screen):
 
 class S2Screen(Screen):
 
+    last_args = ()
+    last      = None
+
     @staticmethod
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
                            double beta, optimized=True, diff_order=None, m_max=2):
 
+        args = (nz, dz, ny, dy, nx, dx, beta,
+                optimized, m_max, diff_order)
+        if args == S2Screen.last_args:
+            return S2Screen.last
+        
+        S2Screen.last_args = args
         if optimized:
-            return build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx,
-                                         beta, m_max, diff_order)
+            inf = build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx,
+                                        beta, m_max, diff_order)
         else:
-            return build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
+            inf = build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
+
+        S2Screen.last = inf
+        return inf
 
     @staticmethod
     def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
