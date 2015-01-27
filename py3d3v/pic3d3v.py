@@ -130,18 +130,11 @@ class PIC3DPM(PIC3DBase):
     def weight(self, grid, zp, dz, yp, dy,
                xp, dx, q, rho0=0.):
 
-        if self.particle_shape==2:
-            weight_cic(grid, zp, dz, yp, dy, xp, dx, q)
-        elif self.particle_shape==3:
-            weight_b3(grid, zp, dz, yp, dy, xp, dx, q)
+        weight_particles(self.particle_shape, grid, zp, dz, yp, dy, xp, dx, q)
 
     def interp(self, E, zp, dz, yp, dy, xp, dx):
 
-        if self.particle_shape==2:
-            return interp_cic(E, zp, dz, yp, dy, xp, dx)
-        elif self.particle_shape==3:
-            return interp_b3(E, zp, dz, yp, dy, xp, dx)
-
+        return interp_particles(self.particle_shape, E, zp, dz, yp, dy, xp, dx)
     
     def calc_E_at_points(self):
         zp, yp, xp = self.zp, self.yp, self.xp

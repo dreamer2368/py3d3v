@@ -110,6 +110,35 @@ def weight_b3(double[:,:,:] grid,
     weight_b3_par(nz, ny, nx, &gd[0,0,0],
                   N, &zd[0], dz, &yd[0], dy, &xd[0], dx, &qd[0])
 
+def interp_particles(int particle_shape,
+                     double[:,:,:] vals,
+                     double[:] z, double dz,
+                     double[:] y, double dy, 
+                     double[:] x, double dx):
+
+    if particle_shape==2:
+        return interp_cic(vals, z, dz, y, dy, x, dx)
+    elif particle_shape==3:
+        return interp_b3(vals, z, dz, y, dy, x, dx)
+    else:
+        raise ValueError("Invalid Particle Shape: %i"%(particle_shape,))
+
+
+def weight_particles(int particle_shape,
+                     double[:,:,:] grid,
+                     double[:] z, double dz,
+                     double[:] y, double dy,
+                     double[:] x, double dx,
+                     double[:] q,
+                     double    rho0=0.):
+
+    if particle_shape==2:
+        weight_cic(grid, z, dz, y, dy, x, dx, q)
+    elif particle_shape==3:
+        weight_b3(grid, z, dz, y, dy, x, dx, q)
+    else:
+        raise ValueError("Invalid Particle Shape: %i"%(particle_shape,))
+
     
 def weight_cic_1d(double[:] grid,
                   double[:] x, double dx,
