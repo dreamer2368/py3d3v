@@ -407,7 +407,8 @@ void build_inf_lr_optim_par(double* inf_vals,
 							double* kz, int nkz, double dz,		
 							double* ky, int nky, double dy,
 							double* kx, int nkx, double dx,
-							double beta, int m_max, int diff_order)
+							double beta, int m_max, int diff_order,
+							int particle_shape)
 {
 
 	T screen(beta);
@@ -502,7 +503,7 @@ void build_inf_lr_optim_par(double* inf_vals,
 								
 									kxim = kxi+k*msx;
 									Uk = Ukzim*Ukyim*difh(kxim, dx);
-									Uk = Uk*Uk*Uk*Uk;
+									Uk = pow(Uk, 2+particle_shape);
 									Usum += Uk;
 
 									k2p = kzim2+kyim2+kxim*kxim;
@@ -537,12 +538,14 @@ void build_inf_lr_gaussian_optim_par(double* inf_vals,
 									 double* kz, int nkz, double dz,		
 									 double* ky, int nky, double dy,
 									 double* kx, int nkx, double dx,
-									 double beta, int m_max, int diff_order)
+									 double beta, int m_max, int diff_order,
+									 int particle_shape)
 {
 
 	build_inf_lr_optim_par<Gaussian>(inf_vals, kz, nkz, dz,		
 									 ky, nky, dy, kx, nkx, dx,
-									 beta, m_max, diff_order);
+									 beta, m_max, diff_order,
+									 particle_shape);
 	
 }
 
@@ -550,11 +553,13 @@ void build_inf_lr_s2_optim_par(double* inf_vals,
 							   double* kz, int nkz, double dz,		
 							   double* ky, int nky, double dy,
 							   double* kx, int nkx, double dx,
-							   double beta, int m_max, int diff_order)
+							   double beta, int m_max, int diff_order,
+							   int particle_shape)
 {
 
 	build_inf_lr_optim_par<S2>(inf_vals, kz, nkz, dz,		
 							   ky, nky, dy, kx, nkx, dx,
-							   beta, m_max, diff_order);
+							   beta, m_max, diff_order,
+							   particle_shape);
 	
 }

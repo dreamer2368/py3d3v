@@ -111,7 +111,7 @@ class Landau3D(object):
                 self.rr[i] = self.calc_rr()
 
 def dispersion_calc(ntc, nx0, Nx0, mode, solver=None):
-    
+
     l3d = Landau3D(save_rr=True, nt=ntc, mode=mode,
                    grid_dims=(nx0,nx0,nx0),
                    part_dims=(Nx0,Nx0,Nx0))

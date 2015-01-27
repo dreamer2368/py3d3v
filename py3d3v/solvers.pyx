@@ -29,13 +29,15 @@ cdef extern from "par_solvers.hpp":
                                          double* kz, int nkz, double dz,		
                                          double* ky, int nky, double dy,
                                          double* kx, int nkx, double dx,
-                                         double beta, int m_max, int diff_order)
+                                         double beta, int m_max, int diff_order,
+                                         int particle_shape)
 
     void build_inf_lr_s2_optim_par(double* k2_vals,
                                    double* kz, int nkz, double dz,		
                                    double* ky, int nky, double dy,
                                    double* kx, int nkx, double dx,
-                                   double beta, int m_max, int diff_order)
+                                   double beta, int m_max, int diff_order,
+                                   int particle_shape)
 
 
         
@@ -192,7 +194,9 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
 cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                   int ny, double dy,
                                   int nx, double dx,
-                                  double beta, int m_max, int diff_order):
+                                  double beta, int m_max,
+                                  int diff_order,
+                                  int particle_shape):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -207,7 +211,8 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                     &kz[0], nkz, dz,		
                                     &ky[0], nky, dy,
                                     &kx[0], nkx, dx,
-                                    beta, m_max, diff_order)
+                                    beta, m_max, diff_order,
+                                    particle_shape)
 
 
     return k2_vals
@@ -215,7 +220,9 @@ cpdef build_inf_lr_gaussian_optim(int nz, double dz,
 cpdef build_inf_lr_s2_optim(int nz, double dz,
                             int ny, double dy,
                             int nx, double dx,
-                            double beta, int m_max, int diff_order):
+                            double beta, int m_max,
+                            int diff_order,
+                            int particle_shape):
 
     cdef double[:] kz = get_k_vals(nz, dz)
     cdef double[:] ky = get_k_vals(ny, dy)
@@ -230,7 +237,8 @@ cpdef build_inf_lr_s2_optim(int nz, double dz,
                               &kz[0], nkz, dz,		
                               &ky[0], nky, dy,
                               &kx[0], nkx, dx,
-                              beta, m_max, diff_order)
+                              beta, m_max, diff_order,
+                              particle_shape)
 
 
     return k2_vals
@@ -248,17 +256,19 @@ class GaussianScreen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta, optimized=True, diff_order=None, m_max=2):
+                           double beta, optimized=True, diff_order=None, m_max=2,
+                           particle_shape=2):
 
         args = (nz, dz, ny, dy, nx, dx, beta,
-                optimized, m_max, diff_order)
+                optimized, m_max, diff_order, particle_shape)
         if args == GaussianScreen.last_args:
             return GaussianScreen.last
         
         GaussianScreen.last_args = args
         if optimized:
             inf = build_inf_lr_gaussian_optim(nz, dz, ny, dy, nx, dx, beta,
-                                              m_max, diff_order)
+                                              m_max, diff_order,
+                                              particle_shape)
         else:
             inf = build_k2_lr_gaussian(nz, dz, ny, dy, nx, dx, beta)
 
@@ -291,17 +301,19 @@ class S2Screen(Screen):
     def influence_function(int nz, double dz,
                            int ny, double dy,
                            int nx, double dx,
-                           double beta, optimized=True, diff_order=None, m_max=2):
+                           double beta, optimized=True, diff_order=None, m_max=2,
+                           particle_shape=2):
 
         args = (nz, dz, ny, dy, nx, dx, beta,
-                optimized, m_max, diff_order)
+                optimized, m_max, diff_order, particle_shape)
         if args == S2Screen.last_args:
             return S2Screen.last
         
         S2Screen.last_args = args
         if optimized:
             inf = build_inf_lr_s2_optim(nz, dz, ny, dy, nx, dx,
-                                        beta, m_max, diff_order)
+                                        beta, m_max, diff_order,
+                                        particle_shape)
         else:
             inf = build_k2_lr_s2(nz, dz, ny, dy, nx, dx, beta)
 
@@ -353,12 +365,14 @@ class Poisson3DFFTLR(object):
     
     def __init__(self, nz, dz, ny, dy, nx, dx, beta,
                  screen=GaussianScreen,
-                 diff_type="fd"):
+                 diff_type="fd",
+                 particle_shape=2):
         
         self.nz = nz; self.dz = dz
         self.ny = ny; self.dy = dy
         self.nx = nx; self.dx = dx
         self.beta = beta
+        self.particle_shape = particle_shape
 
         if diff_type=="fd":
             self.diff_func = self.diff_fd
@@ -381,7 +395,9 @@ class Poisson3DFFTLR(object):
             self.screen = screen
             self.screen_options= {}
         self.k2 = self.screen.influence_function(nz, dz, ny, dy,
-                                                 nx, dx, beta, diff_order=self.diff_order,
+                                                 nx, dx, beta,
+                                                 diff_order=self.diff_order,
+                                                 particle_shape=self.particle_shape,
                                                  **self.screen_options)
             
 

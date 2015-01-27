@@ -127,6 +127,16 @@ class PIC3DBase(object):
 
 class PIC3DPM(PIC3DBase):
 
+    def weight(self, grid, zp, dz, yp, dy,
+               xp, dx, q, rho0=0.):
+
+        weight_cic(grid, zp, dz, yp, dy, xp, dx, q)
+
+    def interp(self, E, zp, dz, yp, dy, xp, dx):
+
+        return interp_cic(E, zp, dz, yp, dy, xp, dx)
+
+    
     def calc_E_at_points(self):
         zp, yp, xp = self.zp, self.yp, self.xp
         dz, dy, dx = self.dz, self.dy, self.dx
@@ -134,22 +144,23 @@ class PIC3DPM(PIC3DBase):
         grid = self.grid
 
         # Calculate phi
-        weight_cic(grid, zp, dz, yp, dy, xp, dx, self.q)
+        self.weight(grid, zp, dz, yp, dy, xp, dx, self.q)
         grid[:] = grid*(1./self.V)
         Ez, Ey, Ex = self.solver.solve(grid)
 
         # Calculate E fields at points
-        Ezp = interp_cic(Ez, zp, dz, yp, dy, xp, dx)
-        Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
-        Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
+        Ezp = self.interp(Ez, zp, dz, yp, dy, xp, dx)
+        Eyp = self.interp(Ey, zp, dz, yp, dy, xp, dx)
+        Exp = self.interp(Ex, zp, dz, yp, dy, xp, dx)
         self.Ezp = Ezp
         self.Eyp = Eyp
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, unpack=False):
+    def init_run(self, dt, unpack=False, particle_shape=2):
         if unpack:
             self.unpack()
+        self.particle_shape = particle_shape
         self.solver = Poisson3DFFT(self.nz, self.dz,
                                    self.ny, self.dy,
                                    self.nx, self.dx)
@@ -183,14 +194,14 @@ class PIC3DP3M(PIC3DPM):
         # Calculate long range forces
 
         ## Calculate phi
-        weight_cic(grid, zp, dz, yp, dy, xp, dx, self.q)
+        self.weight(grid, zp, dz, yp, dy, xp, dx, self.q)
         grid[:] = grid*(1./self.V)
         Ez, Ey, Ex = self.solver.solve(grid)
 
         ## Calculate E fields at points
-        Ezp = interp_cic(Ez, zp, dz, yp, dy, xp, dx)
-        Eyp = interp_cic(Ey, zp, dz, yp, dy, xp, dx)
-        Exp = interp_cic(Ex, zp, dz, yp, dy, xp, dx)
+        Ezp = self.interp(Ez, zp, dz, yp, dy, xp, dx)
+        Eyp = self.interp(Ey, zp, dz, yp, dy, xp, dx)
+        Exp = self.interp(Ex, zp, dz, yp, dy, xp, dx)
 
         # Calculate short range forces
         self.screen.calc_E_short_range(Ezp, zp, Lz,
@@ -208,13 +219,15 @@ class PIC3DP3M(PIC3DPM):
     def init_run(self, dt, beta=10, rmax=.2,
                  screen=GaussianScreen,
                  N_cells=None, unpack=False,
-                 solver_opts={}):
+                 solver_opts={},
+                 particle_shape=2):
 
         if unpack:
             self.unpack()
 
         solver_opts["screen"] = screen
         solver_opts["beta"]   = beta
+        solver_opts["particle_shape"] = particle_shape
         self.solver_opts = solver_opts
         self.solver = Poisson3DFFTLR(self.nz, self.dz,
                                      self.ny, self.dy,
