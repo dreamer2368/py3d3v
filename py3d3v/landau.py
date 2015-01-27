@@ -112,9 +112,13 @@ class Landau3D(object):
 
 def dispersion_calc(ntc, nx0, Nx0, mode, solver=None):
 
+    if not hasattr(nx0, "__len__"):
+        nx0 = (nx0, nx0, nx0)
+    if not hasattr(Nx0, "__len__"):
+        Nx0 = (Nx0, Nx0, Nx0)
+
     l3d = Landau3D(save_rr=True, nt=ntc, mode=mode,
-                   grid_dims=(nx0,nx0,nx0),
-                   part_dims=(Nx0,Nx0,Nx0))
+                   grid_dims=nx0, part_dims=Nx0)
     
     if not solver is None:
         l3d.init_run(solver=solver)

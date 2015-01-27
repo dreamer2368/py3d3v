@@ -131,3 +131,19 @@ class TestLangmuirDispersion(unittest.TestCase):
                 l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
 
                 self.assertTrue(np.abs(l3d.omega-wpe)<.1)
+
+    def test_p3m_dispersion_nonsquare(self):
+
+        ntc = 10
+        nx0 = (32, 64, 128)
+        Nx0 = int(64*.5)
+        wpe = 1.
+
+        for screen, beta in [(GaussianScreen, 4.)]:
+            for mode in [10]:
+
+                solver = (PIC3DP3M, {"beta":beta, "rmax":.5, "screen":screen})
+                l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
+
+                self.assertTrue(np.abs(l3d.omega-wpe)<.1)
+                
