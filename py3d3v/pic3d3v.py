@@ -2,7 +2,7 @@
 import numpy as np
 import scipy as np
 from solvers import *
-from interp import weight_cic, interp_cic
+from interp import *
 from core import *
 
 class Species(object):
@@ -37,7 +37,7 @@ class PIC3DBase(object):
 
     def __init__(self, species, dims, steps, B0=0.):
         
-        Lz, Ly, Lx = dims
+        Lz, Ly, Lx = map(float, dims)
         nz, ny, nx = steps
         dz, dy, dx = Lz/nz, Ly/ny, Lx/nx
         V = dz*dy*dx
@@ -130,11 +130,17 @@ class PIC3DPM(PIC3DBase):
     def weight(self, grid, zp, dz, yp, dy,
                xp, dx, q, rho0=0.):
 
-        weight_cic(grid, zp, dz, yp, dy, xp, dx, q)
+        if self.particle_shape==2:
+            weight_cic(grid, zp, dz, yp, dy, xp, dx, q)
+        elif self.particle_shape==3:
+            weight_b3(grid, zp, dz, yp, dy, xp, dx, q)
 
     def interp(self, E, zp, dz, yp, dy, xp, dx):
 
-        return interp_cic(E, zp, dz, yp, dy, xp, dx)
+        if self.particle_shape==2:
+            return interp_cic(E, zp, dz, yp, dy, xp, dx)
+        elif self.particle_shape==3:
+            return interp_b3(E, zp, dz, yp, dy, xp, dx)
 
     
     def calc_E_at_points(self):
@@ -242,6 +248,7 @@ class PIC3DP3M(PIC3DPM):
 
         self.beta = beta
         self.rmax = rmax
+        self.particle_shape = particle_shape        
         self.N_cells = N_cells
         self.cell_vals = np.arange(N_cells**3,  dtype=np.int)
         self.cell_span = np.zeros(N_cells**3+1, dtype=np.int)

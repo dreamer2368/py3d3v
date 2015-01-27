@@ -110,15 +110,18 @@ class Landau3D(object):
             if self.save_rr:
                 self.rr[i] = self.calc_rr()
 
-def dispersion_calc(ntc, nx0, Nx0, mode, solver=None):
+def dispersion_calc(ntc, nx0, Nx0, mode, L=2*np.pi, solver=None):
 
     if not hasattr(nx0, "__len__"):
         nx0 = (nx0, nx0, nx0)
     if not hasattr(Nx0, "__len__"):
         Nx0 = (Nx0, Nx0, Nx0)
+    if  not hasattr(L, "__len__"):
+        L = (L, L, L)
 
     l3d = Landau3D(save_rr=True, nt=ntc, mode=mode,
-                   grid_dims=nx0, part_dims=Nx0)
+                   grid_dims=nx0, part_dims=Nx0,
+                   cube_dims=L)
     
     if not solver is None:
         l3d.init_run(solver=solver)
