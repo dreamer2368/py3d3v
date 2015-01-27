@@ -503,7 +503,7 @@ void build_inf_lr_optim_par(double* inf_vals,
 								
 									kxim = kxi+k*msx;
 									Uk = Ukzim*Ukyim*difh(kxim, dx);
-									Uk = pow(Uk, 2+particle_shape);
+									Uk = pow(Uk, 2*particle_shape);
 									Usum += Uk;
 
 									k2p = kzim2+kyim2+kxim*kxim;
