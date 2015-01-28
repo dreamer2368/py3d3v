@@ -432,8 +432,8 @@ linear (CIC) interpolation.
 Hockney and eastwood derive an optimized influence function
 \begin{equation}
   \hat{G}_{opt}(\v{k}) =
-  \frac{\hat{\v{D}}(\v{k}) \cdot \sum_\v{m} \hat{U}^2(\v{k}+\v{m})\hat{\v{R}}(\v{k}+\v{m})}
-  { |\hat{\v{D}}(\v{k})|^2 \left[\sum_\v{m} \hat{U}^2(\v{k}+\v{m})\right]^2}
+  \frac{\hat{\v{D}}(\v{k}) \cdot \sum_\v{m} \hat{U}^2(\v{k}+\frac{2\pi}{h}\v{m})\hat{\v{R}}(\v{k}+\frac{2\pi}{h}\v{m})}
+  { |\hat{\v{D}}(\v{k})|^2 \left[\sum_\v{m} \hat{U}^2(\v{k}+\frac{2\pi}{h}\v{m})\right]^2}
 \end{equation}
 where
 \begin{align}
