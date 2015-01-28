@@ -127,7 +127,8 @@ class TestLangmuirDispersion(unittest.TestCase):
         for screen, beta in [(GaussianScreen, 4.), (S2Screen, 1.)]:
             for mode in [1, 5, 10]:
 
-                solver = (PIC3DP3M, {"beta":beta, "rmax":.5, "screen":screen})
+                solver = (PIC3DP3M, {"beta":beta, "rmax":.5,
+                                     "solver_opts":{"screen":screen}})
                 l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
 
                 self.assertTrue(np.abs(l3d.omega-wpe)<.1)
@@ -142,7 +143,8 @@ class TestLangmuirDispersion(unittest.TestCase):
         for screen, beta in [(GaussianScreen, 4.)]:
             for mode in [10]:
 
-                solver = (PIC3DP3M, {"beta":beta, "rmax":.5, "screen":screen})
+                solver = (PIC3DP3M, {"beta":beta, "rmax":.5,
+                                     "solver_opts":{"screen":screen}})
                 l3d = dispersion_calc(ntc, nx0, Nx0, mode, solver=solver)
 
                 self.assertTrue(np.abs(l3d.omega-wpe)<.1)

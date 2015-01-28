@@ -216,7 +216,6 @@ class PIC3DP3M(PIC3DPM):
         return (Ezp, Eyp, Exp)
 
     def init_run(self, dt, beta=10, rmax=.2,
-                 screen=GaussianScreen,
                  N_cells=None, unpack=False,
                  solver_opts={},
                  particle_shape=2):
@@ -224,7 +223,6 @@ class PIC3DP3M(PIC3DPM):
         if unpack:
             self.unpack()
 
-        solver_opts["screen"] = screen
         solver_opts["beta"]   = beta
         solver_opts["particle_shape"] = particle_shape
         self.solver_opts = solver_opts
