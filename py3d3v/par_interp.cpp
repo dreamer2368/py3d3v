@@ -154,7 +154,7 @@ public:
 };
 
 
-struct InterpB3: public Interp
+struct InterpP3: public Interp
 {
 
 private:
@@ -186,7 +186,7 @@ private:
 
 public:
 
-	InterpB3(int nz_, int ny_, int nx_):
+	InterpP3(int nz_, int ny_, int nx_):
 		Interp(nz_, ny_, nx_, 3)
 	{
 	}
@@ -203,7 +203,7 @@ int roll(int z, int n)
 
 }
 
-struct InterpB4: public Interp
+struct InterpP4: public Interp
 {
 
 private:
@@ -235,7 +235,7 @@ private:
 
 public:
 
-	InterpB4(int nz_, int ny_, int nx_):
+	InterpP4(int nz_, int ny_, int nx_):
 		Interp(nz_, ny_, nx_, 4)
 	{
 	}
@@ -243,7 +243,7 @@ public:
 };
 
 
-struct InterpB5: public Interp
+struct InterpP5: public Interp
 {
 
 private:
@@ -279,7 +279,7 @@ private:
 
 public:
 
-	InterpB5(int nz_, int ny_, int nx_):
+	InterpP5(int nz_, int ny_, int nx_):
 		Interp(nz_, ny_, nx_, 5)
 	{
 	}
@@ -339,13 +339,13 @@ void interp_par(const int nz, const int ny, const int nx, const double *vals,
 		interp_cic_par(nz, ny, nx, vals, N, z, dz,
 					   y, dy, x, dx, c);
 	else if(P==3)
-		interp_par<InterpB3>(nz, ny, nx, vals, N, z, dz,
+		interp_par<InterpP3>(nz, ny, nx, vals, N, z, dz,
 							 y, dy, x, dx, c);
 	else if(P==4)
-		interp_par<InterpB4>(nz, ny, nx, vals, N, z, dz,
+		interp_par<InterpP4>(nz, ny, nx, vals, N, z, dz,
 							 y, dy, x, dx, c);
 	else if(P==5)
-		interp_par<InterpB5>(nz, ny, nx, vals, N, z, dz,
+		interp_par<InterpP5>(nz, ny, nx, vals, N, z, dz,
 							 y, dy, x, dx, c);
 
 }
@@ -404,13 +404,13 @@ void weight_par(const int nz, const int ny, const int nx, double *grid,
 		weight_cic_par(nz, ny, nx, grid, N, z, dz, y, dy,
 					   x, dx, q);
 	else if(P==3)
-		weight_par<InterpB3>(nz, ny, nx, grid, N, z, dz, y, dy,
+		weight_par<InterpP3>(nz, ny, nx, grid, N, z, dz, y, dy,
 							 x, dx, q);
 	else if(P==4)
-		weight_par<InterpB4>(nz, ny, nx, grid, N, z, dz, y, dy,
+		weight_par<InterpP4>(nz, ny, nx, grid, N, z, dz, y, dy,
 							 x, dx, q);
 	else if(P==5)
-		weight_par<InterpB5>(nz, ny, nx, grid, N, z, dz, y, dy,
+		weight_par<InterpP5>(nz, ny, nx, grid, N, z, dz, y, dy,
 							 x, dx, q);
 	// Add exceptions here		
 
