@@ -291,8 +291,10 @@ void interp_par(const int nz, const int ny, const int nx, const double *vals,
 				const double *y, const double dy,
 				const double *x, const double dx, double *c, const int P)
 {
-
-	if(P==3)
+	if(P==2)
+		interp_cic_par(nz, ny, nx, vals, N, z, dz,
+					   y, dy, x, dx, c);
+	else if(P==3)
 		interp_par<InterpB3>(nz, ny, nx, vals, N, z, dz,
 							 y, dy, x, dx, c);
 	else if(P==4)
@@ -351,10 +353,13 @@ void weight_par(const int nz, const int ny, const int nx, double *grid,
 				const double *x, const double dx, const double *q, const int P)
 {
 
-	if(P==3)
+	if(P==2)
+		weight_cic_par(nz, ny, nx, grid, N, z, dz, y, dy,
+					   x, dx, q);
+	else if(P==3)
 		weight_par<InterpB3>(nz, ny, nx, grid, N, z, dz, y, dy,
 							 x, dx, q);
-	if(P==4)
+	else if(P==4)
 		weight_par<InterpB4>(nz, ny, nx, grid, N, z, dz, y, dy,
 							 x, dx, q);
 	// Add exceptions here		
