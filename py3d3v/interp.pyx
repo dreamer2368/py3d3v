@@ -16,15 +16,15 @@ cdef extern from "par_interp.hpp":
                         const int N, const double *z, const double dz, const double *y, const double dy,
                         const double *x, const double dx, const double *q)
 
-    void interp_b3_par(const int nz, const int ny, const int nx, const double *vals,
-                       const int N, const double *z, const double dz,
-                       const double *y, const double dy,
-                       const double *x, const double dx, double *c)
+    void weight_par(const int nz, const int ny, const int nx, double *grid,
+                    const int N, const double *z, const double dz, const double *y, const double dy,
+                    const double *x, const double dx, const double *q, const int P)
 
-    void weight_b3_par(const int nz, const int ny, const int nx, double *grid,
-                       const int N, const double *z, const double dz, const double *y, const double dy,
-                       const double *x, const double dx, const double *q)
-
+    void interp_par(const int nz, const int ny, const int nx, const double *vals,
+                    const int N, const double *z, const double dz,
+                    const double *y, const double dy,
+                    const double *x, const double dx, double *c, const int P)
+    
 
         
 def interp_cic(double[:,:,:] vals,
@@ -84,8 +84,8 @@ def interp_b3(double[:,:,:] vals,
     cdef double[:]     xd = np.ascontiguousarray(x)
     cdef double[:]     cd = np.ascontiguousarray(c)
 
-    interp_b3_par(nz, ny, nx, &vd[0,0,0],
-                  N, &zd[0], dz, &yd[0], dy, &x[0], dx, &cd[0])
+    interp_par(nz, ny, nx, &vd[0,0,0],
+               N, &zd[0], dz, &yd[0], dy, &x[0], dx, &cd[0], 3)
 
     return c
 
@@ -107,8 +107,8 @@ def weight_b3(double[:,:,:] grid,
     cdef double[:]     xd = np.ascontiguousarray(x)
     cdef double[:]     qd = np.ascontiguousarray(q)
 
-    weight_b3_par(nz, ny, nx, &gd[0,0,0],
-                  N, &zd[0], dz, &yd[0], dy, &xd[0], dx, &qd[0])
+    weight_par(nz, ny, nx, &gd[0,0,0],
+               N, &zd[0], dz, &yd[0], dy, &xd[0], dx, &qd[0], 3)
 
 def interp_particles(int particle_shape,
                      double[:,:,:] vals,
