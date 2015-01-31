@@ -132,10 +132,13 @@ public:
 	std::vector<int>    yind;
 	std::vector<int>    xind;
 
-	Interp(int nz_, int ny_, int nx_, int P):
+	const int P;
+
+	Interp(int nz_, int ny_, int nx_, int P_):
 		nz(nz_), ny(ny_), nx(nx_),
-		Wz(P, 0), Wy(P, 0), Wx(P, 0),
-		zind(P, 0), yind(P, 0), xind(P, 0)
+		Wz(P_, 0), Wy(P_, 0), Wx(P_, 0),
+		zind(P_, 0), yind(P_, 0), xind(P_, 0),
+		P(P_)
 	{
 	}
 
@@ -190,11 +193,11 @@ public:
 
 };
 
-
-void interp_b3_par(const int nz, const int ny, const int nx, const double *vals,
-				   const int N, const double *z, const double dz,
-				   const double *y, const double dy,
-				   const double *x, const double dx, double *c)
+template<typename T>
+void interp_par(const int nz, const int ny, const int nx, const double *vals,
+				const int N, const double *z, const double dz,
+				const double *y, const double dy,
+				const double *x, const double dx, double *c)
 {
 
 #pragma omp parallel
@@ -204,7 +207,8 @@ void interp_b3_par(const int nz, const int ny, const int nx, const double *vals,
 		double tmp;
 		const int zoff = nx*ny;
 
-		InterpB3 interp(nz, ny, nx);
+		T interp(nz, ny, nx);
+		const int P = interp.P;
 
 #pragma omp for
 		for(int i=0; i<N; i++)
@@ -217,11 +221,11 @@ void interp_b3_par(const int nz, const int ny, const int nx, const double *vals,
 			interp.interp(zis, yis, xis);
 
 			c[i] = 0;
-			for(int iz=0; iz<3; iz++)
-				for(int iy=0; iy<3; iy++)
+			for(int iz=0; iz<P; iz++)
+				for(int iy=0; iy<P; iy++)
 				{
 					tmp = interp.Wz[iz]*interp.Wy[iy];
-					for(int ix=0; ix<3; ix++)
+					for(int ix=0; ix<P; ix++)
 						c[i] += interp.Wx[ix]*tmp*vals[interp.zind[iz]*zoff
 													   +interp.yind[iy]*nx
 													   +interp.xind[ix]];
@@ -231,9 +235,23 @@ void interp_b3_par(const int nz, const int ny, const int nx, const double *vals,
 	}
 }
 
-void weight_b3_par(const int nz, const int ny, const int nx, double *grid,
-				   const int N, const double *z, const double dz, const double *y, const double dy,
-				   const double *x, const double dx, const double *q)
+
+void interp_b3_par(const int nz, const int ny, const int nx, const double *vals,
+				   const int N, const double *z, const double dz,
+				   const double *y, const double dy,
+				   const double *x, const double dx, double *c)
+{
+
+	interp_par<InterpB3>(nz, ny, nx, vals, N, z, dz,
+						 y, dy, x, dx, c);
+
+}
+
+
+template<typename T>
+void weight_par(const int nz, const int ny, const int nx, double *grid,
+				const int N, const double *z, const double dz, const double *y, const double dy,
+				const double *x, const double dx, const double *q)
 {
 	
 #pragma omp parallel
@@ -243,7 +261,8 @@ void weight_b3_par(const int nz, const int ny, const int nx, double *grid,
 		double tmp, qi;
 		const int zoff = nx*ny;
 
-		InterpB3 interp(nz, ny, nx);
+		T interp(nz, ny, nx);
+		const int P = interp.P;
 
 #pragma omp for
 		for(int i=0; i<N; i++)
@@ -256,11 +275,11 @@ void weight_b3_par(const int nz, const int ny, const int nx, double *grid,
 			interp.interp(zis, yis, xis);
 
 			qi = q[i];
-			for(int iz=0; iz<3; iz++)
-				for(int iy=0; iy<3; iy++)
+			for(int iz=0; iz<P; iz++)
+				for(int iy=0; iy<P; iy++)
 				{
 					tmp = qi*interp.Wz[iz]*interp.Wy[iy];
-					for(int ix=0; ix<3; ix++)
+					for(int ix=0; ix<P; ix++)
 #pragma omp atomic
 						grid[interp.zind[iz]*zoff
 							 +interp.yind[iy]*nx
@@ -269,5 +288,16 @@ void weight_b3_par(const int nz, const int ny, const int nx, double *grid,
 
 		}
 	}
+
+}		
+
+
+void weight_b3_par(const int nz, const int ny, const int nx, double *grid,
+				   const int N, const double *z, const double dz, const double *y, const double dy,
+				   const double *x, const double dx, const double *q)
+{
+
+	weight_par<InterpB3>(nz, ny, nx, grid, N, z, dz, y, dy,
+						 x, dx, q);
 
 }		
