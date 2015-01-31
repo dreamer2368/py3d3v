@@ -193,6 +193,56 @@ public:
 
 };
 
+int roll(int z, int n)
+{
+
+	if(z<0)
+		return n+z;
+	else
+		return z%n;
+
+}
+
+struct InterpB4: public Interp
+{
+
+private:
+
+	int ll, l, r, rr;
+	double x;
+
+	void interp_dim(std::vector<double>& W,
+					std::vector<int>& inds,
+					const int n,
+					const double z)
+	{
+
+		l  = roll(floor(z), n);
+		ll = roll(l-1, n);
+		r  = roll(l+1, n);
+		rr = roll(r+1, n);
+
+		inds[0]=ll; inds[1]=l;
+		inds[2]=r;  inds[3]=rr;
+
+		x = z-(floor(z)+.5);
+		W[0] = (1+x*(-6+x*(12-8*x)))/48.;
+		W[1] = (23+x*(-30+x*(-12+24*x)))/48.;
+		W[2] = (23+x*(30+x*(-12-24*x)))/48.;
+		W[3] = (1+x*(6+x*(12+8*x)))/48.;
+
+	}
+
+public:
+
+	InterpB4(int nz_, int ny_, int nx_):
+		Interp(nz_, ny_, nx_, 4)
+	{
+	}
+
+};
+
+
 template<typename T>
 void interp_par(const int nz, const int ny, const int nx, const double *vals,
 				const int N, const double *z, const double dz,
@@ -244,6 +294,9 @@ void interp_par(const int nz, const int ny, const int nx, const double *vals,
 
 	if(P==3)
 		interp_par<InterpB3>(nz, ny, nx, vals, N, z, dz,
+							 y, dy, x, dx, c);
+	else if(P==4)
+		interp_par<InterpB4>(nz, ny, nx, vals, N, z, dz,
 							 y, dy, x, dx, c);
 
 }
@@ -300,6 +353,9 @@ void weight_par(const int nz, const int ny, const int nx, double *grid,
 
 	if(P==3)
 		weight_par<InterpB3>(nz, ny, nx, grid, N, z, dz, y, dy,
+							 x, dx, q);
+	if(P==4)
+		weight_par<InterpB4>(nz, ny, nx, grid, N, z, dz, y, dy,
 							 x, dx, q);
 	// Add exceptions here		
 
