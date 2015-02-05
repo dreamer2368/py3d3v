@@ -1,6 +1,7 @@
 #+TITLE:  3d3v Electrostatic PIC Code
 #+AUTHOR: Scott High
 #+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
 #+LATEX_HEADER: \usepackage[margin=1in]{geometry}
 #+LATEX_HEADER: \newcommand{\pd}[2]{\frac{\partial #1}{ \partial #2}}
 #+LATEX_HEADER: \renewcommand{\v}[1]{\bold{#1}}
@@ -432,8 +433,8 @@ linear (CIC) interpolation.
 Hockney and eastwood derive an optimized influence function
 \begin{equation}
   \hat{G}_{opt}(\v{k}) =
-  \frac{\hat{\v{D}}(\v{k}) \cdot \sum_\v{m} \hat{U}^2(\v{k}+\frac{2\pi}{h}\v{m})\hat{\v{R}}(\v{k}+\frac{2\pi}{h}\v{m})}
-  { |\hat{\v{D}}(\v{k})|^2 \left[\sum_\v{m} \hat{U}^2(\v{k}+\frac{2\pi}{h}\v{m})\right]^2}
+  \frac{\hat{\v{D}}(\v{k}) \cdot \sum_{\v{m}\in\mathbb{Z}} \hat{U}^2(\v{k}+\frac{2\pi}{h}\v{m})\hat{\v{R}}(\v{k}+\frac{2\pi}{h}\v{m})}
+  { |\hat{\v{D}}(\v{k})|^2 \left[\sum_{\v{m}\in\mathbb{Z}} \hat{U}^2(\v{k}+\frac{2\pi}{h}\v{m})\right]^2}
 \end{equation}
 where
 \begin{align}
@@ -442,9 +443,12 @@ where
                            \frac{\sin \frac{k_y dy}{2} }{\frac{k_y dy}{2}}
                            \frac{\sin \frac{k_z dz}{2} }{\frac{k_z dz}{2}}
                            \right)^{p+1} \\
-  \hat{D}_j &= i\frac{\sin k_j dx}{dx}
+  \hat{D}_j &=
+  \begin{cases}
+  i\frac{\sin k_j dx}{dx} &\text{ for finite differences.}\\
+  i\v{k} &\text{ for spectral integration.}
+  \end{cases}
 \end{align}
-
 
 ** Algorithm
 The P3M algorithm can be expressed compactly as follows:
