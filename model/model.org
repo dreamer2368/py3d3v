@@ -396,7 +396,7 @@ on a uniform mesh is defined as
 \[ \hat{\rho}(\v{k}) = \sum_p \rho(\v{x}_p) e^{-i \v{k}\cdot\v{x}_p} \]
 where the summation is over all mesh points $\v{x}_p$. The $i^\text{th}$
 component of $\v{k}$ can take the values
-$k_i \in \left\{ \frac{2\pi}{L_i}, 2\frac{2\pi}{L_i},
+$k_i \in \left\{ 0, \frac{2\pi}{L_i}, 2\frac{2\pi}{L_i},
 \ldots, \frac{N_i}{2} \frac{2\pi}{L_i} \right\}$
 where $N_i$ and $L_i$ are the number of grid points and length
 of the $i^\text{th}$ dimension.
