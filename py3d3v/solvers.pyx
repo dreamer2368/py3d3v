@@ -89,6 +89,50 @@ cpdef build_k2(int nz, double dz,
     return 1.0/k2_vals
 
 
+cpdef build_k2_lpb(int nz, double dz,
+                   int ny, double dy,
+                   int nx, double dx,
+                   double alpha):
+    """k2 for CIC weighting linearized poisson-boltzmann
+    """
+    cdef np.ndarray kz = get_k_vals(nz, dz)
+    cdef np.ndarray ky = get_k_vals(ny, dy)
+    cdef np.ndarray kx = get_k_vals(nx, dx)
+
+    # cdef np.ndarray skz2 = np.sin(kz*dz/2.)**2
+    # cdef np.ndarray sky2 = np.sin(ky*dy/2.)**2
+    # cdef np.ndarray skx2 = np.sin(kx*dx/2.)**2
+    # cdef double skz2i, skzy2i
+    # skz2[1:] = skz2[1:]/(kz[1:]*dz/2.)**2
+    # skz2[0] = 1.
+    # sky2[1:] = sky2[1:]/(ky[1:]*dy/2.)**2
+    # sky2[0] = 1.
+    # skx2[1:] = skx2[1:]/(kx[1:]*dx/2.)**2
+    # skx2[0] = 1.
+    
+    cdef np.ndarray kz2 = (kz)**2
+    cdef np.ndarray ky2 = (ky)**2
+    cdef np.ndarray kx2 = (kx)**2
+    cdef double kz2i, ky2i
+
+    cdef int nkz, nky, nkx
+    cdef int iz, iy, ix
+    
+    nkz, nky, nkx = len(kz2), len(ky2), len(kx2)
+    cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
+    for iz in range(nkz):
+        kz2i = kz2[iz]
+        for iy in range(nky):
+            ky2i = ky2[iy]
+            for ix in range(nkx):
+                k2_vals[iz,iy,ix] = (kz2i+ky2i+kx2[ix]+alpha)
+
+    # Avoid a divide by zero            
+    k2_vals[0,0,0] = 1.
+
+    return 1.0/k2_vals
+
+
 cpdef build_k2_lr_s2(int nz, double dz,
                      int ny, double dy,
                      int nx, double dx,
@@ -361,6 +405,16 @@ class Poisson3DFFT(object):
     def __call__(self, rho):
         return self.solve(rho)
 
+class Poisson3DFFTLPB(Poisson3DFFT):
+    
+    def __init__(self, nz, dz, ny, dy, nx, dx, alpha):
+        
+        self.nz = nz; self.dz = dz
+        self.ny = ny; self.dy = dy
+        self.nx = nx; self.dx = dx
+        self.alpha = alpha
+        self.k2 = build_k2_lpb(nz, dz, ny, dy, nx, dx, alpha)
+        
 class Poisson3DFFTLR(object):
     
     def __init__(self, nz, dz, ny, dy, nx, dx, beta,
