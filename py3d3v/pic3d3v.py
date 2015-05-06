@@ -156,13 +156,17 @@ class PIC3DPM(PIC3DBase):
         self.Exp = Exp
         return (Ezp, Eyp, Exp)
 
-    def init_run(self, dt, unpack=False, particle_shape=2):
+    def init_run(self, dt, unpack=False, particle_shape=2,
+                 solver=Poisson3DFFT, solver_opts={}):
         if unpack:
             self.unpack()
         self.particle_shape = particle_shape
-        self.solver = Poisson3DFFT(self.nz, self.dz,
-                                   self.ny, self.dy,
-                                   self.nx, self.dx)
+
+        self.solver = solver(self.nz, self.dz,
+                             self.ny, self.dy,
+                             self.nx, self.dx,
+                             **solver_opts)
+
         self.grid = np.zeros((self.nz, self.ny, self.nx))
 
         Ezp, Eyp, Exp = self.calc_E_at_points()
