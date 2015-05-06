@@ -86,7 +86,7 @@ cpdef build_k2(int nz, double dz,
     # Avoid a divide by zero            
     k2_vals[0,0,0] = 1.
 
-    return k2_vals
+    return 1.0/k2_vals
 
 
 cpdef build_k2_lr_s2(int nz, double dz,
@@ -349,7 +349,7 @@ class Poisson3DFFT(object):
     def solve(self, rho):
         
         rhok = np.fft.fftn(rho)
-        phik = rhok/self.k2
+        phik = rhok*self.k2
         phik[0,0,0] = 0.
         phi = np.real(np.fft.ifftn(phik))
         Ez  = calc_Ez(phi, self.dz) 
