@@ -234,6 +234,56 @@ cpdef build_k2_lr_gaussian(int nz, double dz,
 
     return k2_vals
 
+cpdef build_k2_lr_gaussian_lpb(int nz, double dz,
+                               int ny, double dy,
+                               int nx, double dx,
+                               double beta, double alpha):
+    """k2 for CIC weighting
+    """
+    cdef np.ndarray kz = get_k_vals(nz, dz)
+    cdef np.ndarray ky = get_k_vals(ny, dy)
+    cdef np.ndarray kx = get_k_vals(nx, dx)
+
+    cdef np.ndarray kz2 = (kz)**2
+    cdef np.ndarray ky2 = (ky)**2
+    cdef np.ndarray kx2 = (kx)**2
+    cdef double kz2i, ky2i
+
+    cdef int nkz, nky, nkx
+    cdef int iz, iy, ix, i, j, k
+
+    cdef double c = 1.
+    cdef double d = -1./beta**2/4.
+    cdef double k2
+    cdef double res, ex
+    cdef double msz, msy, msx
+    msz = 2*np.pi/dz
+    msy = 2*np.pi/dy
+    msx = 2*np.pi/dx
+    cdef double kzi, kyi, kxi
+
+    nkz, nky, nkx = len(kz2), len(ky2), len(kx2)
+    cdef np.ndarray k2_vals = np.zeros((nkz, nky, nkx), dtype=np.double)
+    for iz in range(nkz):
+        kz2i = kz2[iz]
+        kzi  = kz[iz]
+        for iy in range(nky):
+            ky2i = ky2[iy]
+            kyi  = ky[iy]
+            for ix in range(nkx):
+                k2 = (kz2i+ky2i+kx2[ix])
+                kxi = kx[ix]
+                if k2!=0:
+                    res = 0
+                    for i in range(1):#range(-2, 3):
+                        for j in range(1):#range(-2, 3):
+                            for k in range(1):#range(-2, 3):
+                                ex = (kzi+i*msz)**2+(kyi+j*msy)**2+(kxi+k*msx)**2
+                                res += exp(d*ex)/(ex+alpha)
+                    k2_vals[iz,iy,ix] = c*res
+
+    return k2_vals
+    
 
 cpdef build_inf_lr_gaussian_optim(int nz, double dz,
                                   int ny, double dy,
@@ -335,6 +385,48 @@ class GaussianScreen(Screen):
                                             &q[0],
                                             N_cells, &cell_span[0],
                                             rmax, beta)
+
+class GaussianScreenLPB(Screen):
+
+    last_args = ()
+    last      = None
+
+    @staticmethod
+    def influence_function(int nz, double dz,
+                           int ny, double dy,
+                           int nx, double dx,
+                           double beta, optimized=True, diff_order=None, m_max=2,
+                           particle_shape=2, alpha=1.0):
+
+        args = (nz, dz, ny, dy, nx, dx, beta,
+                optimized, m_max, diff_order, particle_shape)
+        if args == GaussianScreenLPB.last_args:
+            return GaussianScreenLPB.last
+        
+        GaussianScreenLPB.last_args = args
+        inf = build_k2_lr_gaussian_lpb(nz, dz, ny, dy, nx, dx, beta,
+                                       alpha)
+
+        GaussianScreenLPB.last = inf
+        return inf
+        
+
+    @staticmethod
+    def calc_E_short_range(double[:] Ezp, double[:] zp, double Lz,
+                           double[:] Eyp, double[:] yp, double Ly,
+                           double[:] Exp, double[:] xp, double Lx,
+                           double[:] q, long N_cells, long[:] cell_span, 
+                           double rmax, double beta):
+        
+            cdef int N = len(zp)
+            calc_E_short_range_par_gaussian(N,
+                                            &Ezp[0], &zp[0], Lz,
+                                            &Eyp[0], &yp[0], Ly,
+                                            &Exp[0], &xp[0], Lx,
+                                            &q[0],
+                                            N_cells, &cell_span[0],
+                                            rmax, beta)
+            
 
 class S2Screen(Screen):
 
